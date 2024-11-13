@@ -10,14 +10,7 @@ const app = express();
 dotenv.config({path:"./config/config.env"});
 
 app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = [process.env.FRONTEND_URL];
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: '*', // Allow all origins temporarily for testing
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
