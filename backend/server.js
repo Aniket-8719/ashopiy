@@ -17,9 +17,10 @@ dotenv.config({path:"./config/config.env"});
 connectDatabase();
 
 // server is running
-const server = app.listen(process.env.PORT, ()=>{
-    console.log(`server is running on http://localhost:${process.env.PORT}`);
-})
+const server = app.listen(process.env.PORT || 5000, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
+});
+  
 
 
 //  Unhandled Promise Rejection --> when you forget something like  "mongodb" =  mongod"
