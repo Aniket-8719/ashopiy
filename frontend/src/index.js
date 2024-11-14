@@ -19,13 +19,13 @@ root.render(
     position="top-right"
     autoClose={3000}
     hideProgressBar={false}
-    newestOnTop={false}
+    newestOnTop={false} 
     closeOnClick
     rtl={false}
     pauseOnFocusLoss
     draggable
     pauseOnHover
-    theme="colored"  
+    theme="light"  
     />
   </Router>
   </Provider>
