@@ -3,6 +3,7 @@ import profileImg from "../assests/profile img.jpg";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { HiOutlineMenu } from "react-icons/hi";
 import Options from "./Options";
+import { Link } from "react-router-dom";
 
 const TopNavbar = ({ setMobileToggle }) => {
   const [showOptions, setShowOptions] = useState(false);
@@ -33,9 +34,9 @@ const TopNavbar = ({ setMobileToggle }) => {
           </div>
 
           {/* Project Name */}
-          <div>
-            <h1 className="text-blue-600 font-bold">Project EX</h1>
-          </div>
+          <Link to={"/"}>
+            <h1 className="text-amber-600 font-bold">ashopiy</h1>
+          </Link>
         </div>
 
         {/* Right side :- profile image or details */}
