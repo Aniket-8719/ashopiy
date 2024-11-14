@@ -18,6 +18,7 @@ import {
   DELETE_TODAY_EARNING_RESET,
   UPDATE_TODAY_EARNING_RESET,
 } from "../../constants/earningConstants";
+import moment from "moment-timezone";
 
 const DailyEarning = () => {
   const columns = [
@@ -108,10 +109,11 @@ const DailyEarning = () => {
 
   // Fetch today's earnings
   useEffect(() => {
-    const today = new Date();
-    const day = today.getDate();
-    const month = today.getMonth() + 1;
-    const year = today.getFullYear();
+    // Get the current date and time in Indian Standard Time (IST)
+    const todayIST = moment.tz("Asia/Kolkata");
+    const day = todayIST.date(); // Get the day of the month in IST
+    const month = todayIST.month() + 1; // Get the month in IST (months are 0-indexed in moment.js)
+    const year = todayIST.year(); // Get the year in IST
 
     dispatch(getTodayEarning(day, month, year));
 

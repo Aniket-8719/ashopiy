@@ -38,16 +38,31 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 export const addTodayEarning = (addData) => async (dispatch) => {
   try {
     dispatch({ type: ADD_TODAY_EARNING_REQUEST });
+
+    // Configuration for the request
     const config = {
-      headers:   {"Content-Type": "application/json"} ,
-      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,  // Ensure credentials like cookies are sent 
     };
 
+    // Making the POST request to add income
     const { data } = await axios.post(`${API_URL}/api/v2/newIncome`, addData, config);
-    dispatch({ type: ADD_TODAY_EARNING_SUCCESS, payload: data.success });
+
+    // Dispatch success action with response data
+    dispatch({
+      type: ADD_TODAY_EARNING_SUCCESS,
+      payload: data.success,
+    });
+
   } catch (error) {
+    // Extract a proper error message
     const errorMessage = error.response?.data?.message || error.message || "Something went wrong";
-    dispatch({ type: ADD_TODAY_EARNING_FAIL, payload: errorMessage });
+
+    // Dispatch failure action with the error message
+    dispatch({
+      type: ADD_TODAY_EARNING_FAIL,
+      payload: errorMessage,
+    });
   }
 };
 

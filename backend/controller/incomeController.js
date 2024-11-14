@@ -3,18 +3,19 @@ const catchAsyncError = require("../middleware/catchAsyncError");
 const DailyIncome = require("../models/dailyRevenue");
 const moment = require("moment-timezone");
 
+
 // Add daily income controller
 exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
   const { dailyIncome, specialDay } = req.body;
 
-  // Check if dailyIncome is valid
-  if (!dailyIncome || isNaN(dailyIncome)) {
+  // Check if dailyIncome is valid and can be converted to a number
+  if (!dailyIncome || isNaN(Number(dailyIncome))) {
     return res
       .status(400)
       .json({ message: "Please provide a valid daily income" });
   }
 
-  // Get the current date and time in the Asia/Kolkata timezone using moment-timezone
+  // Get the current date and time in the Asia/Kolkata timezone
   const indiaDateTime = moment.tz("Asia/Kolkata");
 
   // Create a new income entry
@@ -22,8 +23,8 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
     dailyIncome: Number(dailyIncome), // Ensure it's stored as a number
     time: indiaDateTime.format("HH:mm:ss"), // Save time in 'HH:mm:ss' format
     day: indiaDateTime.format("dddd"), // Day of the week, e.g., "Monday"
-    date: indiaDateTime.toDate(), // Store the Date object
-    specialDay: specialDay || "Normal",
+    date: moment.tz("Asia/Kolkata").toDate(),// Store the Date object
+    specialDay: specialDay || "Normal", // Default to "Normal" if not provided
   });
 
   // Save the entry to the database
@@ -46,7 +47,7 @@ exports.getDailyIncome = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Edit Today income
+// Edit Today Income
 exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
   const income = await DailyIncome.findById(req.params.id);
 
@@ -56,10 +57,12 @@ exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
       message: "Income not found",
     });
   }
-  (income.dailyIncome = req.body.dailyIncome),
-    (income.specialDay = req.body.specialDay),
-    // Save the updated income
-    await income.save();
+
+  income.dailyIncome = req.body.dailyIncome;
+  income.specialDay = req.body.specialDay;
+
+  // Save the updated income
+  await income.save();
 
   res.status(200).json({
     success: true,
@@ -67,7 +70,7 @@ exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Delete Today income
+// Delete Today Income
 exports.deleteTodayIncome = catchAsyncError(async (req, res, next) => {
   const income = await DailyIncome.findById(req.params.id);
 
@@ -77,54 +80,43 @@ exports.deleteTodayIncome = catchAsyncError(async (req, res, next) => {
       message: "Income not found",
     });
   }
+
   await income.deleteOne();
 
   res.status(200).json({
     success: true,
-    message: "Income delete successfully",
+    message: "Income deleted successfully",
   });
 });
 
-// Daily Income Aggregation
+// Daily Income Aggregation (Indian Time)
 exports.perDayIncome = catchAsyncError(async (req, res, next) => {
   const dailyIncome = await DailyIncome.aggregate([
     {
       $group: {
         _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
         totalIncome: { $sum: "$dailyIncome" },
-        specialDay: { $first: "$specialDay" }, // Fetch special day if present
-        customerCount: { $sum: 1 }, // Count the number of customers per day
+        specialDay: { $first: "$specialDay" },
+        customerCount: { $sum: 1 },
       },
     },
-    {
-      $sort: { _id: 1 }, // Sort by day
-    },
+    { $sort: { _id: 1 } },
   ]);
 
-  // Format the results to include date, month, day of the week, and special day information
+  // Format the results with Indian timezone
   const formattedDailyIncome = dailyIncome.map((item) => {
-    const [year, month, day] = item._id.split("-");
-
-    // Create a date object to extract the day of the week and month
-    const dateObj = new Date(`${year}-${month}-${day}`);
-    const formattedDate = [day, month, year].join("/"); // Format date as DD/MM/YYYY
-
-    // Get the day of the week (e.g., Monday, Tuesday, etc.)
-    const dayOfWeek = dateObj.toLocaleString("default", { weekday: "long" });
-
-    // Get the month name (e.g., January, February, etc.)
-    const monthName = dateObj.toLocaleString("default", { month: "long" });
-
-    // Use the special day from DB or return null if none
-    const specialDay = item.specialDay || null; // No need for placeholder '-----'
+    const dateObj = moment.tz(item._id, "Asia/Kolkata"); // Use Indian timezone
+    const formattedDate = dateObj.format("DD/MM/YYYY");
+    const dayOfWeek = dateObj.format("dddd");
+    const monthName = dateObj.format("MMMM");
 
     return {
       date: formattedDate,
       month: monthName,
       day: dayOfWeek,
       totalIncome: item.totalIncome,
-      specialDay: specialDay, // Returns null if no special day is present
-      customerCount: item.customerCount, // Number of customers per day
+      specialDay: item.specialDay || null,
+      customerCount: item.customerCount,
     };
   });
 
@@ -134,95 +126,68 @@ exports.perDayIncome = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// today income 24 hours
-// Get Today's Income Data
+// Today Income 24 Hours (Indian Time)
 exports.todayIncome = catchAsyncError(async (req, res, next) => {
   const { year, month, date } = req.query;
 
   if (!year || !month || month < 1 || month > 12) {
-    return next(
-      new ErrorHandler("Valid year, month and date must be provided", 400)
-    );
+    return next(new ErrorHandler("Valid year, month and date must be provided", 400));
   }
 
-  // Construct the date from the query parameters
-  const queryDate = new Date(`${year}-${month}-${date}`);
+  const queryDate = moment.tz(`${year}-${month}-${date}`, "Asia/Kolkata"); // Use Indian timezone
+  const startOfDay = queryDate.startOf("day").toDate();
+  const endOfDay = queryDate.endOf("day").toDate();
 
-  // Format the queryDate to match the start and end of the day for MongoDB query
-  const startOfDay = moment(queryDate).startOf("day").toDate();
-  const endOfDay = moment(queryDate).endOf("day").toDate();
-
-  // Fetch today's income entries based on date
   const todayIncomeData = await DailyIncome.find({
     date: { $gte: startOfDay, $lte: endOfDay },
   });
 
-  // Calculate total income and format response
   const formattedIncome = todayIncomeData.map((item) => ({
     income: item.dailyIncome,
-    time: new Date(item.date).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    }),
-    specialDay: item.specialDay || "Normal", // Get original special day from the user
-    objectId: item._id, // MongoDB ObjectID for editing
+    time: moment.tz(item.date, "Asia/Kolkata").format("h:mm A"), // Indian time
+    specialDay: item.specialDay || "Normal",
+    objectId: item._id,
   }));
 
   const totalCustomerCount = todayIncomeData.length;
+  const totalIncome = todayIncomeData.reduce((sum, item) => sum + item.dailyIncome, 0);
 
-  // Calculate total income for the day
-  const totalIncome = todayIncomeData.reduce(
-    (sum, item) => sum + item.dailyIncome,
-    0
-  );
-
-  // Determine the latest special day for the entire day's entries
-  let latestSpecialDay = "Normal"; // Default to "Normal"
-  if (todayIncomeData.length > 0) {
-    // Find the latest special day that is not "Normal"
-    const specialDays = todayIncomeData
-      .map((item) => item.specialDay)
-      .filter((day) => day && day !== "Normal");
-
-    // If there are special days other than "Normal", get the latest one
-    if (specialDays.length > 0) {
-      latestSpecialDay = specialDays[specialDays.length - 1]; // Get the latest one
-    }
+  let latestSpecialDay = "Normal";
+  const specialDays = todayIncomeData.map((item) => item.specialDay).filter((day) => day && day !== "Normal");
+  if (specialDays.length > 0) {
+    latestSpecialDay = specialDays[specialDays.length - 1];
   }
 
-  // If there is no data, return a default response
   if (todayIncomeData.length === 0) {
     return res.status(200).json({
       success: true,
-      date: moment(queryDate).format("DD/MM/YYYY"),
-      month: moment(queryDate).format("MMMM"),
-      day: moment(queryDate).format("dddd"),
-      latestSpecialDay: "Normal", // Default when no entries
+      date: queryDate.format("DD/MM/YYYY"),
+      month: queryDate.format("MMMM"),
+      day: queryDate.format("dddd"),
+      latestSpecialDay: "Normal",
       totalCustomerCount: 0,
-      totalIncome: 0, // Include totalIncome in the response
+      totalIncome: 0,
       todayIncome: [],
     });
   }
 
-  // Return the structured response
   res.status(200).json({
     success: true,
-    date: moment(queryDate).format("DD/MM/YYYY"),
-    month: moment(queryDate).format("MMMM"),
-    day: moment(queryDate).format("dddd"),
-    latestSpecialDay: latestSpecialDay, // Latest special day for the day
-    totalCustomerCount: totalCustomerCount,
-    totalIncome: totalIncome, // Add totalIncome to the response
+    date: queryDate.format("DD/MM/YYYY"),
+    month: queryDate.format("MMMM"),
+    day: queryDate.format("dddd"),
+    latestSpecialDay,
+    totalCustomerCount,
+    totalIncome,
     todayIncome: formattedIncome,
   });
-}); 
+});
 
-// Per month data from 1 to 30/31
+// Per Month Data (Indian Time)
+// Per Month Data (Indian Time)
 exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
   const { year, month } = req.query;
 
-  // Ensure year and month are valid integers
   const queryYear = parseInt(year, 10);
   const queryMonth = parseInt(month, 10);
 
@@ -230,68 +195,66 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Valid year and month must be provided", 400));
   }
 
-  // Get the number of days in the specified month and year
-  const daysInMonth = new Date(queryYear, queryMonth, 0).getDate();
+  const daysInMonth = moment.tz({ year: queryYear, month: queryMonth - 1 }, "Asia/Kolkata").daysInMonth();
+  const startDate = moment.tz(`${queryYear}-${queryMonth}-01`, "Asia/Kolkata").startOf("day").toDate();
+  const endDate = moment.tz(`${queryYear}-${queryMonth}-${daysInMonth}`, "Asia/Kolkata").endOf("day").toDate();
 
-  // Define the start and end date based on Asia/Kolkata timezone
-  const startDate = moment
-    .tz(`${queryYear}-${queryMonth}-01`, "Asia/Kolkata")
-    .startOf("day")
-    .toDate(); // Start of the first day of the month
-  const endDate = moment
-    .tz(`${queryYear}-${queryMonth}-${daysInMonth}`, "Asia/Kolkata")
-    .endOf("day")
-    .toDate(); // End of the last day of the month
-
-  // Match documents between the start and end dates
-  const matchQuery = {
-    date: {
-      $gte: startDate,
-      $lte: endDate,
-    },
-  };
-
-  // Aggregate data based on year and month
+  // Aggregate income data with proper timezone handling
   const dailyIncome = await DailyIncome.aggregate([
-    { $match: matchQuery },
+    {
+      $match: {
+        date: { $gte: startDate, $lte: endDate }, // Match records within the correct month range
+      },
+    },
+    {
+      $addFields: {
+        // Convert UTC date to Indian Standard Time (IST)
+        day: {
+          $dayOfMonth: {
+            $dateFromParts: {
+              year: { $year: { date: "$date", timezone: "Asia/Kolkata" } },
+              month: { $month: { date: "$date", timezone: "Asia/Kolkata" } },
+              day: { $dayOfMonth: { date: "$date", timezone: "Asia/Kolkata" } },
+            },
+          },
+        },
+      },
+    },
     {
       $group: {
-        _id: { day: { $dayOfMonth: "$date" } },
-        totalIncome: { $sum: "$dailyIncome" },
-        customerCount: { $sum: 1 },
+        _id: { day: "$day" }, // Group by adjusted day
+        totalIncome: { $sum: "$dailyIncome" }, // Sum income per day
+        customerCount: { $sum: 1 }, // Count entries per day
       },
     },
     { $sort: { "_id.day": 1 } }, // Sort by day
   ]);
 
-  // Create an array with all days of the month
+  console.log("Aggregated Daily Income:", dailyIncome);
+
   const formattedDailyIncome = Array.from({ length: daysInMonth }, (_, idx) => {
     const day = idx + 1;
-
-    // Find data for this specific day from aggregation result
     const foundDay = dailyIncome.find((item) => item._id.day === day);
 
     return {
-      date: new Date(queryYear, queryMonth - 1, day).toLocaleDateString(
-        "en-GB"
-      ), // Format date as DD/MM/YYYY
-      totalIncome: foundDay ? foundDay.totalIncome : 0, // Default to 0 if no data
-      customerCount: foundDay ? foundDay.customerCount : 0, // Default to 0 if no data
+      date: moment.tz({ year: queryYear, month: queryMonth - 1, day }, "Asia/Kolkata").format("DD/MM/YYYY"),
+      totalIncome: foundDay ? foundDay.totalIncome : 0,
+      customerCount: foundDay ? foundDay.customerCount : 0,
     };
   });
 
-  // Return the formatted result
   res.status(200).json({
     success: true,
     perDayIncome: formattedDailyIncome,
   });
 });
 
-// Monthly Income Aggregation
-exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
-  const { year } = req.query; // Expect year from the request query params
 
-  // Validate the year input
+
+// Monthly Income Aggregation (Indian Time)
+exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
+  const { year } = req.query;
+
   if (!year || isNaN(year) || year.length !== 4) {
     return res.status(400).json({
       success: false,
@@ -299,43 +262,24 @@ exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
     });
   }
 
-  // Convert year to a number to handle the date range calculation correctly
   const yearInt = parseInt(year, 10);
 
-  // Aggregate the monthly income data for the specified year
   const monthlyIncome = await DailyIncome.aggregate([
-    {
-      $match: {
-        date: {
-          $gte: new Date(`${yearInt}-01-01`), // Start of the year
-          $lt: new Date(`${yearInt + 1}-01-01`), // Start of the next year
-        },
-      },
-    },
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y-%m", date: "$date" } }, // Group by year and month
-        totalIncome: { $sum: "$dailyIncome" },
-      },
-    },
-    {
-      $sort: { _id: 1 }, // Sort by month
-    },
+    { $match: { date: { $gte: new Date(`${yearInt}-01-01`), $lt: new Date(`${yearInt + 1}-01-01`) } } },
+    { $group: { _id: { $dateToString: { format: "%Y-%m", date: "$date" } }, totalIncome: { $sum: "$dailyIncome" } } },
+    { $sort: { _id: 1 } },
   ]);
 
-  // Initialize an array for all months with zero income
   const allMonths = Array.from({ length: 12 }, (v, i) => ({
-    month: new Date(0, i).toLocaleString("default", { month: "long" }),
+    month: moment.tz({ month: i }, "Asia/Kolkata").format("MMMM"),
     totalIncome: 0,
   }));
 
-  // Map aggregated income data to the allMonths array
   monthlyIncome.forEach((item) => {
-    const [aggYear, aggMonth] = item._id.split("-"); // Extract year and month from _id
-    const monthIndex = parseInt(aggMonth, 10) - 1; // Convert month string to index (0-11)
-
+    const [aggYear, aggMonth] = item._id.split("-");
+    const monthIndex = parseInt(aggMonth, 10) - 1;
     if (monthIndex >= 0 && monthIndex < 12) {
-      allMonths[monthIndex].totalIncome = item.totalIncome; // Set the total income for the corresponding month
+      allMonths[monthIndex].totalIncome = item.totalIncome;
     }
   });
 
@@ -345,21 +289,13 @@ exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Yearly Income Aggregation
+// Yearly Income Aggregation (Indian Time)
 exports.getYearlyIncome = catchAsyncError(async (req, res, next) => {
   const yearlyIncome = await DailyIncome.aggregate([
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y", date: "$date" } },
-        totalIncome: { $sum: "$dailyIncome" },
-      },
-    },
-    {
-      $sort: { _id: 1 }, // Sort by year
-    },
+    { $group: { _id: { $dateToString: { format: "%Y", date: "$date" } }, totalIncome: { $sum: "$dailyIncome" } } },
+    { $sort: { _id: 1 } },
   ]);
 
-  // Format the results for better readability
   const formattedYearlyIncome = yearlyIncome.map((item) => ({
     year: item._id,
     totalIncome: item.totalIncome,

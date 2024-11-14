@@ -10,7 +10,7 @@ const app = express();
 dotenv.config({path:"./config/config.env"});
 
 app.use(cors({
-  origin: '*', // Allow all origins temporarily for testing
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
