@@ -1,10 +1,8 @@
 import axios from "axios";
-import { CLEAR_ERRORS } from "../constants/earningConstants";
 import {
   ADD_INVESTMENT_REQUEST,
   ADD_INVESTMENT_SUCCESS,
   ADD_INVESTMENT_FAIL,
-  ADD_INVESTMENT_RESET,
 
   GET_INVESTMENT_REQUEST,
   GET_INVESTMENT_SUCCESS,

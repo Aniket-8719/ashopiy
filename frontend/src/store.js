@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import {thunk} from "redux-thunk"; 
 import { composeWithDevTools } from "redux-devtools-extension";
-import { addEarningReducer, deleteEarningReducer, deleteORUpdateEarningReducer, earningReducer, monthlyReducer, perDayReducer, yearlyReducer } from "./reducers/earningReducer";
+import { addEarningReducer, deleteORUpdateEarningReducer, earningReducer, monthlyReducer, perDayReducer, yearlyReducer } from "./reducers/earningReducer";
 import { addInvestmentReducer, deleteORUpdateInvestmentReducer, getInvestmentReducer } from "./reducers/investmentReducer";
 
 // Combine reducers

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MdDelete, MdModeEdit, MdOutlineFolderSpecial } from "react-icons/md";
 import { FaIndianRupeeSign } from "react-icons/fa6";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addTodayEarning,

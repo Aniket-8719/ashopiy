@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MdDelete, MdModeEdit, MdOutlineFolderSpecial } from "react-icons/md";
 import { FaIndianRupeeSign } from "react-icons/fa6";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearErrors } from "../../actions/earningAction";
 import MetaData from "../Layouts/MetaData";
@@ -18,6 +17,7 @@ import {
   DELETE_INVESTMENT_RESET,
   UPDATE_INVESTMENT_RESET,
 } from "../../constants/investmentConstants";
+import ExcelJS from "exceljs";
 
 const Investment = () => {
   const columns = [
@@ -155,7 +155,7 @@ const Investment = () => {
       toast.success(message);
       dispatch({ type: DELETE_INVESTMENT_RESET });
     }
-  }, [dispatch, error, isAdded, isUpdated, isDeleted]);
+  }, [dispatch, error, isAdded, isUpdated, isDeleted,deleteError,message]);
 
   // Calculate totals dynamically when rendering (optional)
   const investingMoney = investments?.reduce(
@@ -166,6 +166,80 @@ const Investment = () => {
     (acc, dataKey) => acc + (dataKey?.totalEarnings || 0),
     0
   );
+  
+  const totalProfitLoss = earningMoney - investingMoney;
+  const downloadExcel = () => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Investment Data");
+  
+      // Add header row with bold style
+      const headerRow = worksheet.addRow([
+        "S.R.",
+        "Date",
+        "Day",
+        "Time",
+        "Investment Type",
+        "Investment Amount",
+        "Earning Amount",
+        "Profit/Loss",
+      ]);
+      headerRow.font = { bold: true };
+  
+      // Add the data rows
+      investments.forEach((dataKey, index) => {
+        worksheet.addRow([
+          index + 1,
+          dataKey.investment.date || "N/A",
+          dataKey.investment.day || "N/A",
+          dataKey.investment.time || "N/A",
+          dataKey.investment.typeOfInvestment || "Normal",
+          `Rs.${dataKey.investment.investmentIncome || "0"}`,
+          `Rs.${dataKey.totalEarnings || "0"}`,
+          `Rs.${dataKey.totalEarnings - dataKey.investment.investmentIncome || "0"}`,
+        ]);
+      });
+  
+      // Add subtotal row with bold style
+      const subtotalRow = worksheet.addRow([
+        "Subtotal",
+        "",
+        "",
+        "",
+        "",
+        `Rs.${investingMoney}`,
+        `Rs.${earningMoney}`,
+        `Rs.${totalProfitLoss}`,
+      ]);
+      subtotalRow.font = { bold: true };
+  
+      // Adjust column widths for better visibility
+      worksheet.columns.forEach((col) => {
+        let maxLength = 0;
+        col.eachCell({ includeEmpty: true }, (cell) => {
+          const length = cell.value ? cell.value.toString().length : 0;
+          maxLength = Math.max(maxLength, length);
+        });
+        col.width = maxLength + 2;
+      });
+  
+      // Generate the Excel file and trigger download
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `investment_data.xlsx`);
+        link.click();
+  
+        // Clean up URL to release memory
+        URL.revokeObjectURL(url);
+      });
+    } catch (err) {
+      console.error("Error generating Excel:", err);
+    }
+  };
+  
 
   return (
     <>
@@ -402,6 +476,15 @@ const Investment = () => {
               </tbody>
             </table>
           </div>
+             {/* Download investment */}
+        <div className="mt-4 flex gap-4 justify-end mr-4">
+          <button
+            onClick={downloadExcel}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Download CSV
+          </button>
+        </div>
         </>
       </section>
     </>

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "../Layouts/Loader";
 import { toast } from "react-toastify";
 import { clearErrors, getTodayEarning } from "../../actions/earningAction";
-import * as htmlToImage from "html-to-image";
 import ExcelJS from 'exceljs';
 
 const AllData = () => {
@@ -256,12 +255,6 @@ const AllData = () => {
           >
             Download CSV
           </button>
-          {/* <button
-            // onClick={downloadPDF}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Download PDF
-          </button> */}
         </div>
         </>
       </section>

@@ -13,7 +13,7 @@ import { clearErrors, getPerDayData } from "../../../actions/earningAction";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../Layouts/Loader";
 import { toast } from "react-toastify";
-import * as htmlToImage from "html-to-image";
+import ExcelJS from 'exceljs';
 
 const DayCharts = () => {
   const dispatch = useDispatch();
@@ -40,56 +40,59 @@ const DayCharts = () => {
     dispatch(clearErrors());
   }
 
- // CSV Download Function
-const downloadCSV = () => {
-    try {
-      const csvContent = [
-        ["Date", "Total Income", "Customer Count"],
-        ...data.perDayIncome.map((row) => [row.date, row.totalIncome, row.customerCount]),
-      ]
-        .map((e) => e.join(",")) // Join fields by comma
-        .join("\n"); // Join rows by newline
-  
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+ // Excel Download Function
+const downloadExcel = () => {
+  try {
+    // Ensure data is valid and contains expected values
+    if (!data || !data.perDayIncome || !Array.isArray(data.perDayIncome)) {
+      throw new Error("Invalid data for Excel export.");
+    }
+
+    // Create a new workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Per Day Income Data');
+
+    // Add header row with bold style
+    const headerRow = worksheet.addRow(['Date', 'Total Income', 'Customer Count']);
+    headerRow.font = { bold: true }; // Make the header bold
+
+    // Center align header cells
+    worksheet.columns.forEach((col) => {
+      col.alignment = { horizontal: 'center' };
+    });
+
+    // Add the data rows
+    data.perDayIncome.forEach((row) => {
+      worksheet.addRow([row.date, row.totalIncome, row.customerCount]);
+    });
+
+    // Adjust column widths for better visibility
+    worksheet.columns.forEach((col) => {
+      let maxLength = 0;
+      col.eachCell({ includeEmpty: true }, (cell) => {
+        const length = cell.value ? cell.value.toString().length : 0;
+        maxLength = Math.max(maxLength, length);
+      });
+      col.width = maxLength + 2; // Adding some padding
+    });
+
+    // Generate the Excel file and trigger download
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", `per_day_data_${selectedMonthYear}.csv`);
+      link.setAttribute('download', `per_day_data_${selectedMonthYear}.xlsx`);
       link.click();
-    } catch (err) {
-      console.error("Error generating CSV:", err);
-    } 
-  };
-  
 
-  // PNG Download Function
-  const downloadPNG = () => {
-    if (chartRef.current){
-        htmlToImage.toPng(chartRef.current).then((dataUrl) => {
-            const link = document.createElement("a");
-            link.href = dataUrl;
-            link.setAttribute("download", `per_day_data_${selectedMonthYear}.png`);
-            link.click();
-          }).catch((err) => {
-            console.error("Error generating PNG:", err);
-          });
-    }
-  };
+      // Clean up URL to release memory
+      URL.revokeObjectURL(url);
+    });
+  } catch (err) {
+    console.error("Error generating Excel:", err);
+  }
+};
 
-  // SVG Download Function
-  const downloadSVG = () => {
-    if (chartRef.current){
-        htmlToImage.toSvg(chartRef.current).then((dataUrl) => {
-            const link = document.createElement("a");
-            link.href = dataUrl;
-            link.setAttribute("download", `per_day_data_${selectedMonthYear}.svg`);
-            link.click();
-          }).catch((err) => {
-            console.error("Error generating SVG:", err);
-          });
-    }
-    
-  };
 
   return (
     <>
@@ -128,16 +131,34 @@ const downloadCSV = () => {
           {/* <Bar yAxisId="right" dataKey="customerCount" fill="#82ca9d" background={{ fill: "#eee" }} /> */}
         </BarChart>
       </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height={300}
+      className="sm:w-full md:w-3/4 lg:w-1/2 "
+      ref={chartRef}
+      >
+        <BarChart
+          data={data.perDayIncome} // Ensure this is the correct path to your data
+          margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+          barSize={20}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+          <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+          <Tooltip />
+          <Legend />
+          <Bar yAxisId="left" dataKey="customerCount" fill="#82ca9d" background={{ fill: "#eee" }}/>
+          {/* <Bar yAxisId="right" dataKey="customerCount" fill="#82ca9d" background={{ fill: "#eee" }} /> */}
+        </BarChart>
+      </ResponsiveContainer>
 
-      <div className="flex mt-4 space-x-4 ml-16">
-        <button onClick={downloadCSV} className="btn btn-primary">
+      <div className="flex mt-4 space-x-4 justify-end mx-4 md:mx-8 ">
+        <button onClick={downloadExcel}  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
           Download CSV
-        </button>
-        <button onClick={downloadPNG} className="btn btn-primary">
-          Download PNG
-        </button>
-        <button onClick={downloadSVG} className="btn btn-primary">
-          Download SVG
         </button>
       </div>
     </>
