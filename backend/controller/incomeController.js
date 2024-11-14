@@ -230,8 +230,6 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     { $sort: { "_id.day": 1 } }, // Sort by day
   ]);
 
-  console.log("Aggregated Daily Income:", dailyIncome);
-
   const formattedDailyIncome = Array.from({ length: daysInMonth }, (_, idx) => {
     const day = idx + 1;
     const foundDay = dailyIncome.find((item) => item._id.day === day);
