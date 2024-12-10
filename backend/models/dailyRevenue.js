@@ -17,10 +17,19 @@ const dailyIncomeSchema = new mongoose.Schema({
         type: String,
         required: true
       },
-      specialDay: {
+      earningType: {
+        type: String,
+        default: 'Cash'
+      },
+      latestSpecialDay: {
         type: String,
         default: 'Normal'
-      }
+      },
+      user: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        required: true,
+      },
 })
 
 module.exports = mongoose.model("DailyIncome", dailyIncomeSchema);

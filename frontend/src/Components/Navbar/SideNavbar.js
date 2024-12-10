@@ -12,16 +12,18 @@ import { SiHomeassistantcommunitystore } from "react-icons/si";
 import { IoStatsChartSharp } from "react-icons/io5";
 import { FaChartPie } from "react-icons/fa6";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
-import { IoReceiptSharp } from "react-icons/io5";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
+import { IoReceiptSharp } from "react-icons/io5";
+import { MdManageAccounts } from "react-icons/md";
+import { MdOutlineMenuBook } from "react-icons/md";
 
 
 
-const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
+const AdminDropdown = ({mobileToggle, setMobileToggle}) => { 
   return (
     <>
       <div
-        className={`bg-white border-r border-r-slate-200 md:border-r-slate-300 w-64 md:w-72 h-screen flex flex-col fixed top-0 pt-4 z-30 md:left-0  animation duration-500 ${
+        className={`bg-white border-r border-r-slate-200 md:border-r-slate-300 w-64 md:w-72 h-screen flex flex-col fixed top-0 pt-4 z-50 md:left-0  animation duration-500 ${
           mobileToggle ? "-left-80" : "left-0"
         }`}
       > 
@@ -39,7 +41,7 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
       <div className="flex flex-col  mt-12 gap-4 ">
         <Link to={"/"} className="flex items-center gap-4  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
         <div><SiHomeassistantcommunitystore className="text-xl"/></div>
-        <div><h1 className="text-xl">Dashboad</h1></div>
+        <div><h1 className="text-xl">Home</h1></div>
         </Link>
 
         <Link to={"/earning"} className="flex items-center gap-4  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
@@ -56,14 +58,23 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
         <div><FaMoneyBillTrendUp className="text-xl"/></div>
         <div><h1 className="text-xl">Investment</h1></div>
         </Link>
-        <Link to={"/billing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+        <Link to={"/history"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+        <div><FaMoneyBillTransfer className="text-xl"/></div>
+        <div><h1 className="text-xl">History</h1></div>
+        </Link>  
+        <Link to={"/staffMangement"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
+        <div><MdManageAccounts className="text-2xl"/></div>
+        <div><h1 className="text-xl">Staff Mangement</h1></div>
+        </Link>
+        <Link to={"/uDhaarBook"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
+        <div><MdOutlineMenuBook className="text-2xl"/></div>
+        <div><h1 className="text-xl">Udhaar Book</h1></div>
+        </Link>
+        <Link to={"/billing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
         <div><IoReceiptSharp className="text-xl"/></div>
         <div><h1 className="text-xl">Billing</h1></div>
         </Link>
-        <Link to={"/transaction"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
-        <div><FaMoneyBillTransfer className="text-xl"/></div>
-        <div><h1 className="text-xl">Transaction</h1></div>
-        </Link>  
+        
       </div>
       </div>
     </>

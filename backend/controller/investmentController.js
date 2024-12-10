@@ -1,7 +1,7 @@
 const ErrorHandler = require("../utils/errorhandler");
 const catchAsyncError = require("../middleware/catchAsyncError");
 const investmentModel = require("../models/investmentModel");
-const DailyIncome = require("../models/dailyRevenue");
+const FullDayIncome = require("../models/fullDayRevenue");
 
 // Add daily income controller
 exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
@@ -48,7 +48,8 @@ exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
       timeZone: "Asia/Kolkata",
     }), // Day of the week
     date: indiaDate, // Store the Date object
-    typeOfInvestment: typeOfInvestmentByUser || "Normal",
+    typeOfInvestment: typeOfInvestmentByUser || "Cash",
+    user: req.user._id,
   });
 
   // Save the entry to the database
@@ -61,9 +62,9 @@ exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Get Investment Income with calculated earnings
+// Get Investment Income with calculated earnings from FullDayIncome
 exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
-  const investments = await investmentModel.find().sort({ date: 1 }); // Sort by date ascending
+  const investments = await investmentModel.find({ user: req.user._id }).sort({ date: 1 }); // Sort by date ascending
   const result = [];
 
   for (let i = 0; i < investments.length; i++) {
@@ -73,10 +74,11 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
     // If there’s a next investment, use its date as the end date, otherwise use the current date
     const endDate = investments[i + 1] ? investments[i + 1].date : new Date();
 
-    // Calculate earnings from `dailyRevenue` between startDate and endDate
-    const earnings = await DailyIncome.aggregate([
+    // Calculate earnings from `FullDayIncome` between startDate and endDate
+    const earnings = await FullDayIncome.aggregate([
       {
         $match: {
+          user: req.user._id,
           date: {
             $gte: startDate,
             $lt: endDate,
@@ -86,7 +88,7 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
       {
         $group: {
           _id: null,
-          totalEarnings: { $sum: "$dailyIncome" },
+          totalEarnings: { $sum: "$totalIncome" }, // Sum total income from FullDayIncome
         },
       },
     ]);
@@ -124,7 +126,7 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
         date: formattedDate, // Overwrite with formatted date
         time: formattedTime, // Overwrite with formatted time
       },
-      totalEarnings: earnings[0]?.totalEarnings || 0,
+      totalEarnings: earnings[0]?.totalEarnings || 0, // Use totalEarnings from FullDayIncome
     });
   }
 

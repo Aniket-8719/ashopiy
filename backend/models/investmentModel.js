@@ -19,7 +19,12 @@ const investmentSchema = new mongoose.Schema({
       },
       typeOfInvestment: {
         type: String,
-        default: 'Normal'
+        default: 'Cash'
+      },
+      user: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        required: true,
       },
 });
 

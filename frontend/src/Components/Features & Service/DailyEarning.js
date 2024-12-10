@@ -18,6 +18,9 @@ import {
   UPDATE_TODAY_EARNING_RESET,
 } from "../../constants/earningConstants";
 import moment from "moment-timezone";
+import getHolidayName from "../../Holiday Library/holidays";
+import ExcelJS from "exceljs";
+import { HiDownload } from "react-icons/hi";
 
 const DailyEarning = () => {
   const columns = [
@@ -25,22 +28,26 @@ const DailyEarning = () => {
     { header: "Earning", key: "earning" },
     { header: "Time", key: "time" },
     { header: "Date", key: "date" },
+    { header: "Payment Type", key: "specialDay" },
     { header: "Actions", key: "actions" },
   ];
 
   // Create a reference for the form section
   const formRef = useRef(null);
+  const [holiday, setHoliday] = useState("Normal");
   const [editCheck, setEditCheck] = useState(false);
   const [updateId, setUpdatedID] = useState("");
   const [formData, setFormData] = useState({
     dailyIncome: "",
-    specialDay: "",
+    earningType: "Cash",
+    latestSpecialDay: holiday,
   });
-
   const { todayData, error, loading } = useSelector(
     (state) => state.todayEarnings
   );
-  const { isAdded } = useSelector((state) => state.currentEarning);
+  const { isAdded, error: addingError } = useSelector(
+    (state) => state.currentEarning
+  );
   const {
     error: deleteError,
     isDeleted,
@@ -62,7 +69,7 @@ const DailyEarning = () => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { dailyIncome, specialDay } = formData;
+    const { dailyIncome, earningType } = formData;
 
     if (!dailyIncome || isNaN(dailyIncome)) {
       toast.error("Please enter a valid amount");
@@ -70,7 +77,8 @@ const DailyEarning = () => {
     }
     const earningData = {
       dailyIncome,
-      specialDay: specialDay || "Normal",
+      earningType: earningType || "Cash",
+      latestSpecialDay: holiday || "Normal",
     };
 
     if (editCheck) {
@@ -79,7 +87,7 @@ const DailyEarning = () => {
     } else {
       dispatch(addTodayEarning(earningData));
     }
-    setFormData({ dailyIncome: "", specialDay: "" });
+    setFormData({ dailyIncome: "", earningType: "Cash" });
   };
 
   // Handle update income
@@ -94,7 +102,7 @@ const DailyEarning = () => {
     }
     setFormData({
       dailyIncome: foundIncome.income,
-      specialDay: foundIncome.specialDay,
+      earningType: foundIncome.earningType,
     });
     // Set edit mode to true
     setEditCheck(true);
@@ -106,26 +114,41 @@ const DailyEarning = () => {
     dispatch(deleteTodayIncome(id));
   };
 
+  // Get the current date and time in Indian Standard Time (IST)
+  const todayIST = moment.tz("Asia/Kolkata");
+  const day = todayIST.date(); // Get the day of the month in IST
+  const month = todayIST.month() + 1; // Get the month in IST (months are 0-indexed in moment.js)
+  const year = todayIST.year(); // Get the year in IST
+
+  // Get day name and month name
+  const dayName = todayIST.format("dddd"); // Full day name, e.g., "Monday"
+  const monthName = todayIST.format("MMMM"); // Full month name, e.g., "December"
+
+  // Call the getHolidayName function
+  const holidayName = getHolidayName(day, month, year, "IN");
+
   // Fetch today's earnings
   useEffect(() => {
-    // Get the current date and time in Indian Standard Time (IST)
-    const todayIST = moment.tz("Asia/Kolkata");
-    const day = todayIST.date(); // Get the day of the month in IST
-    const month = todayIST.month() + 1; // Get the month in IST (months are 0-indexed in moment.js)
-    const year = todayIST.year(); // Get the year in IST
-
+    setHoliday(holidayName);
     dispatch(getTodayEarning(day, month, year));
+    if (isAdded || isUpdated || isDeleted) {
+      dispatch(getTodayEarning(day, month, year)); // Re-fetch after add, update, or delete
+    }
+  }, [dispatch, isAdded, isUpdated, isDeleted, day, month, year, holidayName]);
 
+  useEffect(() => {
     if (error) {
       toast.error(error);
       dispatch(clearErrors());
     }
-
+    if (addingError) {
+      toast.error(addingError);
+      dispatch(clearErrors());
+    }
     if (deleteError) {
       toast.error(deleteError);
       dispatch(clearErrors());
     }
-
     if (isAdded) {
       toast.success("Income Added");
       dispatch({ type: ADD_TODAY_EARNING_RESET });
@@ -139,7 +162,127 @@ const DailyEarning = () => {
       toast.success(message);
       dispatch({ type: DELETE_TODAY_EARNING_RESET });
     }
-  }, [dispatch, error, deleteError, isAdded, isDeleted, isUpdated]);
+  }, [
+    dispatch,
+    error,
+    addingError,
+    deleteError,
+    isAdded,
+    isDeleted,
+    isUpdated,
+    message,
+  ]);
+
+  // Download Excel Data
+  const downloadExcel = () => {
+    try {
+      // Ensure data is valid and contains expected values
+      if (
+        !todayData ||
+        !todayData.todayIncome ||
+        !Array.isArray(todayData.todayIncome)
+      ) {
+        throw new Error("Invalid data for Excel export.");
+      }
+
+      // Create a new workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Today Income Data");
+
+      // Add header row with bold style
+      const headerRow = worksheet.addRow([
+        "S.No",
+        "Income (Rs)",
+        "Time",
+        "Date",
+        "Earning Type",
+      ]);
+      headerRow.font = { bold: true }; // Make the header bold
+
+      // Center-align the header cells
+      worksheet.columns = [
+        { header: "S.No", key: "sno", width: 8 },
+        { header: "Income (Rs)", key: "income", width: 15 },
+        { header: "Time", key: "time", width: 12 },
+        { header: "Date", key: "date", width: 15 },
+        { header: "Earning Type", key: "earningType", width: 15 },
+      ];
+
+      // Set alignment for all cells in each column
+      worksheet.eachRow((row, rowNumber) => {
+        row.eachCell((cell, colNumber) => {
+          cell.alignment = { horizontal: "center" }; // Center align all cells
+        });
+      });
+
+      // Variable to calculate total income
+      let totalIncome = 0;
+
+      // Add the data rows and calculate subtotal
+      todayData.todayIncome.forEach((row, index) => {
+        totalIncome += row.income || 0; // Add income to the total
+
+        worksheet.addRow({
+          sno: index + 1,
+          income: `₹${new Intl.NumberFormat("en-IN").format(row.income || 0)}`,
+          time: row.time || "N/A",
+          date: todayData.date || "N/A",
+          earningType: row.earningType || "N/A",
+        });
+      });
+      // Center align all the data rows
+      worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+        if (rowNumber !== 1) {
+          // Skip the header row
+          row.alignment = { horizontal: "center", vertical: "middle" };
+        }
+      });
+
+      // Add subtotal row
+      const subtotalRow = worksheet.addRow([
+        "Total",
+        `₹${new Intl.NumberFormat("en-IN").format(totalIncome)}`,
+        "",
+        "",
+        "",
+      ]);
+      subtotalRow.font = { bold: true }; // Make the subtotal row bold
+
+      // Set alignment for subtotal row
+      subtotalRow.eachCell((cell) => {
+        cell.alignment = { horizontal: "center" }; // Center align subtotal row
+      });
+
+      // Adjust column widths for better visibility (optional step)
+      worksheet.columns.forEach((col) => {
+        let maxLength = 0;
+        col.eachCell({ includeEmpty: true }, (cell) => {
+          const length = cell.value ? cell.value.toString().length : 0;
+          maxLength = Math.max(maxLength, length);
+        });
+        col.width = Math.max(col.width, maxLength + 2); // Add padding
+      });
+
+      // Generate the Excel file and trigger download
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute(
+          "download",
+          `today_income_data_${new Date().toISOString().slice(0, 10)}.xlsx`
+        );
+        link.click();
+
+        // Clean up URL to release memory
+        URL.revokeObjectURL(url);
+      });
+    } catch (err) {
+      console.error("Error generating Excel:", err);
+    }
+  };
+
   return (
     <>
       <MetaData title="EARNING" />
@@ -151,12 +294,12 @@ const DailyEarning = () => {
             <form
               ref={formRef}
               onSubmit={handleSubmit}
-              className="flex flex-col w-full gap-6 p-4 border md:border-slate-300 rounded-lg md:shadow-lg"
+              className="flex flex-col w-full gap-6 p-4 border md:border-slate-300 rounded-lg md:shadow-sm"
             >
               <div className="flex justify-center items-center w-full gap-4">
                 <div className="relative flex justify-center items-center w-full focus-within:border-blue-500 focus-within:ring-0.5 focus-within:ring-blue-500">
                   <span className="absolute top-[35%] left-2">
-                    <FaIndianRupeeSign className="text-black focus-within:text-blue-500 opacity-65" />
+                    <FaIndianRupeeSign className="text-green-600 focus-within:text-blue-500 opacity-65" />
                   </span>
                   <input
                     type="text"
@@ -173,15 +316,16 @@ const DailyEarning = () => {
                   <span className="absolute top-[35%] left-2">
                     <MdOutlineFolderSpecial className="text-black focus-within:text-blue-500 opacity-65" />
                   </span>
-                  <input
-                    type="text"
-                    id="specialDay"
-                    name="specialDay"
-                    value={formData.specialDay}
+                  <select
+                    id="earningType"
+                    name="earningType"
+                    value={formData.earningType}
                     onChange={handleChange}
-                    className="py-3  ps-8 w-full text-gray-700 leading-normal focus:outline-none focus:bg-white focus:border-blue-500 rounded-sm"
-                    placeholder="Any special Day"
-                  />
+                    className="py-3 ps-8 w-full text-gray-700 leading-normal focus:outline-none focus:bg-white focus:border-blue-500 rounded-sm"
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Online">Online</option>
+                  </select>
                 </div>
               </div>
               <button
@@ -191,12 +335,12 @@ const DailyEarning = () => {
                 } py-3 flex items-center justify-center   text-white text-center rounded-sm `}
                 disabled={loading}
               >
-                {editCheck ? "Update" : "Add"}
+                {loading ? <Loader /> : editCheck ? "Update" : "Add"}
               </button>
             </form>
 
             {/* Total amount display */}
-            <div className="flex w-full  mx-auto gap-4  p-4 justify-between items-center border md:border-slate-300 rounded-lg md:shadow-lg ">
+            <div className="flex w-full  mx-auto gap-4  p-4 justify-between items-center border md:border-slate-300 rounded-lg md:shadow-sm ">
               {/* Box-1 */}
               <div className="flex flex-col  w-full  gap-2 md:gap-2 md:justify-center ">
                 <div className="">
@@ -205,7 +349,10 @@ const DailyEarning = () => {
                     <p>Loading...</p>
                   ) : (
                     <h1 className="text-xl md:text-2xl text-green-500 font-bold">
-                      +{todayData?.totalIncome || 0}
+                      +
+                      {new Intl.NumberFormat("en-IN").format(
+                        todayData?.totalIncome || 0
+                      )}
                     </h1>
                   )}
                 </div>
@@ -225,15 +372,11 @@ const DailyEarning = () => {
               <div className="flex flex-col  w-full  gap-4 md:gap-4  md:justify-center ">
                 <div className="">
                   <h1 className="text-sm md:text-md">Day:</h1>
-                  <h1 className="text-md md:text-lg">
-                    {todayData?.day || "N/A"}
-                  </h1>
+                  <h1 className="text-md md:text-lg">{dayName}</h1>
                 </div>
                 <div className="">
                   <h1 className="text-sm md:text-md">Month:</h1>
-                  <h1 className="text-md md:text-lg">
-                    {todayData?.month || "N/A"}
-                  </h1>
+                  <h1 className="text-md md:text-lg">{monthName}</h1>
                 </div>
               </div>
 
@@ -250,7 +393,7 @@ const DailyEarning = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Special Day:</h1>
                   <h1 className="text-md md:text-lg text-purple-600">
-                    {todayData.latestSpecialDay}
+                    {holiday}
                   </h1>
                 </div>
               </div>
@@ -293,13 +436,19 @@ const DailyEarning = () => {
                             {index + 1}.
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            Rs.{dataKey?.income || "N/A"}
+                            ₹
+                            {new Intl.NumberFormat("en-IN").format(
+                              dataKey?.income || "N/A"
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {dataKey?.time || "N/A"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {todayData?.date || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {dataKey?.earningType || "N/A"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">
                             <button
@@ -329,7 +478,7 @@ const DailyEarning = () => {
                       <tr>
                         <td colSpan="5" className="px-6 py-4 text-center">
                           No income data available
-                          <span> ( {todayData.date})</span>
+                          <span> ( {`${day}/${month}/${year}`})</span>
                         </td>
                       </tr>
                     )}
@@ -338,6 +487,19 @@ const DailyEarning = () => {
               </tbody>
             </table>
           </div>
+          {todayData?.todayIncome?.length > 0 && (
+            <div className="flex mt-4 space-x-4 justify-end mx-4 md:mx-8 pb-4">
+              <button
+                onClick={downloadExcel}
+                className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Download Excel
+                <span className="font-bold text-md ml-2">
+                  <HiDownload />
+                </span>
+              </button>
+            </div>
+          )}
         </>
       </section>
     </>

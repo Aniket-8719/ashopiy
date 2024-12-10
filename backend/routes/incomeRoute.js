@@ -1,14 +1,16 @@
 const express = require("express");
-const { addDailyIncome, getDailyIncome, getMonthlyIncome, getYearlyIncome, perDayIncome, perMonthIncome, todayIncome, deleteTodayIncome, updateTodayIncome } = require("../controller/incomeController");
 const router = express.Router();
+const { addDailyIncome, getDailyIncome, getMonthlyIncome, getYearlyIncome, perDayIncome, perMonthIncome, todayIncome, deleteTodayIncome, updateTodayIncome, createFullDayIncome, addFullDayIncome, getFullDayIncome, monthlyHistory } = require("../controller/incomeController");
+const { isAuthenticatedUser } = require("../middleware/auth");
 
-router.route("/newIncome").post(addDailyIncome);
-router.route("/allIncome").get(getDailyIncome);
-router.route("/perDayIncome").get(perDayIncome);
-router.route("/todayIncome").get(todayIncome);
-router.route("/getMonthlyIncome").get(getMonthlyIncome);
-router.route("/getYearlyIncome").get(getYearlyIncome);
-router.route("/perMonthIncome").get(perMonthIncome);
-router.route("/todayIncome/:id").delete(deleteTodayIncome).put(updateTodayIncome);
+router.route("/newIncome").post(isAuthenticatedUser,addDailyIncome);
+router.route("/allIncome").get(isAuthenticatedUser, getFullDayIncome);
+router.route("/addFullDayIncome").post(isAuthenticatedUser, addFullDayIncome);
+router.route("/monthlyHistory").get(isAuthenticatedUser,monthlyHistory);
+router.route("/todayIncome").get(isAuthenticatedUser,isAuthenticatedUser, todayIncome);
+router.route("/getMonthlyIncome").get(isAuthenticatedUser,getMonthlyIncome);
+router.route("/getYearlyIncome").get(isAuthenticatedUser,getYearlyIncome);
+router.route("/perMonthIncome").get(isAuthenticatedUser,perMonthIncome);
+router.route("/todayIncome/:id").delete(deleteTodayIncome).put(updateTodayIncome); 
 
 module.exports = router;

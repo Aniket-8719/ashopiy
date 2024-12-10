@@ -2,31 +2,40 @@ import {
   GET_TODAY_EARNING_REQUEST,
   GET_TODAY_EARNING_SUCCESS,
   GET_TODAY_EARNING_FAIL,
+
   ADD_TODAY_EARNING_REQUEST,
   ADD_TODAY_EARNING_SUCCESS,
   ADD_TODAY_EARNING_FAIL,
+  ADD_TODAY_EARNING_RESET,
+
   UPDATE_TODAY_EARNING_REQUEST,
   UPDATE_TODAY_EARNING_SUCCESS,
   UPDATE_TODAY_EARNING_FAIL,
   UPDATE_TODAY_EARNING_RESET,
+
   DELETE_TODAY_EARNING_REQUEST,
   DELETE_TODAY_EARNING_SUCCESS,
   DELETE_TODAY_EARNING_FAIL,
   DELETE_TODAY_EARNING_RESET,
-  CLEAR_ERRORS,
-  ADD_TODAY_EARNING_RESET,
-
+ 
   DAY_EARNING_REQUEST,
   DAY_EARNING_SUCCESS,
   DAY_EARNING_FAIL,
-
+  
   MONTHLY_EARNING_REQUEST,
   MONTHLY_EARNING_SUCCESS,
   MONTHLY_EARNING_FAIL,
-
+  
   YEARLY_EARNING_REQUEST,
   YEARLY_EARNING_SUCCESS,
   YEARLY_EARNING_FAIL,
+
+  GET_MONTHLY_HISTORY_REQUEST,
+  GET_MONTHLY_HISTORY_SUCCESS,
+  GET_MONTHLY_HISTORY_FAIL,
+  
+  CLEAR_ERRORS,
+
 } from "../constants/earningConstants";
 
 // ADD Today Data
@@ -41,7 +50,7 @@ export const addEarningReducer = (state = {}, action) => {
       return {
         ...state,
         loading: false,
-        isAdded: action.payload,
+        isAdded: true,
       };
     case ADD_TODAY_EARNING_FAIL:
       return {
@@ -76,6 +85,7 @@ export const earningReducer = (state = { todayData: {} }, action) => {
       return {
         loading: false,
         todayData: action.payload,
+        error: null,
       };
     case GET_TODAY_EARNING_FAIL:
       return {
@@ -215,6 +225,35 @@ export const yearlyReducer = (state = { data: {} }, action) => {
         data: action.payload,
       };
     case YEARLY_EARNING_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
+
+// GET Monthly History
+export const monthlyHistoryReducer = (state = { monthlyHistoryData: {} }, action) => {
+  switch (action.type) {
+    case GET_MONTHLY_HISTORY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case GET_MONTHLY_HISTORY_SUCCESS:
+      return {
+        loading: false,
+        monthlyHistoryData: action.payload,
+      };
+    case GET_MONTHLY_HISTORY_FAIL:
       return {
         ...state,
         loading: false,
