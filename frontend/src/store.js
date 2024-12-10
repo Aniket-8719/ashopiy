@@ -35,7 +35,7 @@ let initialState = {}; // You can add default values here if needed
 const store = createStore(
   rootReducer,
   initialState,
-  (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__)
+  (process.env.REACT_APP_NODE_ENV === 'development' && window.__REDUX_DEVTOOLS_EXTENSION__)
     ? composeWithDevTools(applyMiddleware(thunk)) // If DevTools is available
     : applyMiddleware(thunk) // Fallback for environments without DevTools
 );
