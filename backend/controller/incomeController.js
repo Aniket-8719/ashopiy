@@ -168,11 +168,13 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       currentDate = moment(currentDate).add(1, "day").toDate();
     }
+    console.log("loop end huwa and income save hone ke liye ready ho gai")
 
     res.status(200).json({
       message: "Full day income records created successfully.",
       results,
     });
+    console.log("complete huwa");
   } catch (error) {
     console.error("Error in /addFullDayIncome:", error);
     res.status(500).json({
@@ -180,6 +182,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       message: error.message || "Internal Server Error",
     });
   }
+  console.log("catch tak a gya");
 });
 
 // Today Income 24 Hours (Indian Time) (DailyIncome)
