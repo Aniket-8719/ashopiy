@@ -47,10 +47,12 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Unauthorized: User not found." });
     }
+    console.log(req.user._id);
 
     if (!date) {
       return res.status(400).json({ message: "Invalid or missing date." });
     }
+
 
     const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
     if (!inputDate.isValid()) {
@@ -142,7 +144,6 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     });
   }
 });
-
 
 // Today Income 24 Hours (Indian Time) (DailyIncome) 
 exports.todayIncome = catchAsyncError(async (req, res, next) => {

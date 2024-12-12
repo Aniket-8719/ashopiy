@@ -86,7 +86,9 @@ export const addFullDayEarning = (addData) => async (dispatch) => {
       addData,
       config
     );
+    console.log(addData);
     console.log("data is saved.......");
+
     // Dispatch success action with response data
     dispatch({
       type: FULLDAY_EARNING_SUCCESS,
