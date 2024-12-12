@@ -79,13 +79,14 @@ export const addFullDayEarning = (addData) => async (dispatch) => {
       withCredentials: true, // Ensure credentials like cookies are sent
     };
 
+    console.log("it is saving.......");
     // Making the POST request to add income
     const { data } = await axios.post(
       `${API_URL}/api/v2/addFullDayIncome`,
       addData,
       config
     );
-
+    console.log("data is saved.......");
     // Dispatch success action with response data
     dispatch({
       type: FULLDAY_EARNING_SUCCESS,

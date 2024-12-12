@@ -83,8 +83,8 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly:true,
-    secure: true,
-    sameSite: 'None',
+    // secure: true,
+    // sameSite: 'None',
   };
 
   res.status(201).cookie("token", token, options).json({
@@ -124,8 +124,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly:true,
-    secure: true,
-    sameSite: 'None',
+    // secure: true,
+    // sameSite: 'None',
   };
 
   res.status(201).cookie("token", token, options).json({

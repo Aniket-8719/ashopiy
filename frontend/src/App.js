@@ -61,16 +61,31 @@ function App() {
     const isUserProcessed = user?.email && userProcessedMap[user.email];
   
     // If the user is authenticated and not processed for the day
+    // if (isAuthenticated && user?.email && !isUserProcessed) {
+    //   // Call the function to save income
+    //   dispatch(addFullDayEarning({ date: previousDay }));
+  
+    //   // Mark the user as processed
+    //   userProcessedMap[user.email] = true;
+    //   localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+  
+    //   console.log(`Processed income for user: ${user.email}`);
+    //   toast.success("Previous income added");
+    // }
     if (isAuthenticated && user?.email && !isUserProcessed) {
       // Call the function to save income
-      dispatch(addFullDayEarning({ date: previousDay }));
-  
-      // Mark the user as processed
-      userProcessedMap[user.email] = true;
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-  
-      console.log(`Processed income for user: ${user.email}`);
-      toast.success("Previous income added");
+      dispatch(addFullDayEarning({ date: previousDay }))
+        .then(() => {
+          // Mark the user as processed
+          userProcessedMap[user.email] = true;
+          localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+          console.log(`Processed income for user: ${user.email}`);
+          toast.success("Previous income added");
+        })
+        .catch((error) => {
+          console.error("Failed to add income:", error);
+          toast.error("Failed to add previous income. Please try again.");
+        });
     }
   }, [dispatch, isAuthenticated, user?.email]); // Depend on user email
   useEffect(() => {
