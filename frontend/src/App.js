@@ -38,7 +38,7 @@ function App() {
   
     // Get the previous day's date
     const previousDay = moment().tz("Asia/Kolkata").subtract(1, "day").format("YYYY-MM-DD");
-    console.log("Previous day's date: ", previousDay);z
+    console.log("Previous day's date: ", previousDay);
   
     // Retrieve user markings and the last processed date from localStorage
     const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
@@ -48,7 +48,7 @@ function App() {
     console.log("Last Processed Date:", lastProcessedDate);
   
     // Reset user markings if the date has changed
-    if (lastProcessedDate !== today) {
+    if (lastProcessedDate !== today) { 
       Object.keys(userProcessedMap).forEach((email) => {
         userProcessedMap[email] = false;
       });
