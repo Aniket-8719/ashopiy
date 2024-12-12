@@ -39,39 +39,42 @@ function App() {
     // Get the previous day's date
     const previousDay = moment().tz("Asia/Kolkata").subtract(1, "day").format("YYYY-MM-DD");
     console.log("Previous day's date: ", previousDay);
+    // Call the function to save income
+    dispatch(addFullDayEarning({ date: previousDay }));
+    toast.success("Previous income added");
   
-    // Retrieve user markings and the last processed date from localStorage
-    const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
-    const lastProcessedDate = localStorage.getItem("lastProcessedDate");
+    // // Retrieve user markings and the last processed date from localStorage
+    // const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
+    // const lastProcessedDate = localStorage.getItem("lastProcessedDate");
   
-    console.log("User Processed Map:", userProcessedMap);
-    console.log("Last Processed Date:", lastProcessedDate);
+    // console.log("User Processed Map:", userProcessedMap);
+    // console.log("Last Processed Date:", lastProcessedDate);
   
-    // Reset user markings if the date has changed
-    if (lastProcessedDate !== today) { 
-      Object.keys(userProcessedMap).forEach((email) => {
-        userProcessedMap[email] = false;
-      });
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-      localStorage.setItem("lastProcessedDate", today);
-      console.log("Reset userProcessedMap for a new day");
-    }
+    // // Reset user markings if the date has changed
+    // if (lastProcessedDate !== today) { 
+    //   Object.keys(userProcessedMap).forEach((email) => {
+    //     userProcessedMap[email] = false;
+    //   });
+    //   localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+    //   localStorage.setItem("lastProcessedDate", today);
+    //   console.log("Reset userProcessedMap for a new day");
+    // }
   
-    // Check if the user is already processed for the day
-    const isUserProcessed = user?.email && userProcessedMap[user.email];
+    // // Check if the user is already processed for the day
+    // const isUserProcessed = user?.email && userProcessedMap[user.email];
   
-    // If the user is authenticated and not processed for the day
-    if (isAuthenticated && user?.email && !isUserProcessed) {
-      // Call the function to save income
-      dispatch(addFullDayEarning({ date: previousDay }));
+    // // If the user is authenticated and not processed for the day
+    // if (isAuthenticated && user?.email && !isUserProcessed) {
+    //   // Call the function to save income
+    //   dispatch(addFullDayEarning({ date: previousDay }));
   
-      // Mark the user as processed
-      userProcessedMap[user.email] = true;
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+    //   // Mark the user as processed
+    //   userProcessedMap[user.email] = true;
+    //   localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
   
-      console.log(`Processed income for user: ${user.email}`);
-      toast.success("Previous income added");
-    }
+    //   console.log(`Processed income for user: ${user.email}`);
+    //   toast.success("Previous income added");
+    // }
   }, [dispatch, isAuthenticated, user?.email]); // Depend on user email
   useEffect(() => {
     dispatch(loadUser()); // Dispatch an action to check user authentication
