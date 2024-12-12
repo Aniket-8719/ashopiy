@@ -38,7 +38,7 @@ function App() {
   
     // Get the previous day's date
     const previousDay = moment().tz("Asia/Kolkata").subtract(1, "day").format("YYYY-MM-DD");
-    console.log("Previous day's date: ", previousDay);
+    console.log("Previous day's date: ", previousDay);z
   
     // Retrieve user markings and the last processed date from localStorage
     const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};

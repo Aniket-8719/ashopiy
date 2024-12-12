@@ -41,130 +41,108 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
 
 // Add Full Day Income in a single document
 exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
-  const { date } = req.body; // Get the user-provided date
+  try {
+    const { date } = req.body;
 
-  // Ensure date is provided and is valid
-  if (!date) {
-    return res.status(400).json({ message: "Invalid or missing date." }); 
-  }
-
-  const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
-  console.log("Parsed date:", inputDate.format()); 
-  if (!inputDate.isValid()) {
-    return res.status(400).json({ message: "Invalid date format." });
-  }
-  // Set the end of the day in Asia/Kolkata time zone and convert it to UTC
-  const endDateUTC = inputDate.clone().endOf("day").tz("Asia/Kolkata").toDate();
-  console.log("Ending date:", endDateUTC);
-
-  // Fetch the first income record from DailyIncome
-  const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
-    date: 1,
-  }); // Sort by date ascending
-  if (!firstIncome) {
-    return res
-      .status(404)
-      .json({ message: "No income records available in the database." });
-  }
- 
-  const startDateUTC = moment(firstIncome.date)
-  .tz("Asia/Kolkata")      // Convert to "Asia/Kolkata" timezone
-  .startOf("day")          // Set to the start of the day in that timezone
-  .toDate();               // Convert to JavaScript Date
-  console.log("starting date: ", startDateUTC); 
-
-  // Check if any FullDayIncome records exist within the date range
-  const existingFullDayIncome = await FullDayIncome.findOne({
-    user: req.user._id,
-    date: { $gte: startDateUTC, $lte: endDateUTC },
-  });
-
-  if (existingFullDayIncome) {
-    return res
-      .status(400)
-      .json({ message: "Income has already been saved for this range." });
-  }
-
-  // Process and aggregate data day by day
-  let currentDate = startDateUTC;
-  const results = [];
-
-  while (currentDate <= endDateUTC) {
-    const dayStart = moment(currentDate).startOf("day");
-    const dayEnd = moment(currentDate).endOf("day");
-
-
-    // Fetch all records for the current day
-    const dayIncomes = await DailyIncome.find({
-      user: req.user._id,
-      date: { $gte: dayStart, $lte: dayEnd },
-    }).sort({ time: 1 }); // Sort by time ascending
-
-    if (dayIncomes.length === 0) {
-      // If no incomes for the current day, skip to the next date
-      currentDate = moment(currentDate).add(1, "day").toDate();
-      continue;
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized: User not found." });
     }
-      // Extract the first and last time for the current date
-  const firstTime = dayIncomes[0].time;  // First time in the array
-  const lastTime = dayIncomes[dayIncomes.length - 1].time;  // Last time in the array
 
-    // Aggregate values for the current day
-    const totalIncome = dayIncomes.reduce(
-      (sum, inc) => sum + inc.dailyIncome,
-      0
-    );
-    const totalOnlineAmount = dayIncomes.reduce(
-      (sum, inc) =>
-        inc.earningType && inc.earningType.toLowerCase() === "online"
-          ? sum + (inc.dailyIncome || 0)
-          : sum,
-      0
-    );
-    const totalCustomers = dayIncomes.length; 
-    const totalReturnAmount = dayIncomes 
-      .filter((inc) => inc.dailyIncome < 0)
-      .reduce((sum, inc) => sum + Math.abs(inc.dailyIncome), 0);
-    const totalReturnCustomers = dayIncomes.filter(
-      (inc) => inc.dailyIncome < 0
-    ).length;
-    const latestSpecialDay =
-      dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal";
+    if (!date) {
+      return res.status(400).json({ message: "Invalid or missing date." });
+    }
 
-    // Create a new FullDayIncome document
-    const fullDayIncome = new FullDayIncome({
-      date: dayIncomes[0].date,
-      day: moment(dayStart).format("dddd"),
-      month: moment(dayStart).format("MMMM"),
-      time: [firstTime, lastTime],
-      latestSpecialDay,
-      totalIncome,
-      totalOnlineAmount,
-      totalCustomers,
-      totalReturnAmount,
-      totalReturnCustomers,
+    const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
+    if (!inputDate.isValid()) {
+      return res.status(400).json({ message: "Invalid date format." });
+    }
+
+    const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").toDate();
+
+    const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({ date: 1 });
+    if (!firstIncome) {
+      return res.status(404).json({ message: "No income records available." });
+    }
+
+    const startDateUTC = moment(firstIncome.date).tz("Asia/Kolkata").startOf("day").toDate();
+
+    const existingFullDayIncome = await FullDayIncome.findOne({
       user: req.user._id,
+      date: { $gte: startDateUTC, $lte: endDateUTC },
     });
 
-    // Save the FullDayIncome document
-    await fullDayIncome.save();
-    results.push(fullDayIncome);
+    if (existingFullDayIncome) {
+      return res.status(400).json({ message: "Income already saved for this range." });
+    }
 
-    // Delete the processed DailyIncome records
-    await DailyIncome.deleteMany({
-      user: req.user._id,
-      _id: { $in: dayIncomes.map((inc) => inc._id) },
+    let currentDate = startDateUTC;
+    const results = [];
+
+    while (currentDate <= endDateUTC) {
+      const dayStart = moment(currentDate).startOf("day");
+      const dayEnd = moment(currentDate).endOf("day");
+
+      const dayIncomes = await DailyIncome.find({
+        user: req.user._id,
+        date: { $gte: dayStart, $lte: dayEnd },
+      }).sort({ time: 1 });
+
+      if (!dayIncomes || dayIncomes.length === 0) {
+        currentDate = moment(currentDate).add(1, "day").toDate();
+        continue;
+      }
+
+      const firstTime = dayIncomes[0]?.time || "00:00:00";
+      const lastTime = dayIncomes[dayIncomes.length - 1]?.time || "23:59:59";
+
+      const totalIncome = dayIncomes.reduce((sum, inc) => sum + (inc.dailyIncome || 0), 0);
+      const totalOnlineAmount = dayIncomes.reduce(
+        (sum, inc) => (inc.earningType?.toLowerCase() === "online" ? sum + (inc.dailyIncome || 0) : sum),
+        0
+      );
+      const totalReturnAmount = dayIncomes
+        .filter((inc) => inc.dailyIncome < 0)
+        .reduce((sum, inc) => sum + Math.abs(inc.dailyIncome), 0);
+
+      const fullDayIncome = new FullDayIncome({
+        date: dayIncomes[0].date,
+        day: moment(dayStart).format("dddd"),
+        month: moment(dayStart).format("MMMM"),
+        time: [firstTime, lastTime],
+        latestSpecialDay: dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
+        totalIncome,
+        totalOnlineAmount,
+        totalCustomers: dayIncomes.length,
+        totalReturnAmount,
+        totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0).length,
+        user: req.user._id,
+      });
+
+      await fullDayIncome.save();
+      results.push(fullDayIncome);
+
+      const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
+
+      if (incomeIds.length > 0) {
+        await DailyIncome.deleteMany({ user: req.user._id, _id: { $in: incomeIds } });
+      }
+
+      currentDate = moment(currentDate).add(1, "day").toDate();
+    }
+
+    res.status(200).json({
+      message: "Full day income records created successfully.",
+      results,
     });
-
-    // Move to the next date
-    currentDate = moment(currentDate).add(1, "day").toDate();
+  } catch (error) {
+    console.error("Error in /addFullDayIncome:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
   }
-
-  return res.status(200).json({
-    message: "Full day income records created successfully.",
-    results,
-  });
 });
+
 
 // Today Income 24 Hours (Indian Time) (DailyIncome) 
 exports.todayIncome = catchAsyncError(async (req, res, next) => {
