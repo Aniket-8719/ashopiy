@@ -140,10 +140,16 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         user: req.user._id,
       });
 
-      await fullDayIncome.save();
+      try {
+        await fullDayIncome.save();
+        console.log("Full day income saved:", fullDayIncome);
+      } catch (error) {
+        console.error("Error saving full day income:", error);
+      }
       results.push(fullDayIncome);
 
       const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
+      console.log("Deleting DailyIncome records with IDs:", incomeIds);
 
       if (incomeIds.length > 0) {
         await DailyIncome.deleteMany({
