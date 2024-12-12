@@ -63,6 +63,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     if (!inputDate.isValid()) {
       return res.status(400).json({ message: "Invalid date format." });
     }
+    console.log("input date valid mil gai");
 
     const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").toDate();
 
@@ -72,6 +73,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     if (!firstIncome) {
       return res.status(404).json({ message: "No income records available." });
     }
+    console.log("firstIncome records found ho gya: ", firstIncome);
 
     const startDateUTC = moment(firstIncome.date)
       .tz("Asia/Kolkata")
@@ -89,8 +91,12 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         .json({ message: "Income already saved for this range." });
     }
 
+    console.log("exitingFullDayIncome ko check kar rha h",existingFullDayIncome);
+
     let currentDate = startDateUTC;
     const results = [];
+
+    console.log("while loop start huwa ab");
 
     while (currentDate <= endDateUTC) {
       const dayStart = moment(currentDate).startOf("day");
@@ -139,6 +145,8 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
           .length,
         user: req.user._id,
       });
+
+      console.log("save karne ki bari a gai ");
 
       try {
         await fullDayIncome.save();
