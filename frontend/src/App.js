@@ -42,47 +42,54 @@ function App() {
     // Get the previous day's date using JavaScript Date manipulation
     const previousDay = new Date(Date.now() - 86400000).toISOString().split('T')[0]; // Subtract 1 day in milliseconds
     console.log("Previous day's date: ", previousDay);
+
+     // Prepare the data to pass to the action dispatcher
+     const addData = { date: previousDay }; // Use 'previousDay' in 'YYYY-MM-DD' format
   
-    // Retrieve user markings and the last processed date from localStorage
-    let userProcessedMap = {};
-    try {
-      userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
-    } catch (error) {
-      console.error("Error parsing userProcessedMap from localStorage", error);
-    }
+     // Dispatch the action to save full day income
+     dispatch(addFullDayEarning(addData));
+     toast.success("Previous income added");
   
-    const lastProcessedDate = localStorage.getItem("lastProcessedDate");
-    console.log("User Processed Map:", userProcessedMap);
-    console.log("Last Processed Date:", lastProcessedDate);
+    // // Retrieve user markings and the last processed date from localStorage
+    // let userProcessedMap = {};
+    // try {
+    //   userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
+    // } catch (error) {
+    //   console.error("Error parsing userProcessedMap from localStorage", error);
+    // }
   
-    // Reset user markings if the date has changed
-    if (lastProcessedDate !== today) {
-      Object.keys(userProcessedMap).forEach((email) => {
-        userProcessedMap[email] = false;
-      });
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-      localStorage.setItem("lastProcessedDate", today);
-      console.log("Reset userProcessedMap for a new day");
-    }
+    // const lastProcessedDate = localStorage.getItem("lastProcessedDate");
+    // console.log("User Processed Map:", userProcessedMap);
+    // console.log("Last Processed Date:", lastProcessedDate);
   
-    // Check if the user is already processed for the day
-    const isUserProcessed = user?.email && userProcessedMap[user.email];
+    // // Reset user markings if the date has changed
+    // if (lastProcessedDate !== today) {
+    //   Object.keys(userProcessedMap).forEach((email) => {
+    //     userProcessedMap[email] = false;
+    //   });
+    //   localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+    //   localStorage.setItem("lastProcessedDate", today);
+    //   console.log("Reset userProcessedMap for a new day");
+    // }
   
-    // If the user is authenticated and not processed for the day
-    if (!isUserProcessed) {
-      // Prepare the data to pass to the action dispatcher
-      const addData = { date: previousDay }; // Use 'previousDay' in 'YYYY-MM-DD' format
+    // // Check if the user is already processed for the day
+    // const isUserProcessed = user?.email && userProcessedMap[user.email];
   
-      // Dispatch the action to save full day income
-      dispatch(addFullDayEarning(addData));
+    // // If the user is authenticated and not processed for the day
+    // if (!isUserProcessed) {
+    //   // Prepare the data to pass to the action dispatcher
+    //   const addData = { date: previousDay }; // Use 'previousDay' in 'YYYY-MM-DD' format
   
-      // Mark the user as processed
-      userProcessedMap[user.email] = true;
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+    //   // Dispatch the action to save full day income
+    //   dispatch(addFullDayEarning(addData));
   
-      console.log(`Processed income for user: ${user.email}`);
-      toast.success("Previous income added");
-    }
+    //   // Mark the user as processed
+    //   userProcessedMap[user.email] = true;
+    //   localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+  
+    //   console.log(`Processed income for user: ${user.email}`);
+    //   toast.success("Previous income added");
+    // }
   }, [dispatch, isAuthenticated, user?.email]); // Depend on user email
   
   useEffect(() => {
