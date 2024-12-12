@@ -102,12 +102,12 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     console.log("while loop start huwa ab");
 
     while (currentDate <= endDateUTC) {
-      const dayStart = moment(currentDate).startOf("day");
-      const dayEnd = moment(currentDate).endOf("day");
+      const dayStart = moment(currentDate).utc().startOf("day").toDate();
+      const dayEnd = moment(currentDate).utc().endOf("day").toDate();
 
-      console.log("Current Date:", currentDate);
-      console.log("Day Start (UTC):", dayStart.utc().format());
-      console.log("Day End (UTC):", dayEnd.utc().format());
+      console.log(`Processing date: ${currentDate}`);
+      console.log(`Day Start: ${dayStart}`);
+      console.log(`Day End: ${dayEnd}`);
 
       const dayIncomes = await DailyIncome.find({
         user: req.user._id,
@@ -115,9 +115,11 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       }).sort({ time: 1 });
 
       if (!dayIncomes || dayIncomes.length === 0) {
+        console.log(`No DailyIncome records found for date: ${currentDate}`);
         currentDate = moment(currentDate).add(1, "day").toDate();
         continue;
       }
+      console.log("Found DailyIncome records:", dayIncomes);
 
       const firstTime = dayIncomes[0]?.time || "00:00:00";
       const lastTime = dayIncomes[dayIncomes.length - 1]?.time || "23:59:59";
@@ -154,23 +156,31 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       });
 
       console.log("save karne ki bari a gai ");
-      const existingIncome = await FullDayIncome.findOne({ user: req.user._id, date: fullDayIncome.date });
-console.log("Existing FullDayIncome record:", existingIncome);
-if (existingIncome) {
-  console.error("Duplicate FullDayIncome detected for date:", fullDayIncome.date);
-}
+      const existingIncome = await FullDayIncome.findOne({
+        user: req.user._id,
+        date: fullDayIncome.date,
+      });
+      console.log("Existing FullDayIncome record:", existingIncome);
+      if (existingIncome) {
+        console.error(
+          "Duplicate FullDayIncome detected for date:",
+          fullDayIncome.date
+        );
+      }
 
-
-try {
-  await fullDayIncome.save();
-} catch (error) {
-  if (error.code === 11000) {
-    console.error("Duplicate FullDayIncome detected:", error.keyValue);
-  } else {
-    console.error("Error saving FullDayIncome:", error.message);
-  }
-}
-console.log("Indexes on FullDayIncome:", await FullDayIncome.listIndexes());
+      try {
+        await fullDayIncome.save();
+      } catch (error) {
+        if (error.code === 11000) {
+          console.error("Duplicate FullDayIncome detected:", error.keyValue);
+        } else {
+          console.error("Error saving FullDayIncome:", error.message);
+        }
+      }
+      console.log(
+        "Indexes on FullDayIncome:",
+        await FullDayIncome.listIndexes()
+      );
 
       results.push(fullDayIncome);
 
