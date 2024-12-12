@@ -10,23 +10,20 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
 
   // Check if dailyIncome is valid and can be converted to a number
   if (!dailyIncome || isNaN(Number(dailyIncome))) {
-    return res.status(400).json({ message: "Please provide a valid daily income" });
+    return res
+      .status(400)
+      .json({ message: "Please provide a valid daily income" });
   }
 
-  // Ensure that req.user exists
-  if (!req.user || !req.user._id) {
-    return res.status(400).json({ message: "User not found" });
-  }
+  // Get the current date and time in the Asia/Kolkata timezone
+  const indiaDateTime = moment.tz("Asia/Kolkata");
 
-  // Get the current date and time in UTC (MongoDB stores in UTC by default)
-  const utcDateTime = moment.utc();
-
-  // Create a new income entry with the date stored in UTC
+  // Create a new income entry
   const newIncomeEntry = new DailyIncome({
-    dailyIncome: Number(dailyIncome),
-    time: utcDateTime.format("HH:mm:ss"), // Time in UTC
-    day: utcDateTime.format("dddd"), // Day of the week in UTC
-    date: utcDateTime.toDate(), // Store the UTC date
+    dailyIncome: Number(dailyIncome), // Ensure it's stored as a number
+    time: indiaDateTime.format("HH:mm:ss"), // Save time in 'HH:mm:ss' format
+    day: indiaDateTime.format("dddd"), // Day of the week, e.g., "Monday"
+    date: moment.tz("Asia/Kolkata").toDate(), // Store the Date object
     earningType: earningType || "Cash",
     latestSpecialDay: latestSpecialDay || "Normal",
     user: req.user._id,
@@ -56,80 +53,65 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       return res.status(400).json({ message: "Invalid or missing date." });
     }
 
-    // Parse the input date as Asia/Kolkata timezone
     const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
-
-    // Debugging date handling
-    console.log("Received date:", date);
-    console.log("Parsed date (UTC):", inputDate.utc().format());
-    console.log("Parsed date (Asia/Kolkata):", inputDate.format());
-
     if (!inputDate.isValid()) {
       return res.status(400).json({ message: "Invalid date format." });
     }
 
-    console.log("Input date is valid.");
+    const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").toDate();
 
-    // Convert input date to UTC start and end of day
-    const startDateUTC = inputDate.startOf("day").utc().toDate();
-    const endDateUTC = inputDate.endOf("day").utc().toDate();
-
-    console.log("Input date in IST:", inputDate.format());
-    console.log("StartDate UTC:", startDateUTC);
-    console.log("EndDate UTC:", endDateUTC);
-
-    console.log("Query range:", { startDateUTC, endDateUTC });
-
-    // Find the first income record for the user
-    const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({ date: 1 });
+    const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
+      date: 1,
+    });
     if (!firstIncome) {
       return res.status(404).json({ message: "No income records available." });
     }
-    console.log("First income record found:", firstIncome);
 
-    // Check if a FullDayIncome record already exists within the range
+    const startDateUTC = moment(firstIncome.date)
+      .tz("Asia/Kolkata")
+      .startOf("day")
+      .toDate();
+
     const existingFullDayIncome = await FullDayIncome.findOne({
       user: req.user._id,
       date: { $gte: startDateUTC, $lte: endDateUTC },
     });
 
     if (existingFullDayIncome) {
-      return res.status(400).json({ message: "Income already saved for this range." });
+      return res
+        .status(400)
+        .json({ message: "Income already saved for this range." });
     }
-
-    console.log("No existing FullDayIncome found. Processing incomes.");
 
     let currentDate = startDateUTC;
     const results = [];
 
     while (currentDate <= endDateUTC) {
-      const dayStart = moment(currentDate).utc().startOf("day").toDate();
-      const dayEnd = moment(currentDate).utc().endOf("day").toDate();
+      const dayStart = moment(currentDate).startOf("day");
+      const dayEnd = moment(currentDate).endOf("day");
 
-      console.log(`Processing date: ${currentDate}`);
-      console.log(`Day Start: ${dayStart}`);
-      console.log(`Day End: ${dayEnd}`);
-
-      // Fetch all DailyIncome records for the current day
       const dayIncomes = await DailyIncome.find({
         user: req.user._id,
         date: { $gte: dayStart, $lte: dayEnd },
       }).sort({ time: 1 });
 
       if (!dayIncomes || dayIncomes.length === 0) {
-        console.log(`No DailyIncome records found for date: ${currentDate}`);
         currentDate = moment(currentDate).add(1, "day").toDate();
         continue;
       }
 
-      console.log("Found DailyIncome records:", dayIncomes);
-
-      // Aggregate data for the day
       const firstTime = dayIncomes[0]?.time || "00:00:00";
       const lastTime = dayIncomes[dayIncomes.length - 1]?.time || "23:59:59";
-      const totalIncome = dayIncomes.reduce((sum, inc) => sum + (inc.dailyIncome || 0), 0);
+
+      const totalIncome = dayIncomes.reduce(
+        (sum, inc) => sum + (inc.dailyIncome || 0),
+        0
+      );
       const totalOnlineAmount = dayIncomes.reduce(
-        (sum, inc) => (inc.earningType?.toLowerCase() === "online" ? sum + (inc.dailyIncome || 0) : sum),
+        (sum, inc) =>
+          inc.earningType?.toLowerCase() === "online"
+            ? sum + (inc.dailyIncome || 0)
+            : sum,
         0
       );
       const totalReturnAmount = dayIncomes
@@ -137,43 +119,35 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         .reduce((sum, inc) => sum + Math.abs(inc.dailyIncome), 0);
 
       const fullDayIncome = new FullDayIncome({
-        user: req.user._id,
         date: dayIncomes[0].date,
         day: moment(dayStart).format("dddd"),
         month: moment(dayStart).format("MMMM"),
         time: [firstTime, lastTime],
-        latestSpecialDay: dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
+        latestSpecialDay:
+          dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
         totalIncome,
         totalOnlineAmount,
         totalCustomers: dayIncomes.length,
         totalReturnAmount,
-        totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0).length,
+        totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0)
+          .length,
+        user: req.user._id,
       });
 
-      console.log("Saving FullDayIncome record:", fullDayIncome);
+      await fullDayIncome.save();
+      results.push(fullDayIncome);
 
-      try {
-        await fullDayIncome.save();
-        results.push(fullDayIncome);
+      const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
 
-        // Delete processed DailyIncome records
-        const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
-        if (incomeIds.length > 0) {
-          console.log("Deleting DailyIncome records with IDs:", incomeIds);
-          await DailyIncome.deleteMany({ user: req.user._id, _id: { $in: incomeIds } });
-        }
-      } catch (error) {
-        if (error.code === 11000) {
-          console.error("Duplicate FullDayIncome detected:", error.keyValue);
-        } else {
-          console.error("Error saving FullDayIncome:", error.message);
-        }
+      if (incomeIds.length > 0) {
+        await DailyIncome.deleteMany({
+          user: req.user._id,
+          _id: { $in: incomeIds },
+        });
       }
 
       currentDate = moment(currentDate).add(1, "day").toDate();
     }
-
-    console.log("Processing complete. Sending response.");
 
     res.status(200).json({
       message: "Full day income records created successfully.",
@@ -187,7 +161,6 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     });
   }
 });
-
 
 // Today Income 24 Hours (Indian Time) (DailyIncome)
 exports.todayIncome = catchAsyncError(async (req, res, next) => {
