@@ -54,15 +54,19 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     }
 
     const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
+    console.log("Received date:", date);
+    console.log("Parsed date (UTC):", inputDate.format());
     if (!inputDate.isValid()) {
       return res.status(400).json({ message: "Invalid date format." });
     }
 
     const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").toDate();
+    console.log("Ending date:", endDateUTC);
 
     const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
       date: 1,
     });
+
     if (!firstIncome) {
       return res.status(404).json({ message: "No income records available." });
     }
@@ -71,6 +75,8 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       .tz("Asia/Kolkata")
       .startOf("day")
       .toDate();
+
+      console.log("starting date: ", startDateUTC); 
 
     const existingFullDayIncome = await FullDayIncome.findOne({
       user: req.user._id,
@@ -82,6 +88,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         .status(400)
         .json({ message: "Income already saved for this range." });
     }
+    
 
     let currentDate = startDateUTC;
     const results = [];
@@ -140,10 +147,10 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
 
       if (incomeIds.length > 0) {
-        await DailyIncome.deleteMany({
-          user: req.user._id,
-          _id: { $in: incomeIds },
-        });
+        // await DailyIncome.deleteMany({
+        //   user: req.user._id,
+        //   _id: { $in: incomeIds },
+        // });
       }
 
       currentDate = moment(currentDate).add(1, "day").toDate();
