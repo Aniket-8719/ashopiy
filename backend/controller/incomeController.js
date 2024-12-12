@@ -10,20 +10,23 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
 
   // Check if dailyIncome is valid and can be converted to a number
   if (!dailyIncome || isNaN(Number(dailyIncome))) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid daily income" });
+    return res.status(400).json({ message: "Please provide a valid daily income" });
   }
 
-  // Get the current date and time in the Asia/Kolkata timezone
-  const indiaDateTime = moment.tz("Asia/Kolkata");
+  // Ensure that req.user exists
+  if (!req.user || !req.user._id) {
+    return res.status(400).json({ message: "User not found" });
+  }
 
-  // Create a new income entry
+  // Get the current date and time in UTC (MongoDB stores in UTC by default)
+  const utcDateTime = moment.utc();
+
+  // Create a new income entry with the date stored in UTC
   const newIncomeEntry = new DailyIncome({
-    dailyIncome: Number(dailyIncome), // Ensure it's stored as a number
-    time: indiaDateTime.format("HH:mm:ss"), // Save time in 'HH:mm:ss' format
-    day: indiaDateTime.format("dddd"), // Day of the week, e.g., "Monday"
-    date: moment.tz("Asia/Kolkata").toDate(), // Store the Date object
+    dailyIncome: Number(dailyIncome),
+    time: utcDateTime.format("HH:mm:ss"), // Time in UTC
+    day: utcDateTime.format("dddd"), // Day of the week in UTC
+    date: utcDateTime.toDate(), // Store the UTC date
     earningType: earningType || "Cash",
     latestSpecialDay: latestSpecialDay || "Normal",
     user: req.user._id,
@@ -70,6 +73,10 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     // Convert input date to UTC start and end of day
     const startDateUTC = inputDate.startOf("day").utc().toDate();
     const endDateUTC = inputDate.endOf("day").utc().toDate();
+
+    console.log("Input date in IST:", inputDate.format());
+    console.log("StartDate UTC:", startDateUTC);
+    console.log("EndDate UTC:", endDateUTC);
 
     console.log("Query range:", { startDateUTC, endDateUTC });
 
