@@ -53,20 +53,30 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       return res.status(400).json({ message: "Invalid or missing date." });
     }
 
-
     const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
+ 
+    // Debugging date handling
+    console.log("Received date:", date);
+    console.log("Parsed date (UTC):", inputDate.utc().format());
+    console.log("Parsed date (Asia/Kolkata):", inputDate.format());
+
     if (!inputDate.isValid()) {
       return res.status(400).json({ message: "Invalid date format." });
     }
 
     const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").toDate();
 
-    const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({ date: 1 });
+    const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
+      date: 1,
+    });
     if (!firstIncome) {
       return res.status(404).json({ message: "No income records available." });
     }
 
-    const startDateUTC = moment(firstIncome.date).tz("Asia/Kolkata").startOf("day").toDate();
+    const startDateUTC = moment(firstIncome.date)
+      .tz("Asia/Kolkata")
+      .startOf("day")
+      .toDate();
 
     const existingFullDayIncome = await FullDayIncome.findOne({
       user: req.user._id,
@@ -74,7 +84,9 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     });
 
     if (existingFullDayIncome) {
-      return res.status(400).json({ message: "Income already saved for this range." });
+      return res
+        .status(400)
+        .json({ message: "Income already saved for this range." });
     }
 
     let currentDate = startDateUTC;
@@ -97,9 +109,15 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       const firstTime = dayIncomes[0]?.time || "00:00:00";
       const lastTime = dayIncomes[dayIncomes.length - 1]?.time || "23:59:59";
 
-      const totalIncome = dayIncomes.reduce((sum, inc) => sum + (inc.dailyIncome || 0), 0);
+      const totalIncome = dayIncomes.reduce(
+        (sum, inc) => sum + (inc.dailyIncome || 0),
+        0
+      );
       const totalOnlineAmount = dayIncomes.reduce(
-        (sum, inc) => (inc.earningType?.toLowerCase() === "online" ? sum + (inc.dailyIncome || 0) : sum),
+        (sum, inc) =>
+          inc.earningType?.toLowerCase() === "online"
+            ? sum + (inc.dailyIncome || 0)
+            : sum,
         0
       );
       const totalReturnAmount = dayIncomes
@@ -111,12 +129,14 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         day: moment(dayStart).format("dddd"),
         month: moment(dayStart).format("MMMM"),
         time: [firstTime, lastTime],
-        latestSpecialDay: dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
+        latestSpecialDay:
+          dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
         totalIncome,
         totalOnlineAmount,
         totalCustomers: dayIncomes.length,
         totalReturnAmount,
-        totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0).length,
+        totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0)
+          .length,
         user: req.user._id,
       });
 
@@ -126,7 +146,10 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
 
       if (incomeIds.length > 0) {
-        await DailyIncome.deleteMany({ user: req.user._id, _id: { $in: incomeIds } });
+        await DailyIncome.deleteMany({
+          user: req.user._id,
+          _id: { $in: incomeIds },
+        });
       }
 
       currentDate = moment(currentDate).add(1, "day").toDate();
@@ -145,7 +168,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
   }
 });
 
-// Today Income 24 Hours (Indian Time) (DailyIncome) 
+// Today Income 24 Hours (Indian Time) (DailyIncome)
 exports.todayIncome = catchAsyncError(async (req, res, next) => {
   const { year, month, date } = req.query;
 
@@ -587,7 +610,7 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
 
 // Get Complete Income from the starting (All History)
 exports.getFullDayIncome = catchAsyncError(async (req, res, next) => {
-  const fullDayIncome = await FullDayIncome.find({user: req.user._id});
+  const fullDayIncome = await FullDayIncome.find({ user: req.user._id });
 
   res.status(200).json({
     success: true,

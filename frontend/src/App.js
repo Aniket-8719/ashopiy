@@ -32,18 +32,26 @@ function App() {
   const {user,isAuthenticated} = useSelector((state) => state.user);
 
   useEffect(() => {
-    // Get today's date in Asia/Kolkata timezone and convert to ISO string
-    const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
+    // Proceed only if the user is authenticated and user details are available
+    if (!isAuthenticated || !user?.email) return;
+  
+    // Get today's date in 'YYYY-MM-DD' format (ISO string)
+    const today = new Date().toISOString().split('T')[0];
     console.log("Today's date: ", today);
   
-    // Get the previous day's date
-    const previousDay = moment().tz("Asia/Kolkata").subtract(1, "day").format("YYYY-MM-DD");
+    // Get the previous day's date using JavaScript Date manipulation
+    const previousDay = new Date(Date.now() - 86400000).toISOString().split('T')[0]; // Subtract 1 day in milliseconds
     console.log("Previous day's date: ", previousDay);
   
     // Retrieve user markings and the last processed date from localStorage
-    const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
-    const lastProcessedDate = localStorage.getItem("lastProcessedDate");
+    let userProcessedMap = {};
+    try {
+      userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
+    } catch (error) {
+      console.error("Error parsing userProcessedMap from localStorage", error);
+    }
   
+    const lastProcessedDate = localStorage.getItem("lastProcessedDate");
     console.log("User Processed Map:", userProcessedMap);
     console.log("Last Processed Date:", lastProcessedDate);
   
@@ -61,9 +69,12 @@ function App() {
     const isUserProcessed = user?.email && userProcessedMap[user.email];
   
     // If the user is authenticated and not processed for the day
-    if (isAuthenticated && user?.email && !isUserProcessed) {
-      // Call the function to save income
-      dispatch(addFullDayEarning({ date: previousDay }));
+    if (!isUserProcessed) {
+      // Prepare the data to pass to the action dispatcher
+      const addData = { date: previousDay }; // Use 'previousDay' in 'YYYY-MM-DD' format
+  
+      // Dispatch the action to save full day income
+      dispatch(addFullDayEarning(addData));
   
       // Mark the user as processed
       userProcessedMap[user.email] = true;
@@ -73,6 +84,7 @@ function App() {
       toast.success("Previous income added");
     }
   }, [dispatch, isAuthenticated, user?.email]); // Depend on user email
+  
   useEffect(() => {
     dispatch(loadUser()); // Dispatch an action to check user authentication
   }, [dispatch]);
