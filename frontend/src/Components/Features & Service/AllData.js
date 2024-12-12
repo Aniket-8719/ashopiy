@@ -288,7 +288,7 @@ const AllData = () => {
                         filteredData?.reduce(
                           (acc, data) => acc + (data.totalCustomers || 0),
                           0
-                        )
+                        ) || 0
                       )}
                     </h1>
                   )}
