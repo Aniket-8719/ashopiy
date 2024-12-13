@@ -32,10 +32,7 @@ function App() {
   const {user,isAuthenticated} = useSelector((state) => state.user);
 
   useEffect(() => {
-    if (!isAuthenticated || !user?.email) {
-      console.log("Skipping as user is not authenticated or email is missing.");
-      return;
-    }
+    if (!isAuthenticated || !user?.email) return;
   
     const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
   
@@ -63,7 +60,7 @@ function App() {
       console.error("Error in useEffect:", error);
     }
   }, [isAuthenticated, user?.email, dispatch]); // Minimal and essential dependencies
-  
+
   useEffect(() => {
     dispatch(loadUser()); // Dispatch an action to check user authentication
   }, [dispatch]);
