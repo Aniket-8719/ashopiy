@@ -97,6 +97,9 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       const dayStart = moment(currentDate).startOf("day");
       const dayEnd = moment(currentDate).endOf("day");
 
+      console.log("day start: ",dayStart);
+      console.log("day end: ",dayEnd);
+
       const dayIncomes = await DailyIncome.find({
         user: req.user._id,
         date: { $gte: dayStart, $lte: dayEnd },
