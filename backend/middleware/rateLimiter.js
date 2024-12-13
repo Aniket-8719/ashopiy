@@ -1,9 +1,11 @@
 const rateLimit = require('express-rate-limit');
-const ErrorHandler = require('../utils/errorhandler');
 
 // Custom response handler
 const handleRateLimitError = (req, res,next, options) => {
-  return next(new ErrorHandler(options.message, options.statusCode));
+  res.status(options.statusCode || 429).json({
+    success: false,
+    message: options.message, // Send the message in a JSON response
+  });
 };
 
 // Rate limiter for registration
