@@ -90,7 +90,7 @@ const TopNavbar = ({ setMobileToggle }) => {
             </div>
           ) : (
             <Link to={"/login"}>
-              <button className="flex justify-center items-center px-6 py-2 rounded-md bg-amber-600 text-white  text-md mr-2 md:mr-4">
+              <button className="flex justify-center items-center px-6 py-2 rounded-md bg-amber-600 border border-amber-600 text-white  text-md mr-2 md:mr-4">
                 Login
               </button>
             </Link>
