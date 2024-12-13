@@ -9,18 +9,12 @@ exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
     req.body;
 
   // Check if dailyIncome is valid
-  if (!investmentIncomeByUser || isNaN(investmentIncomeByUser)) {
+  if (!investmentIncomeByUser || isNaN(investmentIncomeByUser) || investmentIncomeByUser<=0) {
     return res
       .status(400)
-      .json({ message: "Please provide a valid investment amount" });
+      .json({ message: "Please provide a valid Investment Income" });
   }
-
-  // Check if dailyIncome is negative
-  if (investmentIncomeByUser<=0) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a positive investment amount" });
-  }
+  
 
   // Use the custom date if provided, otherwise use the current date and time in Asia/Kolkata timezone
   let indiaDate;

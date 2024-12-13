@@ -84,6 +84,11 @@ const Investment = () => {
       toast.error("Please enter a valid amount");
       return;
     }
+    // Validate income input
+    if (investmentIncomeByUser <= 0) {
+      toast.error("Please enter a positive amount");
+      return;
+    }
 
     const earningData = {
       investmentIncomeByUser,

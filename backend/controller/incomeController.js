@@ -14,7 +14,7 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
       .status(400)
       .json({ message: "Please provide a valid daily income" });
   }
-
+  
   // Get the current date and time in the Asia/Kolkata timezone
   const indiaDateTime = moment.tz("Asia/Kolkata");
 

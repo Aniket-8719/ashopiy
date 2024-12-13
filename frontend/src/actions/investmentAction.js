@@ -32,9 +32,7 @@ export const addInvestment = (addData) => async (dispatch) => {
     );
     dispatch({ type: ADD_INVESTMENT_SUCCESS, payload: data.success });
   } catch (error) {
-    const errorMessage =
-      error.response?.data?.message || error.message || "Something went wrong";
-    dispatch({ type: ADD_INVESTMENT_FAIL, payload: errorMessage });
+    dispatch({ type: ADD_INVESTMENT_FAIL, payload: error.response.data.message, });
   }
 };
 
