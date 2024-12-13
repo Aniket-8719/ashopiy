@@ -77,7 +77,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       .utc()
       .toDate();
 
-      console.log("starting date: ", startDateUTC); 
+    console.log("starting date: ", startDateUTC);
 
     const existingFullDayIncome = await FullDayIncome.findOne({
       user: req.user._id,
@@ -89,17 +89,16 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         .status(400)
         .json({ message: "Income already saved for this range." });
     }
-    
 
     let currentDate = startDateUTC;
     const results = [];
 
     while (currentDate <= endDateUTC) {
       const dayStart = moment(currentDate).utc().startOf("day").toDate();
-  const dayEnd = moment(currentDate).utc().endOf("day").toDate();
+      const dayEnd = moment(currentDate).utc().endOf("day").toDate();
 
-      console.log("day start: ",dayStart);
-      console.log("day end: ",dayEnd);
+      console.log("day start: ", dayStart);
+      console.log("day end: ", dayEnd);
 
       const dayIncomes = await DailyIncome.find({
         user: req.user._id,
@@ -151,10 +150,10 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
 
       if (incomeIds.length > 0) {
-        // await DailyIncome.deleteMany({
-        //   user: req.user._id,
-        //   _id: { $in: incomeIds },
-        // });
+        await DailyIncome.deleteMany({
+          user: req.user._id,
+          _id: { $in: incomeIds },
+        });
       }
 
       currentDate = moment(currentDate).add(1, "day").toDate();

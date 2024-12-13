@@ -32,43 +32,38 @@ function App() {
   const {user,isAuthenticated} = useSelector((state) => state.user);
 
   useEffect(() => {
-    // Get today's date in Asia/Kolkata timezone and convert to ISO string
+    if (!isAuthenticated || !user?.email) {
+      console.log("Skipping as user is not authenticated or email is missing.");
+      return;
+    }
+  
     const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
-    console.log("Today's date: ", today);
   
-    // Retrieve user markings and the last processed date from localStorage
-    const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
-    const lastProcessedDate = localStorage.getItem("lastProcessedDate");
+    try {
+      const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
+      const lastProcessedDate = localStorage.getItem("lastProcessedDate");
   
-    console.log("User Processed Map:", userProcessedMap);
-    console.log("Last Processed Date:", lastProcessedDate);
+      if (lastProcessedDate !== today) {
+        Object.keys(userProcessedMap).forEach((email) => {
+          userProcessedMap[email] = false;
+        });
+        localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+        localStorage.setItem("lastProcessedDate", today);
+        console.log("Reset userProcessedMap for a new day");
+      }
   
-    // Reset user markings if the date has changed
-    if (lastProcessedDate !== today) {
-      Object.keys(userProcessedMap).forEach((email) => {
-        userProcessedMap[email] = false;
-      });
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-      localStorage.setItem("lastProcessedDate", today);
-      console.log("Reset userProcessedMap for a new day");
+      if (!userProcessedMap[user.email]) {
+        dispatch(addFullDayEarning({ date: today }));
+        userProcessedMap[user.email] = true;
+        localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+        console.log(`Processed income for user: ${user.email}`);
+        toast.success("Previous income added");
+      }
+    } catch (error) {
+      console.error("Error in useEffect:", error);
     }
+  }, [isAuthenticated, user?.email, dispatch]); // Minimal and essential dependencies
   
-    // Check if the user is already processed for the day
-    const isUserProcessed = user?.email && userProcessedMap[user.email];
-  
-    // If the user is authenticated and not processed for the day
-    if (isAuthenticated && user?.email && !isUserProcessed) {
-      // Call the function to save income
-      dispatch(addFullDayEarning({ date: today }));
-  
-      // Mark the user as processed
-      userProcessedMap[user.email] = true;
-      localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-  
-      console.log(`Processed income for user: ${user.email}`);
-      toast.success("Previous income added");
-    }
-  }, [dispatch, isAuthenticated, user?.email]); // Depend on user email
   useEffect(() => {
     dispatch(loadUser()); // Dispatch an action to check user authentication
   }, [dispatch]);
