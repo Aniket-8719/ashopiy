@@ -60,7 +60,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       return res.status(400).json({ message: "Invalid date format." });
     }
 
-    const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").toDate();
+    const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").utc().toDate();
     console.log("Ending date:", endDateUTC);
 
     const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
@@ -74,6 +74,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     const startDateUTC = moment(firstIncome.date)
       .tz("Asia/Kolkata")
       .startOf("day")
+      .utc()
       .toDate();
 
       console.log("starting date: ", startDateUTC); 
@@ -94,8 +95,8 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     const results = [];
 
     while (currentDate <= endDateUTC) {
-      const dayStart = moment(currentDate).startOf("day");
-      const dayEnd = moment(currentDate).endOf("day");
+      const dayStart = moment(currentDate).utc().startOf("day").toDate();
+  const dayEnd = moment(currentDate).utc().endOf("day").toDate();
 
       console.log("day start: ",dayStart);
       console.log("day end: ",dayEnd);
