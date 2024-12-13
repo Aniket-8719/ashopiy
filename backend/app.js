@@ -12,6 +12,10 @@ const sanitizeInputMiddleware = require("./middleware/sanitizeInput");
 
 const app = express();
 
+// Enable trust proxy to handle X-Forwarded-For headers (for proper rate limiting)
+app.set('trust proxy', true);
+
+
 // config file
 dotenv.config({path:"./config/config.env"});
 
