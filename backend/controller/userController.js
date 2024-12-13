@@ -116,7 +116,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   //  Creating Token and saving in cookie
-  const token = user.getJWTToken(); 
+  const token = user.getJWTToken();
 
   // options for cookie
   const options = {

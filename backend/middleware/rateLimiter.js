@@ -2,7 +2,7 @@ const rateLimit = require('express-rate-limit');
 const ErrorHandler = require('../utils/errorhandler');
 
 // Custom response handler
-const handleRateLimitError = (next, options) => {
+const handleRateLimitError = (req, res,next, options) => {
   return next(new ErrorHandler(options.message, options.statusCode));
 };
 
