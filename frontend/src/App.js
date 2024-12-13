@@ -36,10 +36,6 @@ function App() {
     const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
     console.log("Today's date: ", today);
   
-    // Get the previous day's date
-    const previousDay = moment().tz("Asia/Kolkata").subtract(1, "day").format("YYYY-MM-DD");
-    console.log("Previous day's date: ", previousDay);
-  
     // Retrieve user markings and the last processed date from localStorage
     const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
     const lastProcessedDate = localStorage.getItem("lastProcessedDate");
@@ -63,7 +59,7 @@ function App() {
     // If the user is authenticated and not processed for the day
     if (isAuthenticated && user?.email && !isUserProcessed) {
       // Call the function to save income
-      dispatch(addFullDayEarning({ date: previousDay }));
+      dispatch(addFullDayEarning({ date: today }));
   
       // Mark the user as processed
       userProcessedMap[user.email] = true;
