@@ -92,9 +92,9 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     const results = [];
 
     while (currentDateUTC <= endDateUTC) {
-    console.log("while loop: "); 
-    console.log("dayStart: ", dayStartUTC);
-    console.log("dayEnd: ", dayEndUTC);
+      console.log("while loop: ");
+      console.log("dayStart: ", dayStartUTC);
+      console.log("dayEnd: ", dayEndUTC);
 
       // Fetch all incomes within the IST day range
       const dayIncomes = await DailyIncome.find({
@@ -104,9 +104,15 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       if (dayIncomes.length > 0) {
         // Aggregate the data
-        const totalIncome = dayIncomes.reduce((sum, inc) => sum + (inc.dailyIncome || 0), 0);
+        const totalIncome = dayIncomes.reduce(
+          (sum, inc) => sum + (inc.dailyIncome || 0),
+          0
+        );
         const totalOnlineAmount = dayIncomes.reduce(
-          (sum, inc) => (inc.earningType?.toLowerCase() === "online" ? sum + (inc.dailyIncome || 0) : sum),
+          (sum, inc) =>
+            inc.earningType?.toLowerCase() === "online"
+              ? sum + (inc.dailyIncome || 0)
+              : sum,
           0
         );
         const totalReturnAmount = dayIncomes
@@ -128,7 +134,8 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
           totalOnlineAmount,
           totalCustomers: dayIncomes.length,
           totalReturnAmount,
-          totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0).length,
+          totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0)
+            .length,
           user: req.user._id,
         });
 
@@ -145,18 +152,22 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         });
       }
 
-       // Calculate dayStartUTC
-    dayStartUTC = moment.utc(dayStartUTC).add(1,"day").startOf("day").toDate(); // Start of the day in UTC
+      // Calculate dayStartUTC
+      dayStartUTC = moment
+        .utc(dayStartUTC)
+        .add(1, "day")
+        .startOf("day")
+        .toDate(); // Start of the day in UTC
 
-    // Calculate dayEndUTC
-    dayEndUTC = moment.utc(dayStartUTC).endOf("day").toDate(); // End of the day in UTC
+      // Calculate dayEndUTC
+      dayEndUTC = moment.utc(dayStartUTC).endOf("day").toDate(); // End of the day in UTC
 
       // Move to the next day
       currentDateUTC = dayStartUTC;
-      if(currentDateUTC > endDateUTC){
+      if (currentDateUTC > endDateUTC) {
         console.log("condition mil gai ab toot jaiga");
-        console.log("currentDateUTC",currentDateUTC);
-        console.log("endDateUTC",endDateUTC);
+        console.log("currentDateUTC", currentDateUTC);
+        console.log("endDateUTC", endDateUTC);
       }
     }
 
@@ -190,9 +201,18 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
     )}`,
     "YYYY-MM-DD",
     "Asia/Kolkata"
-  ); // Use Indian timezone
-  const startOfDay = queryDate.startOf("day").toDate();
-  const endOfDay = queryDate.endOf("day").toDate();
+  );
+  console.log("queryDate: ", queryDate);
+
+  // Use Indian timezone
+  const startOfDay = moment
+    .utc(queryDate)
+    .add(1, "day")
+    .startOf("day")
+    .toDate();
+  const endOfDay = moment.utc(startOfDay).endOf("day").toDate();
+  console.log("startOfDay: ", startOfDay);
+  console.log("endOfDay: ", endOfDay);
 
   const todayIncomeData = await DailyIncome.find({
     user: req.user._id,
@@ -201,7 +221,7 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
 
   const formattedIncome = todayIncomeData.map((item) => ({
     income: item.dailyIncome,
-    time: moment(item.time, 'HH:mm').format('hh:mm A'), // Indian time
+    time: moment(item.time, "HH:mm").format("hh:mm A"), // Indian time
     earningType: item.earningType || "Cash",
     objectId: item._id,
   }));
@@ -293,17 +313,23 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Valid year and month must be provided", 400));
   }
 
+  // Calculate the number of days in the month using UTC
   const daysInMonth = moment
-    .tz({ year: queryYear, month: queryMonth - 1 }, "Asia/Kolkata")
+    .utc(`${queryYear}-${queryMonth}`, "YYYY-MM")
     .daysInMonth();
+
+  // Start and end dates using UTC
   const startDate = moment
-    .tz(`${queryYear}-${queryMonth}-01`, "Asia/Kolkata")
+    .utc(`${queryYear}-${queryMonth}-01`, "YYYY-MM-DD")
     .startOf("day")
     .toDate();
   const endDate = moment
-    .tz(`${queryYear}-${queryMonth}-${daysInMonth}`, "Asia/Kolkata")
+    .utc(`${queryYear}-${queryMonth}-${daysInMonth}`, "YYYY-MM-DD")
     .endOf("day")
     .toDate();
+
+    console.log("startOfDay: ", startDate);
+    console.log("endOfDay: ", endDate);
 
   // Aggregate income data with proper timezone handling for FullDayIncome
   const fullDayIncome = await FullDayIncome.aggregate([
@@ -506,7 +532,11 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
   let endDate;
   if (queryYear === todayYear && queryMonth === todayMonth) {
     // Limit end date to the current day and time
-    endDate = today.endOf("day").toDate();
+    endDate = moment
+      .tz(today, "Asia/Kolkata")
+      .utc() // Convert to UTC
+      .endOf("day") // End of the day in UTC
+      .toDate();
   } else {
     // For past months, include the full last day of the month
     endDate = moment
@@ -514,14 +544,22 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
         { year: queryYear, month: queryMonth - 1, day: daysInMonth },
         "Asia/Kolkata"
       )
-      .endOf("day")
+      .utc() // Convert to UTC
+      .endOf("day") // End of the day in UTC 
       .toDate();
   }
 
   const startDate = moment
     .tz({ year: queryYear, month: queryMonth - 1, day: 1 }, "Asia/Kolkata")
-    .startOf("day")
+    .utc() // Convert to UTC
+    .startOf("day") // Start of the day in UTC
     .toDate();
+
+  console.log("startOfDay: ", startDate);
+  console.log("endOfDay: ", endDate);
+
+  const userJoiningDate =  moment(req.user.createdAt).startOf('day');
+  console.log("createdDateUser: ", userJoiningDate.toDate());
 
   // Aggregate income data with proper timezone handling
   const fullDayIncome = await FullDayIncome.aggregate([
@@ -583,16 +621,16 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
       "Asia/Kolkata"
     );
 
-    // Skip generating data for future dates
+    // Skip generating data for dates before `userJoiningDate` or future dates
     if (
-      queryYear === todayYear &&
-      queryMonth === todayMonth &&
-      day > todayDay
+      date.toDate() < userJoiningDate.toDate() ||
+      (queryYear === todayYear && queryMonth === todayMonth && day > todayDay)
     ) {
       return null;
     }
 
-    const foundDay = fullDayIncome.find((item) => item.day === day);
+
+    const foundDay = fullDayIncome.find((item) => item.day === day); 
 
     return {
       date: date.format("DD/MM/YYYY"),
