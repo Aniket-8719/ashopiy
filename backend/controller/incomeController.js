@@ -328,6 +328,11 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     .endOf("day")
     .toDate();
 
+    
+  const userJoiningDate =  moment(req.user.createdAt).startOf('day');
+  console.log("createdDateUser: ", userJoiningDate.toDate());
+
+
     console.log("startOfDay: ", startDate);
     console.log("endOfDay: ", endDate);
 
@@ -383,6 +388,15 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     },
     { $sort: { "_id.day": 1 } }, // Sort by day
   ]);
+
+   // Skip generating data for dates before `userJoiningDate` or future dates
+   if (
+    date.toDate() < userJoiningDate.toDate() ||
+    (queryYear === todayYear && queryMonth === todayMonth && day > todayDay)
+  ) {
+    return null;
+  }
+
 
   // Format daily income data
   const formattedDailyIncome = Array.from({ length: daysInMonth }, (_, idx) => {
@@ -558,7 +572,7 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
   console.log("startOfDay: ", startDate);
   console.log("endOfDay: ", endDate);
 
-  const userJoiningDate =  moment(req.user.createdAt).startOf('day');
+  const userJoiningDate =  moment(req.user.createdAt).subtract(1,"day");
   console.log("createdDateUser: ", userJoiningDate.toDate());
 
   // Aggregate income data with proper timezone handling
