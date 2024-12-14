@@ -334,7 +334,7 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     .endOf("day")
     .toDate();
 
-  const userJoiningDate = moment(req.user.createdAt).startOf("day");
+  const userJoiningDate = moment(req.user.createdAt).subtract(1,"day");
   console.log("User Joining Date:", userJoiningDate.toDate());
 
   // Aggregate income data
