@@ -313,12 +313,18 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Valid year and month must be provided", 400));
   }
 
-  // Calculate the number of days in the month using UTC
+  // Get today's date
+  const today = moment().tz("Asia/Kolkata");
+  const todayYear = today.year();
+  const todayMonth = today.month() + 1; // month() returns 0-based index
+  const todayDay = today.date();
+
+  // Calculate the number of days in the month
   const daysInMonth = moment
     .utc(`${queryYear}-${queryMonth}`, "YYYY-MM")
     .daysInMonth();
 
-  // Start and end dates using UTC
+  // Start and end dates
   const startDate = moment
     .utc(`${queryYear}-${queryMonth}-01`, "YYYY-MM-DD")
     .startOf("day")
@@ -328,25 +334,19 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     .endOf("day")
     .toDate();
 
-    
-  const userJoiningDate =  moment(req.user.createdAt).startOf('day');
-  console.log("createdDateUser: ", userJoiningDate.toDate());
+  const userJoiningDate = moment(req.user.createdAt).startOf("day");
+  console.log("User Joining Date:", userJoiningDate.toDate());
 
-
-    console.log("startOfDay: ", startDate);
-    console.log("endOfDay: ", endDate);
-
-  // Aggregate income data with proper timezone handling for FullDayIncome
+  // Aggregate income data
   const fullDayIncome = await FullDayIncome.aggregate([
     {
       $match: {
         user: req.user._id,
-        date: { $gte: startDate, $lte: endDate }, // Match records within the correct month range
+        date: { $gte: startDate, $lte: endDate },
       },
     },
     {
       $addFields: {
-        // Extract the day of the month from the FullDayIncome date
         day: {
           $dayOfMonth: {
             $dateFromParts: {
@@ -372,57 +372,60 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     },
     {
       $project: {
-        // Include all the fields you need for each entry
         _id: 1,
         date: 1,
         day: 1,
-        month: 1,
-        time: 1,
-        latestSpecialDay: 1,
         totalIncome: 1,
         totalCustomers: 1,
         totalOnlineAmount: 1,
         totalReturnCustomers: 1,
         totalReturnAmount: 1,
+        latestSpecialDay: 1,
+        time: 1,
       },
     },
-    { $sort: { "_id.day": 1 } }, // Sort by day
+    { $sort: { "_id.day": 1 } },
   ]);
-
-   // Skip generating data for dates before `userJoiningDate` or future dates
-   if (
-    date.toDate() < userJoiningDate.toDate() ||
-    (queryYear === todayYear && queryMonth === todayMonth && day > todayDay)
-  ) {
-    return null;
-  }
-
 
   // Format daily income data
   const formattedDailyIncome = Array.from({ length: daysInMonth }, (_, idx) => {
     const day = idx + 1;
+
+    // Calculate the date for the current day in the loop
+    const date = moment.tz(
+      { year: queryYear, month: queryMonth - 1, day },
+      "Asia/Kolkata"
+    );
+
+    // Skip generating data for dates before `userJoiningDate` or future dates
+    if (
+      date.toDate() < userJoiningDate.toDate() || // Skip dates before userJoiningDate
+      (queryYear === todayYear && queryMonth === todayMonth && day > todayDay) // Skip future dates
+    ) {
+      return null;
+    }
+
     const foundDay = fullDayIncome.find((item) => item.day === day);
 
     return {
-      date: moment
-        .tz({ year: queryYear, month: queryMonth - 1, day }, "Asia/Kolkata")
-        .format("DD/MM/YYYY"),
-      dayOfWeek: foundDay ? foundDay.day : null, // Day of the week (e.g., "Monday")
+      date: date.format("DD/MM/YYYY"),
+      dayOfWeek: date.format("dddd"),
       totalIncome: foundDay ? foundDay.totalIncome : 0,
       totalCustomers: foundDay ? foundDay.totalCustomers : 0,
       totalOnlineAmount: foundDay ? foundDay.totalOnlineAmount : 0,
       totalReturnCustomers: foundDay ? foundDay.totalReturnCustomers : 0,
       totalReturnAmount: foundDay ? foundDay.totalReturnAmount : 0,
-      latestSpecialDay: foundDay ? foundDay.latestSpecialDay : null, // Special day if any
-      time: foundDay ? foundDay.time : [], // Include the time array
+      latestSpecialDay: foundDay ? foundDay.latestSpecialDay : null,
+      time: foundDay ? foundDay.time : [],
     };
-  });
+  }).filter((entry) => entry !== null); // Remove null entries
 
   res.status(200).json({
     success: true,
     perDayIncome: formattedDailyIncome,
   });
 });
+
 
 // Monthly Income Aggregation (Indian Time)
 exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
