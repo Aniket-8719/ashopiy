@@ -112,8 +112,8 @@ function App() {
         <Route path="/staffMangement" element={<StaffManagement />} />
         <Route path="/uDhaarBook" element={<UdhaarBook />} />
         <Route path="/billing" element={<Billing />} />
-        <Route path="/addUdhar" element={<AddUdhar />} />
-        <Route path="/udharList" element={<UdharList />} />
+        {/* <Route path="/addUdhar" element={<AddUdhar />} />
+        <Route path="/udharList" element={<UdharList />} /> */}
         <Route exact path="*" element={<NotFound/>} />
       </Routes>
     </>
