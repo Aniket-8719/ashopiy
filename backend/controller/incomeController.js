@@ -14,16 +14,19 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
       .status(400)
       .json({ message: "Please provide a valid daily income" });
   }
-  
+
   // Get the current date and time in the Asia/Kolkata timezone
   const indiaDateTime = moment.tz("Asia/Kolkata");
+
+  // Add 5 hours and 30 minutes to adjust to UTC
+  const utcDateTime = indiaDateTime.clone().add(5, "hours").add(30, "minutes");
 
   // Create a new income entry
   const newIncomeEntry = new DailyIncome({
     dailyIncome: Number(dailyIncome), // Ensure it's stored as a number
     time: indiaDateTime.format("HH:mm:ss"), // Save time in 'HH:mm:ss' format
     day: indiaDateTime.format("dddd"), // Day of the week, e.g., "Monday"
-    date: moment.tz("Asia/Kolkata").toDate(), // Store the Date object
+    date: utcDateTime.toDate(), // Store the UTC Date object after adjustment
     earningType: earningType || "Cash",
     latestSpecialDay: latestSpecialDay || "Normal",
     user: req.user._id,
@@ -47,105 +50,91 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Unauthorized: User not found." });
     }
-    console.log(req.user._id);
 
     if (!date) {
       return res.status(400).json({ message: "Invalid or missing date." });
     }
 
-    const inputDate = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
-    console.log("Received date:", date);
-    console.log("Parsed date (UTC):", inputDate.format());
-    if (!inputDate.isValid()) {
+    // Parse input date in IST and convert to UTC
+    const inputDateIST = moment.tz(date, "YYYY-MM-DD", "Asia/Kolkata");
+    if (!inputDateIST.isValid()) {
       return res.status(400).json({ message: "Invalid date format." });
     }
+    console.log(inputDateIST);
 
-    const endDateUTC = inputDate.endOf("day").tz("Asia/Kolkata").utc().toDate();
-    console.log("Ending date:", endDateUTC);
+    // Calculate the end of the day in IST and then convert to UTC
+    const endDateUTC = inputDateIST
+      .endOf("day") // End of the day in IST (23:59:59.999 in Asia/Kolkata)
+      .utc()
+      .add(5, "hours")
+      .add(30, "minutes") // Convert to UTC
+      .toDate(); // Convert to JavaScript Date object
 
+    console.log("End Date UTC: ", endDateUTC);
+
+    // Get the earliest income record for the user
     const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
       date: 1,
     });
-
     if (!firstIncome) {
       return res.status(404).json({ message: "No income records available." });
     }
 
-    const startDateUTC = moment(firstIncome.date)
-      .tz("Asia/Kolkata")
-      .startOf("day")
-      .utc()
-      .toDate();
+    let currentDateUTC = moment(firstIncome.date).toDate();
+    console.log("currentDateUTC: ", currentDateUTC);
 
-    console.log("starting date: ", startDateUTC);
+    // Calculate dayStartUTC
+    let dayStartUTC = moment.utc(currentDateUTC).startOf("day").toDate(); // Start of the day in UTC
 
-    const existingFullDayIncome = await FullDayIncome.findOne({
-      user: req.user._id,
-      date: { $gte: startDateUTC, $lte: endDateUTC },
-    });
+    // Calculate dayEndUTC
+    let dayEndUTC = moment.utc(dayStartUTC).endOf("day").toDate(); // End of the day in UTC
 
-    if (existingFullDayIncome) {
-      return res
-        .status(400)
-        .json({ message: "Income already saved for this range." });
-    }
-
-    let currentDate = startDateUTC;
     const results = [];
 
-    while (currentDate <= endDateUTC) {
-      const dayStart = moment(currentDate).utc().startOf("day").toDate();
-      const dayEnd = moment(currentDate).utc().endOf("day").toDate();
+    while (currentDateUTC <= endDateUTC) {
+    console.log("while loop: "); 
+    console.log("dayStart: ", dayStartUTC);
+    console.log("dayEnd: ", dayEndUTC);
 
-      console.log("day start: ", dayStart);
-      console.log("day end: ", dayEnd);
-
+      // Fetch all incomes within the IST day range
       const dayIncomes = await DailyIncome.find({
         user: req.user._id,
-        date: { $gte: dayStart, $lte: dayEnd },
+        date: { $gte: dayStartUTC, $lte: dayEndUTC },
       }).sort({ time: 1 });
 
-      if (!dayIncomes || dayIncomes.length === 0) {
-        currentDate = moment(currentDate).add(1, "day").toDate();
-        continue;
+      if (dayIncomes.length > 0) {
+        // Aggregate the data
+        const totalIncome = dayIncomes.reduce((sum, inc) => sum + (inc.dailyIncome || 0), 0);
+        const totalOnlineAmount = dayIncomes.reduce(
+          (sum, inc) => (inc.earningType?.toLowerCase() === "online" ? sum + (inc.dailyIncome || 0) : sum),
+          0
+        );
+        const totalReturnAmount = dayIncomes
+          .filter((inc) => inc.dailyIncome < 0)
+          .reduce((sum, inc) => sum + Math.abs(inc.dailyIncome), 0);
+
+        // Create and save the FullDayIncome document
+        const fullDayIncome = new FullDayIncome({
+          date: moment(dayStartUTC).tz("Asia/Kolkata").format("YYYY-MM-DD"),
+          day: moment(dayStartUTC).tz("Asia/Kolkata").format("dddd"),
+          month: moment(dayStartUTC).tz("Asia/Kolkata").format("MMMM"),
+          time: [
+            dayIncomes[0]?.time || "00:00:00",
+            dayIncomes[dayIncomes.length - 1]?.time || "23:59:59",
+          ],
+          latestSpecialDay:
+            dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
+          totalIncome,
+          totalOnlineAmount,
+          totalCustomers: dayIncomes.length,
+          totalReturnAmount,
+          totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0).length,
+          user: req.user._id,
+        });
+
+        await fullDayIncome.save();
+        results.push(fullDayIncome);
       }
-
-      const firstTime = dayIncomes[0]?.time || "00:00:00";
-      const lastTime = dayIncomes[dayIncomes.length - 1]?.time || "23:59:59";
-
-      const totalIncome = dayIncomes.reduce(
-        (sum, inc) => sum + (inc.dailyIncome || 0),
-        0
-      );
-      const totalOnlineAmount = dayIncomes.reduce(
-        (sum, inc) =>
-          inc.earningType?.toLowerCase() === "online"
-            ? sum + (inc.dailyIncome || 0)
-            : sum,
-        0
-      );
-      const totalReturnAmount = dayIncomes
-        .filter((inc) => inc.dailyIncome < 0)
-        .reduce((sum, inc) => sum + Math.abs(inc.dailyIncome), 0);
-
-      const fullDayIncome = new FullDayIncome({
-        date: dayIncomes[0].date,
-        day: moment(dayStart).format("dddd"),
-        month: moment(dayStart).format("MMMM"),
-        time: [firstTime, lastTime],
-        latestSpecialDay:
-          dayIncomes[dayIncomes.length - 1]?.latestSpecialDay || "Normal",
-        totalIncome,
-        totalOnlineAmount,
-        totalCustomers: dayIncomes.length,
-        totalReturnAmount,
-        totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0)
-          .length,
-        user: req.user._id,
-      });
-
-      await fullDayIncome.save();
-      results.push(fullDayIncome);
 
       const incomeIds = dayIncomes.map((inc) => inc._id).filter(Boolean);
 
@@ -156,7 +145,19 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
         });
       }
 
-      currentDate = moment(currentDate).add(1, "day").toDate();
+       // Calculate dayStartUTC
+    dayStartUTC = moment.utc(dayStartUTC).add(1,"day").startOf("day").toDate(); // Start of the day in UTC
+
+    // Calculate dayEndUTC
+    dayEndUTC = moment.utc(dayStartUTC).endOf("day").toDate(); // End of the day in UTC
+
+      // Move to the next day
+      currentDateUTC = dayStartUTC;
+      if(currentDateUTC > endDateUTC){
+        console.log("condition mil gai ab toot jaiga");
+        console.log("currentDateUTC",currentDateUTC);
+        console.log("endDateUTC",endDateUTC);
+      }
     }
 
     res.status(200).json({
@@ -200,7 +201,7 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
 
   const formattedIncome = todayIncomeData.map((item) => ({
     income: item.dailyIncome,
-    time: moment.tz(item.date, "Asia/Kolkata").format("h:mm A"), // Indian time
+    time: moment(item.time, 'HH:mm').format('hh:mm A'), // Indian time
     earningType: item.earningType || "Cash",
     objectId: item._id,
   }));

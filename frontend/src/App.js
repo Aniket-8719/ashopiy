@@ -26,6 +26,8 @@ import ProtectedRoute from "./Components/Protected Route/ProtectedRoute";
 import ViewDetails from "./Components/Admin/ViewDetails";
 import EditUserProfile from "./Components/Admin/EditUserProfile";
 import UdhaarBook from "./Components/Features & Service/UdhaarBook";
+import AddUdhar from "./Components/UdharBook/AddUdhar";
+import UdharList from "./Components/UdharBook/UdharList";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,7 +37,10 @@ function App() {
     if (!isAuthenticated || !user?.email) return;
   
     const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
-  
+    const previousDay = moment().tz("Asia/Kolkata").subtract(1, 'day').startOf('day').format("YYYY-MM-DD");
+
+    console.log(previousDay); // This will output the previous day's date in "YYYY-MM-DD" format
+
     try {
       const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
       const lastProcessedDate = localStorage.getItem("lastProcessedDate");
@@ -48,9 +53,8 @@ function App() {
         localStorage.setItem("lastProcessedDate", today);
         console.log("Reset userProcessedMap for a new day");
       }
-  
       if (!userProcessedMap[user.email]) {
-        dispatch(addFullDayEarning({ date: today }));
+        dispatch(addFullDayEarning({ date: previousDay }));
         userProcessedMap[user.email] = true;
         localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
         console.log(`Processed income for user: ${user.email}`);
@@ -108,6 +112,8 @@ function App() {
         <Route path="/staffMangement" element={<StaffManagement />} />
         <Route path="/uDhaarBook" element={<UdhaarBook />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/addUdhar" element={<AddUdhar />} />
+        <Route path="/udharList" element={<UdharList />} />
         <Route exact path="*" element={<NotFound/>} />
       </Routes>
     </>
