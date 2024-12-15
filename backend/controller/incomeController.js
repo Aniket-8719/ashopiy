@@ -575,8 +575,8 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
   console.log("startOfDay: ", startDate);
   console.log("endOfDay: ", endDate);
 
-  const userJoiningDate = moment.utc(req.user.createdAt).subtract(5,"hours").subtract(30,"minutes");;
-  console.log("createdDateUser: ", userJoiningDate.toDate());
+  // const userJoiningDate = moment.utc(req.user.createdAt);
+  // console.log("createdDateUser: ", userJoiningDate.toDate());
 
   // Aggregate income data with proper timezone handling
   const fullDayIncome = await FullDayIncome.aggregate([
@@ -635,12 +635,12 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
     const day = idx + 1;
     const date = moment.utc(
       { year: queryYear, month: queryMonth - 1, day },
-    ).subtract(5,"hours").subtract(30,"minutes");;
-    console.log("Comparing Date:", date.toDate()); 
+    );
+    // console.log("Comparing Date:", date.toDate()); 
 
     // Skip generating data for dates before `userJoiningDate` or future dates
     if (
-      date.toDate() < userJoiningDate.toDate() ||
+      // date.toDate() < userJoiningDate.toDate() ||
       (queryYear === todayYear && queryMonth === todayMonth && day > todayDay)
     ) {
       return null;
