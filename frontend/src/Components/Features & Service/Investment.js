@@ -19,6 +19,7 @@ import {
 } from "../../constants/investmentConstants";
 import ExcelJS from "exceljs";
 import { HiDownload } from "react-icons/hi";
+import LineSkelton from "../Skelton/LineSkelton";
 
 const Investment = () => {
   const columns = [
@@ -51,7 +52,7 @@ const Investment = () => {
     customDate: indiaDate,
   });
 
-  const { investments, error, loading } = useSelector(
+  const { investments, error,loading } = useSelector(
     (state) => state.investmentData
   );
   const { isAdded } = useSelector((state) => state.currentInvestment);
@@ -333,7 +334,7 @@ const Investment = () => {
                 } py-3 flex items-center justify-center   text-white text-center rounded-sm `}
                 disabled={loading}
               >
-                {editCheck ? "Update Investment" : "Add Investment"}
+                 {loading ? <Loader /> : editCheck ? "Update Investment" : "Add Investment"}
               </button>
             </form>
 
@@ -348,7 +349,7 @@ const Investment = () => {
                   <div className="">
                     <h1 className="text-sm md:text-md">Total Investing:</h1>
                     {loading ? (
-                      <p>Loading...</p>
+                      <LineSkelton/>
                     ) : (
                       <h1 className="text-xl md:text-2xl text-green-500 font-bold">
                         +
@@ -363,7 +364,7 @@ const Investment = () => {
                   <div className="">
                     <h1 className="text-sm md:text-md">Total Earning:</h1>
                     {loading ? (
-                      <p>Loading...</p>
+                       <LineSkelton/>
                     ) : (
                       <h1 className="text-xl md:text-2xl font-bold text-purple-500">
                         +
@@ -376,7 +377,7 @@ const Investment = () => {
                   <div className="">
                     <h1 className="text-sm md:text-md">Profit/Loss:</h1>
                     {loading ? (
-                      <p>Loading...</p>
+                      <LineSkelton/>
                     ) : (
                       <h1 className="text-xl md:text-2xl font-bold text-purple-500">
                         {(() => {

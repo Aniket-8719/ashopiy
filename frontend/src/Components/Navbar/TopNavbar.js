@@ -6,12 +6,13 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import moment from "moment-timezone";
 import defaultUserImg from "../assests/default-user-profile-img.png";
+import ProfileSkelton from "../Skelton/ProfileSkelton";
 
 const TopNavbar = ({ setMobileToggle }) => {
   const [showOptions, setShowOptions] = useState(false);
   const profileRef = useRef(null); // To track clicks on the image
 
-  const {isAuthenticated,user } = useSelector(
+  const {isAuthenticated,user,loading } = useSelector(
     (state) => state.user
   );
 
@@ -53,7 +54,8 @@ const TopNavbar = ({ setMobileToggle }) => {
 
         {/* Right side :- profile image or details */}
         <div className="flex flex-col items-center justify-center">
-          {isAuthenticated ? (
+         {loading ? (<ProfileSkelton/>):(
+           isAuthenticated ? (
             <div className="flex justify-center items-center gap-2">
               <div>
                 <h1 className="text-right text-md md:text-lg font-bold">
@@ -94,7 +96,8 @@ const TopNavbar = ({ setMobileToggle }) => {
                 Login
               </button>
             </Link>
-          )}
+          )
+         )}
         </div>
       </div>
     </div>

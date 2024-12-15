@@ -21,6 +21,7 @@ import moment from "moment-timezone";
 import getHolidayName from "../../Holiday Library/holidays";
 import ExcelJS from "exceljs";
 import { HiDownload } from "react-icons/hi";
+import LineSkelton from "../Skelton/LineSkelton";
 
 const DailyEarning = () => {
   const columns = [
@@ -346,12 +347,18 @@ const DailyEarning = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Total Income:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                    <LineSkelton/>
                   ) : (
-                    <h1 className="text-xl md:text-2xl text-green-500 font-bold">
-                      +
+                    <h1
+                      className={`text-xl md:text-2xl font-bold ${
+                        (todayData?.totalIncome || 0) >= 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {todayData?.totalIncome >= 0 ? "+" : "-"}
                       {new Intl.NumberFormat("en-IN").format(
-                        todayData?.totalIncome || 0
+                        Math.abs(todayData?.totalIncome || 0)
                       )}
                     </h1>
                   )}
@@ -359,7 +366,7 @@ const DailyEarning = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Customers:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                     <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl font-bold text-purple-500">
                       +{todayData?.totalCustomerCount || 0}{" "}

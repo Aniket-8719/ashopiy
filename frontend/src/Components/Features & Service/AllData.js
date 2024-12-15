@@ -7,6 +7,7 @@ import ExcelJS from "exceljs";
 import moment from "moment-timezone";
 import { HiDownload } from "react-icons/hi";
 import MetaData from "../Layouts/MetaData";
+import LineSkelton from "../Skelton/LineSkelton";
 
 const AllData = () => {
   const columns = [
@@ -23,7 +24,7 @@ const AllData = () => {
     { header: "Loss Amount", key: "totalReturnAmount" },
   ];
   const dispatch = useDispatch();
-  const { monthlyHistoryData, error, loading } = useSelector(
+  const { monthlyHistoryData, error,loading } = useSelector(
     (state) => state.monthlyHistory
   );
   const today = new Date();
@@ -227,7 +228,7 @@ const AllData = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Total Income:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                   <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl text-green-500 font-bold">
                       +
@@ -243,7 +244,7 @@ const AllData = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Cash Amount:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                     <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl text-violet-700 font-bold">
                       +
@@ -262,7 +263,7 @@ const AllData = () => {
                 <div className=" md:pr-12">
                   <h1 className="text-sm md:text-md">Online Amount:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                    <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl text-blue-500 font-bold">
                       +
@@ -280,7 +281,7 @@ const AllData = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Customers:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                   <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl font-bold text-purple-500">
                       +
@@ -296,7 +297,7 @@ const AllData = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Active Days</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                    <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl font-bold text-green-600">
                       +
@@ -310,7 +311,7 @@ const AllData = () => {
                 <div className="">
                   <h1 className="text-sm md:text-md">Item Return Customers:</h1>
                   {loading ? (
-                    <p>Loading...</p>
+                    <LineSkelton/>
                   ) : (
                     <h1 className="text-xl md:text-2xl text-yellow-500 font-bold">
                       +
@@ -327,7 +328,7 @@ const AllData = () => {
               <div className="pl-4">
                 <h1 className="text-sm md:text-md">Loss Amount:</h1>
                 {loading ? (
-                  <p>Loading...</p>
+                  <LineSkelton/>
                 ) : (
                   <h1 className="text-xl md:text-2xl text-red-500 font-bold">
                     +

@@ -422,7 +422,6 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 // Monthly Income Aggregation (Indian Time)
 exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
   const { year } = req.query;
