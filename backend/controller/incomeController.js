@@ -272,7 +272,8 @@ exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
   }
 
   income.dailyIncome = req.body.dailyIncome;
-  income.specialDay = req.body.specialDay;
+  income.earningType = req.body.earningType; 
+  
 
   // Save the updated income
   await income.save();
