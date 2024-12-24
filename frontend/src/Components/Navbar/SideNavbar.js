@@ -72,14 +72,14 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
         <div><FaMoneyBillTransfer className="text-xl"/></div>
         <div><h1 className="text-xl">History</h1></div>
         </Link>  
-        <Link to={"/staffMangement"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
+        {/* <Link to={"/staffMangement"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
         <div><MdManageAccounts className="text-2xl"/></div>
         <div><h1 className="text-xl">Staff Mangement</h1></div>
         </Link>
         <Link to={"/billing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
         <div><IoReceiptSharp className="text-xl"/></div>
         <div><h1 className="text-xl">Billing</h1></div>
-        </Link>
+        </Link> */}
         </>
       )
       
