@@ -15,7 +15,7 @@ const Home = () => {
             {/* Text Section */}
             <div className="text-left w-full md:max-w-[50%] lg:max-w-[45%] px-2">
               <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-snug md:leading-normal mb-6 text-gray-900 ">
-             <span className="text-2xl sm:text-3xl md:text-5xl text-amber-500 mr-2 md:mr-4 ">ashopiy</span>  के साथ अब अपनी दैनिक आय का हिसाब रखना हुआ और भी आसान.
+             <span className="text-2xl sm:text-3xl md:text-5xl text-amber-600 mr-2 md:mr-4 ">ashopiy</span>  के साथ अब अपनी दैनिक आय का हिसाब रखना हुआ और भी आसान.
               </h1>
               <p className="text-sm sm:text-md md:text-lg mb-6 text-gray-600">
                 Our platform is designed to simplify how you manage your
