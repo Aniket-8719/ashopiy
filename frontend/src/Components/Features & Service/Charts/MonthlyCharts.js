@@ -40,10 +40,10 @@ const MonthlyCharts = () => {
     );
   }
 
-  if (error) {
-    toast.error(error);
-    dispatch(clearErrors());
-  }
+  // if (error) {
+  //   toast.error(error);
+  //   dispatch(clearErrors());
+  // }
 
   // Excel Download Function
   const downloadExcel = () => {

@@ -35,6 +35,9 @@ import {
   USER_DETAILS_REQUEST,
   USER_DETAILS_SUCCESS,
   USER_DETAILS_FAIL,
+  CONTACTUS_REQUEST,
+  CONTACTUS_SUCCESS,
+  CONTACTUS_FAIL,
   CLEAR_ERRORS,
 } from "../constants/userConstants";
 
@@ -212,8 +215,7 @@ export const resetPassword = (token, passwords) => async (dispatch) => {
 };
 
 // get All Users with filters
-export const getAllUsers =
-  (queryParams = "") =>
+export const getAllUsers = (queryParams = "") =>
   async (dispatch) => {
     try {
       dispatch({ type: ALL_USERS_REQUEST });
@@ -285,6 +287,42 @@ export const deleteUser = (id) => async (dispatch) => {
     dispatch({
       type: DELETE_USER_FAIL,
       payload: error.response.data.message,
+    });
+  }
+};
+
+// Contact Us page
+export const contactUs = (sentData) => async (dispatch) => {
+  try {
+    dispatch({ type: CONTACTUS_REQUEST });
+
+    // Configuration for the request
+    const config = {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true, // Ensure credentials like cookies are sent
+    };
+
+    // Making the POST request to add income
+    const { data } = await axios.post(
+      `${API_URL}/api/v2/contactUs`,
+      sentData,
+      config
+    );
+
+    // Dispatch success action with response data
+    dispatch({
+      type: CONTACTUS_SUCCESS,
+      payload: data.success,
+    });
+  } catch (error) {
+    // Extract a proper error message
+    const errorMessage =
+      error.response?.data?.message || error.message || "Something went wrong";
+
+    // Dispatch failure action with the error message
+    dispatch({
+      type: CONTACTUS_FAIL,
+      payload: errorMessage,
     });
   }
 };

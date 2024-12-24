@@ -27,6 +27,9 @@ import {
   GET_MONTHLY_HISTORY_REQUEST,
   GET_MONTHLY_HISTORY_SUCCESS,
   GET_MONTHLY_HISTORY_FAIL,
+  GET_COMPLETE_DATA_REQUEST,
+  GET_COMPLETE_DATA_SUCCESS,
+  GET_COMPLETE_DATA_FAIL,
   CLEAR_ERRORS,
 } from "../constants/earningConstants";
 
@@ -248,6 +251,28 @@ export const getMonthlyHistory = (month, year) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_MONTHLY_HISTORY_FAIL,
+      payload: error.response.data.message,
+    });
+  }
+};
+
+// Monthly History
+export const getCompleteData = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_COMPLETE_DATA_REQUEST });
+    const { data } = await axios.get(
+      `${API_URL}/api/v2/completeData`,
+      {
+        withCredentials: true, // Include this option to send cookies with the request
+      }
+    );
+    dispatch({
+      type: GET_COMPLETE_DATA_SUCCESS,
+      payload: data.fullDayIncome,
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_COMPLETE_DATA_FAIL,
       payload: error.response.data.message,
     });
   }

@@ -40,7 +40,7 @@ const PiChart = () => {
       </div>
     );
   }
-  if (error) return <p>Error: {error.message}</p>;
+  // if (error) return <p>Error: {error.message}</p>;
 
   return (
    

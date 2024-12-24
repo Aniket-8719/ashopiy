@@ -50,6 +50,11 @@ import {
     USER_DETAILS_SUCCESS,
     USER_DETAILS_FAIL,
     
+    CONTACTUS_REQUEST,
+    CONTACTUS_SUCCESS,
+    CONTACTUS_FAIL,
+    CONTACTUS_RESET,
+    
     CLEAR_ERRORS,
   } from "../constants/userConstants";
   
@@ -271,6 +276,41 @@ import {
           error: action.payload,
         };
   
+      case CLEAR_ERRORS:
+        return {
+          ...state,
+          error: null,
+        };
+      default:
+        return state;
+    }
+  };
+
+  // Contact Us page
+  export const contactusRducer = (state = {}, action) => {
+    switch (action.type) {
+      case CONTACTUS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+        };
+      case CONTACTUS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          isEmailSent: true,
+        };
+      case CONTACTUS_FAIL:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+      case CONTACTUS_RESET:
+        return {
+          ...state,
+          isEmailSent: false,
+        };
       case CLEAR_ERRORS:
         return {
           ...state,

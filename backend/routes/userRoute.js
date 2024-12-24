@@ -1,10 +1,10 @@
 const express = require("express");
-const { registerUser, loginUser, logout, forgotPassword, resetPassword, getUserDetails, updatePassword, updateProfile, getAllUser, getSingleUser, updateUserRole, getAllAdmins, deleteUser } = require("../controller/userController");
+const { registerUser, loginUser, logout, forgotPassword, resetPassword, getUserDetails, updatePassword, updateProfile, getAllUser, getSingleUser, updateUserRole, getAllAdmins, deleteUser, contactUsEmailRecieve } = require("../controller/userController");
 const router = express.Router();
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 
 // Import the rate limiters
-const { registrationLimiter, loginLimiter } = require("../middleware/rateLimiter");
+const { registrationLimiter, loginLimiter, contactUsmessage } = require("../middleware/rateLimiter");
 
 
 router.route("/registerUser").post(registrationLimiter, registerUser);
@@ -22,6 +22,8 @@ router.route("/admin/allUsers").get(isAuthenticatedUser, authorizedRoles("admin"
 router.route("/admin/user/:id").get(isAuthenticatedUser, authorizedRoles("admin"), getSingleUser)
                                 .put(isAuthenticatedUser, authorizedRoles("admin"),updateUserRole)
                                 .delete(isAuthenticatedUser, authorizedRoles("admin"),deleteUser);
+
+router.route("/contactUs").post(contactUsmessage, contactUsEmailRecieve); 
 
 
 

@@ -202,7 +202,7 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
     "YYYY-MM-DD",
     "Asia/Kolkata"
   );
-  console.log("queryDate: ", queryDate);
+  // console.log("queryDate: ", queryDate);
 
   // Use Indian timezone
   const startOfDay = moment
@@ -211,8 +211,8 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
     .startOf("day")
     .toDate();
   const endOfDay = moment.utc(startOfDay).endOf("day").toDate();
-  console.log("startOfDay: ", startOfDay);
-  console.log("endOfDay: ", endOfDay);
+  // console.log("startOfDay: ", startOfDay);
+  // console.log("endOfDay: ", endOfDay);
 
   const todayIncomeData = await DailyIncome.find({
     user: req.user._id,
@@ -657,7 +657,7 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
 });
 
 // Get Complete Income from the starting (All History)
-exports.getFullDayIncome = catchAsyncError(async (req, res, next) => {
+exports.getCompleteData = catchAsyncError(async (req, res, next) => {
   const fullDayIncome = await FullDayIncome.find({ user: req.user._id });
 
   res.status(200).json({

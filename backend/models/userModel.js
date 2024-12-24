@@ -93,10 +93,10 @@ const userSchema = new mongoose.Schema({
     required: [true, "Pincode is required"],
     match: [/^\d{6}$/, "Please enter a valid 6-digit pincode"],
   },
-  area: {
-    type: String,
-    required: [true, "area is required"],
-  },
+  // area: {
+  //   type: String,
+  //   required: [true, "area is required"],
+  // },
   landmark: {
     type: String,
     trim: true,

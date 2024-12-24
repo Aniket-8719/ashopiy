@@ -6,6 +6,24 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-hide': {
+          '::-webkit-scrollbar': {
+            display: 'none',
+          },
+          '-ms-overflow-style': 'none',  /* IE and Edge */
+          'scrollbar-width': 'none',     /* Firefox */
+        },
+        '.scrollbar-show:hover': {
+          '::-webkit-scrollbar': {
+            display: 'block',
+          },
+          'scrollbar-width': 'auto',     /* Firefox */
+        },
+      });
+    }
+  ],
 }
 

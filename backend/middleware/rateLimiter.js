@@ -32,4 +32,13 @@ const loginLimiter = rateLimit({
   handler: handleRateLimitError, // Use custom error handler
 });
 
-module.exports = { registrationLimiter, loginLimiter };
+// Rate limiter for login
+const contactUsmessage = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hour
+  max: 5, // Allow 5  attempts per key (user ID or IP) in 5 minutes
+  message: "Too many messages, please try again in 24 hours.",
+  keyGenerator, // Use custom key generator
+  handler: handleRateLimitError, // Use custom error handler
+});
+
+module.exports = { registrationLimiter, loginLimiter, contactUsmessage };

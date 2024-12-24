@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 // import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 // import { MdDashboard } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
-import { SiHomeassistantcommunitystore } from "react-icons/si";
+import { SiHomeassistantcommunitystore } from "react-icons/si"; 
+import { IoMdPricetags } from "react-icons/io";
 // import { CiReceipt } from "react-icons/ci";
 // import { GiTakeMyMoney } from "react-icons/gi";
 // import { TbTransactionRupee } from "react-icons/tb";
@@ -16,10 +17,12 @@ import { FaMoneyBillTransfer } from "react-icons/fa6";
 import { IoReceiptSharp } from "react-icons/io5";
 import { MdManageAccounts } from "react-icons/md";
 import { MdOutlineMenuBook } from "react-icons/md";
+// import { useSelector } from "react-redux";
 
-
+ 
 
 const AdminDropdown = ({mobileToggle, setMobileToggle}) => { 
+  // const {user,isAuthenticated} = useSelector((state) => state.user); 
   return (
     <>
       <div
@@ -29,7 +32,7 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
       > 
         <div className="flex items-center justify-between mx-4">
           <div>
-           <h1 className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600">ashopiy</h1>
+           <Link to={"/"} className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600">ashopiy</Link>
           </div>
           <div 
            onClick={() => setMobileToggle(true)} 
@@ -38,12 +41,15 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
           </div>
         </div>
 
-      <div className="flex flex-col  mt-12 gap-4 ">
+      <div className="flex flex-col  mt-12 gap-4 overflow-y-auto md:scrollbar-hide hover:scrollbar-show">
         <Link to={"/"} className="flex items-center gap-4  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
         <div><SiHomeassistantcommunitystore className="text-xl"/></div>
         <div><h1 className="text-xl">Home</h1></div>
         </Link>
 
+      {  (
+        <>
+        
         <Link to={"/earning"} className="flex items-center gap-4  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
         <div><IoStatsChartSharp className="text-xl"/></div>
         <div><h1 className="text-xl">Earning</h1></div>
@@ -58,6 +64,10 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
         <div><FaMoneyBillTrendUp className="text-xl"/></div>
         <div><h1 className="text-xl">Investment</h1></div>
         </Link>
+        <Link to={"/uDhaarBook"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+        <div><MdOutlineMenuBook className="text-2xl"/></div>
+        <div><h1 className="text-xl">Udhaar Book</h1></div>
+        </Link>
         <Link to={"/history"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
         <div><FaMoneyBillTransfer className="text-xl"/></div>
         <div><h1 className="text-xl">History</h1></div>
@@ -66,13 +76,17 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
         <div><MdManageAccounts className="text-2xl"/></div>
         <div><h1 className="text-xl">Staff Mangement</h1></div>
         </Link>
-        <Link to={"/uDhaarBook"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
-        <div><MdOutlineMenuBook className="text-2xl"/></div>
-        <div><h1 className="text-xl">Udhaar Book</h1></div>
-        </Link>
         <Link to={"/billing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
         <div><IoReceiptSharp className="text-xl"/></div>
         <div><h1 className="text-xl">Billing</h1></div>
+        </Link>
+        </>
+      )
+      
+    }
+        <Link to={"/pricing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 ">
+        <div><IoMdPricetags className="text-xl"/></div>
+        <div><h1 className="text-xl">Pricing</h1></div>
         </Link>
         
       </div>

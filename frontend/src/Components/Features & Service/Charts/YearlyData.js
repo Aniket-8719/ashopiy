@@ -24,12 +24,12 @@ const YearlyData = () => {
     dispatch(getYearlyData());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-      dispatch(clearErrors());
-    }
-  }, [error, dispatch]);
+  // useEffect(() => {
+  //   if (error) {
+  //     toast.error(error);
+  //     dispatch(clearErrors());
+  //   }
+  // }, [error, dispatch]);
 
   // Check if data is loading or if there is an error
   if (loading) {

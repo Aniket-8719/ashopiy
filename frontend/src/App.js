@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import DailyEarning from "./Components/Features & Service/DailyEarning";
-import Home from "./Components/Home";
+import Home from "./Components/Home/Home";
 import Navbar from "./Components/Navbar/Navbar";
 import AllCharts from "./Components/Features & Service/Charts/AllCharts";
 import AllData from "./Components/Features & Service/AllData";
@@ -19,15 +19,21 @@ import ResetPassword from "./Components/Users/ResetPassword";
 import UserManagement from "./Components/Admin/UserManagement";
 import EditProfile from "./Components/Users/EditProfile";
 import Profile from "./Components/Users/Profile";
-import Billing from "./Components/Features & Service/Billing";
-import StaffManagement from "./Components/Features & Service/StaffManagement";
+// import Billing from "./Components/Features & Service/Billing";
+// import StaffManagement from "./Components/Features & Service/StaffManagement";
 import NotFound from "./Components/Not Found/NotFound";
 import ProtectedRoute from "./Components/Protected Route/ProtectedRoute";
 import ViewDetails from "./Components/Admin/ViewDetails";
 import EditUserProfile from "./Components/Admin/EditUserProfile";
-import UdhaarBook from "./Components/Features & Service/UdhaarBook";
 import AddUdhar from "./Components/UdharBook/AddUdhar";
 import UdharList from "./Components/UdharBook/UdharList";
+import ShowingCal from "./Components/Staff Management/ShowingCal";
+import Pricing from "./Components/Payment/Pricing";
+import PaymentSummary from "./Components/Payment/PaymentSummary";
+import PrivacyPolicy from "./Components/Home/PrivacyPolicy";
+import TermsConditions from "./Components/Home/TermsConditions";
+import ContactUs from "./Components/Home/ContactUs";
+import FAQ from "./Components/Home/Faq";
 
 function App() {
   const dispatch = useDispatch();
@@ -78,13 +84,36 @@ function App() {
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="password/forgot" element={<ForgotPassword />} />
         <Route path="/password/reset/:token" element={<ResetPassword />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/me/update" element={<EditProfile />} />
-        <Route path="/password/update" element={<UpdatePassword />} />
         <Route path="/earning" element={<DailyEarning />} />
         <Route path="/charts" element={<AllCharts />} />
         <Route path="/history" element={<AllData />} />
         <Route path="/investment" element={<Investment />} />
+
+        {/* protected routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requiredRole="user">
+             <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/me/update"
+          element={
+            <ProtectedRoute requiredRole="user">
+            <EditProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/password/update"
+          element={
+            <ProtectedRoute requiredRole="user">
+           <UpdatePassword />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/allUsers"
           element={
@@ -109,11 +138,17 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/staffMangement" element={<StaffManagement />} />
-        <Route path="/uDhaarBook" element={<UdhaarBook />} />
-        <Route path="/billing" element={<Billing />} />
-        {/* <Route path="/addUdhar" element={<AddUdhar />} />
-        <Route path="/udharList" element={<UdharList />} /> */}
+        {/* <Route path="/staffMangement" element={<StaffManagement />} />
+        <Route path="/billing" element={<Billing />} /> */}
+        <Route path="/addUdhar" element={<AddUdhar />} />
+        <Route path="/uDhaarBook" element={<UdharList/>} />
+        <Route path="/calender" element={<ShowingCal />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/paymentSummary" element={<PaymentSummary />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-conditions" element={<TermsConditions />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/faq" element={<FAQ />} />
         <Route exact path="*" element={<NotFound/>} />
       </Routes>
     </>

@@ -33,8 +33,9 @@ const TopNavbar = ({ setMobileToggle }) => {
   }, []);
 
   return (
+    // backdrop-filter backdrop-blur-lg bg-opacity-30 => transparent glass
     <div className="">
-      <div className="flex fixed z-40 backdrop-filter backdrop-blur-lg bg-opacity-30 bg-white  top-0 left-0 justify-between items-center w-full p-2 border border-b-slate-200 md:border-b-slate-300">
+      <div className="flex fixed z-40  bg-white  top-0 left-0 justify-between items-center w-full p-2 border border-b-slate-200 md:border-b-slate-300">
         <div className="flex justify-center items-center gap-4 ml-2">
           {/* Hamburger */}
           <div
@@ -47,7 +48,7 @@ const TopNavbar = ({ setMobileToggle }) => {
           {/* Project Name */}
           <Link to={"/"}>
             <h1 className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600">
-              ashopiy
+           ashopiy
             </h1>
           </Link>
         </div>

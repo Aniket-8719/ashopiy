@@ -4,6 +4,7 @@ const User = require("../models/userModel");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const cloudinary = require("cloudinary");
+const moment = require("moment-timezone");
 
 //  Register User
 exports.registerUser = catchAsyncError(async (req, res, next) => {
@@ -21,7 +22,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     state,
     city,
     pincode,
-    area,
     landmark,
     address,
     agentID,
@@ -52,6 +52,12 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Email already exists", 400));
   }
 
+    // Get the current date and time in the Asia/Kolkata timezone
+    const indiaDateTime = moment.tz("Asia/Kolkata");
+  
+    // Add 5 hours and 30 minutes to adjust to UTC
+    const utcDateTime = indiaDateTime.clone().add(5, "hours").add(30, "minutes");
+
   // Create a new user
   const user = await User.create({
     avatar,
@@ -68,9 +74,9 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     state,
     city,
     pincode,
-    area,
     landmark,
     address,
+    createdAt: utcDateTime.toDate(), // Store the UTC Date object after adjustment
     agentID,
   });
 
@@ -82,7 +88,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    httpOnly:true,
+    httpOnly: true,
     secure: true,
     sameSite: 'None',
   };
@@ -123,7 +129,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    httpOnly:true,
+    httpOnly: true,
     secure: true,
     sameSite: 'None',
   };
@@ -131,7 +137,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   res.status(201).cookie("token", token, options).json({
     success: true,
     user,
-    token,
+    // token,
   });
 });
 
@@ -139,7 +145,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
 exports.logout = catchAsyncError(async (req, res, next) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
-    httpOnly:true,
+    httpOnly: true,
     secure: true,
     sameSite: 'None',
   });
@@ -166,13 +172,31 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   //  Generating URL
   const resetPasswordUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
 
-  const message = `Your password reset token is temp-- :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it`;
+  const htmlMessage = `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <h1 style="font-weight: bold; color: #d87600; font-size: 24px;">ashopiy</h1>
+    
+    <h2 style="color: #f78a08;">Hi ${user.name || "User"},</h2>
+    
+    <p>We received a request to reset the password for your account.</p>
+    
+    <p><strong>🔑 Reset Password Link:</strong></p>
+    <p><a href="${resetPasswordUrl}" style="color: #f78a08; text-decoration: none;">Click here to reset your password</a></p>
+    
+    <p>If you didn’t request a password reset, you can safely ignore this email. Your password will not be changed unless you click the link above and create a new one.</p>
+    
+    <p>If you have any questions, feel free to reach out to our support team.</p>
+    
+    <p>Thanks,<br>The Ashopiy Team</p>
+  </div>
+`;
 
   try {
     await sendEmail({
       email: user.email,
       subject: `ashopiy Recovery`,
-      message,
+      message: ``,
+      htmlMessage,
     });
 
     res.status(200).json({
@@ -229,9 +253,9 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    httpOnly:true,
+    httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: "None",
   };
 
   res.status(201).cookie("authToken", token, options).json({
@@ -275,9 +299,9 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    httpOnly:true,
+    httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: "None",
   };
 
   res.status(201).cookie("authToken", token, options).json({
@@ -329,7 +353,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
     // Keep the existing avatar if no new avatar is provided
     newUserData.avatar = user.avatar;
   }
-  
+
   // Update user data except the password and role
   await User.findByIdAndUpdate(req.user.id, newUserData, {
     new: true, // Return the updated document
@@ -383,12 +407,12 @@ exports.getAllUser = catchAsyncError(async (req, res, next) => {
     const searchRegex = new RegExp(search, "i"); // Case-insensitive regex
     query.$or = [
       { email: searchRegex },
-      { mobileNo: searchRegex },
+      { mobileNo: searchRegex }, 
       { whatsappNo: searchRegex },
       { shopOwnerName: searchRegex },
       { shopName: searchRegex },
       { pincode: searchRegex },
-      { area: searchRegex },
+      { landmark: searchRegex },
       { address: searchRegex },
     ];
   }
@@ -476,4 +500,40 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
     success: true,
     message: "User Deleted Successfully",
   });
+});
+
+// for contact us page
+exports.contactUsEmailRecieve = catchAsyncError(async (req, res, next) => {
+  const { name, email, message } = req.body;
+
+  try {
+    await sendEmail({
+      email: process.env.COMPANY_EMAIL, // Your email to receive messages
+      subject: `Contact Form Message from ${name}`,
+      message: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+      htmlMessage: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <h2 style="color: #2a9d8f;">New Contact Form Message</h2>
+    
+    <p><strong style="color: #264653;">Name:</strong> ${name}</p>
+    <p><strong style="color: #264653;">Email:</strong> ${email}</p>
+    <p><strong style="color: #264653;">Message:</strong> <br>${message}</p>
+
+    <hr style="border: 1px solid #e9ecef; margin-top: 20px;" />
+    
+    <footer style="color: #6c757d; font-size: 12px;">
+      <p>Received this message via your website's Contact Us form.</p>
+      <p style="font-style: italic;">If you did not expect this email, please disregard it.</p>
+    </footer>
+  </div>
+`,
+    });
+
+    res.status(200).json({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Error sending email", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Email could not be sent" });
+  }
 });

@@ -3,7 +3,7 @@ import React from "react";
 const ProfileSkelton = () => {
   return (
     <>
-      <div className="flex justify-center items-center gap-2 animate-pulse">
+      <div className="flex justify-center items-center gap-2 animate-pulse ">
         <div>
           {/* Skeleton for name */}
           <div className="h-4 md:h-6 w-32 bg-gray-300 rounded-md mb-2"></div>

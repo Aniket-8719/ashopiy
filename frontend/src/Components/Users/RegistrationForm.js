@@ -33,7 +33,6 @@ const RegistrationForm = () => {
     state: "",
     city: "",
     pincode: "",
-    area: "",
     landmark: "",
     address: "",
     agentID: "",
@@ -150,8 +149,8 @@ const RegistrationForm = () => {
   return (
     <>
     <MetaData title={"REGISTRATION"}/>
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center mt-14 md:mt-20 ">
-        <div className="w-full max-w-3xl bg-white shadow-lg rounded-sm p-8">
+      <div className="min-h-screen bg-gray-300 flex items-center justify-center">
+        <div className="w-full max-w-3xl bg-white shadow-lg rounded-sm p-8 mt-14 md:mt-20 ">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
             Registration Form
           </h2>
@@ -411,19 +410,6 @@ const RegistrationForm = () => {
             </div>
 
             {/* Landmark */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Area
-              </label>
-              <input
-                type="text"
-                name="area"
-                value={formData.area}
-                onChange={handleChange}
-                placeholder="E.g. RajaNagar"
-                className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-              />
-            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Landmark<span>(optional)</span>

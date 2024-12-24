@@ -1,9 +1,10 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import {thunk} from "redux-thunk"; 
 import { composeWithDevTools } from "redux-devtools-extension";
-import { addEarningReducer, deleteORUpdateEarningReducer, earningReducer, monthlyHistoryReducer, monthlyReducer, perDayReducer, yearlyReducer } from "./reducers/earningReducer";
+import { addEarningReducer, completeDataReducer, deleteORUpdateEarningReducer, earningReducer, monthlyHistoryReducer, monthlyReducer, perDayReducer, yearlyReducer } from "./reducers/earningReducer";
 import { addInvestmentReducer, deleteORUpdateInvestmentReducer, getInvestmentReducer } from "./reducers/investmentReducer";
-import { allUsersReducer, forgotPasswordReducer, profileReducer, userDetailsReducer, userReducer } from "./reducers/userReducer";
+import { allUsersReducer, contactusRducer, forgotPasswordReducer, profileReducer, userDetailsReducer, userReducer } from "./reducers/userReducer";
+import {addUdharReducer, deleteORUpdateUdharReducer, getSingleUdharReducer, getUdharReducer} from "./reducers/udharReducer";
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -19,7 +20,13 @@ const rootReducer = combineReducers({
   currentInvestment: addInvestmentReducer,
   investmentData: getInvestmentReducer,
   deleteUpdateInvestment: deleteORUpdateInvestmentReducer,
+  currentUdhar: addUdharReducer,
+  allUdharInfo: getUdharReducer,
+  singleUdhar: getSingleUdharReducer,
+  deleteORUpdateUdhar: deleteORUpdateUdharReducer,
   monthlyHistory:monthlyHistoryReducer,
+  completeData: completeDataReducer,
+  contactUsMessage: contactusRducer,
   // admin
   allUser:allUsersReducer,
   singleUser:userDetailsReducer,

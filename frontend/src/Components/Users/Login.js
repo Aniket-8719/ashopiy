@@ -19,10 +19,11 @@ const Login = () => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    // Add your login logic here, e.g., API call
     dispatch(login(loginData.email, loginData.password));
+    if(!error){
+      toast.success("Login Successfully");
+    }
   };
-
 
   const redirect = location.state?.from?.pathname || "/";
 
@@ -38,7 +39,7 @@ const Login = () => {
   return (
     <>
     <MetaData title={"LOGIN"}/>
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center ">
+      <div className="min-h-screen bg-gray-100 md:bg-gray-300 flex items-center justify-center ">
         <div className="w-full max-w-md bg-white shadow-lg rounded-sm p-8">
           {/* Title */}
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">

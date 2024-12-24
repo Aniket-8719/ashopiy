@@ -52,10 +52,12 @@ const Investment = () => {
     customDate: indiaDate,
   });
 
-  const { investments, error,loading } = useSelector(
+  const { investments, error, loading } = useSelector(
     (state) => state.investmentData
   );
-  const { isAdded } = useSelector((state) => state.currentInvestment);
+  const { error: addingError, isAdded } = useSelector(
+    (state) => state.currentInvestment
+  );
   const {
     error: deleteError,
     isDeleted,
@@ -153,7 +155,10 @@ const Investment = () => {
       toast.error(deleteError);
       dispatch(clearErrors());
     }
-
+    if (addingError) {
+      toast.error(addingError);
+      dispatch(clearErrors());
+    }
     if (isAdded) {
       toast.success("Investment Added");
       dispatch({ type: ADD_INVESTMENT_RESET });
@@ -168,7 +173,16 @@ const Investment = () => {
       toast.success(message);
       dispatch({ type: DELETE_INVESTMENT_RESET });
     }
-  }, [dispatch, error, deleteError, isAdded, isUpdated, isDeleted, message]);
+  }, [
+    dispatch,
+    error,
+    deleteError,
+    addingError,
+    isAdded,
+    isUpdated,
+    isDeleted,
+    message,
+  ]);
 
   // Calculate totals dynamically when rendering (optional)
   const investingMoney = investments?.reduce(
@@ -182,94 +196,102 @@ const Investment = () => {
 
   const totalProfitLoss = earningMoney - investingMoney;
 
-  // Donwload Excel
-  const downloadExcel = () => {
-    try {
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet("Investment Data");
+// Download Excel
+const downloadExcel = () => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Investment Data");
 
-      // Add header row with bold style
-      const headerRow = worksheet.addRow([
-        "S.R.",
-        "Date",
-        "Day",
-        "Time",
-        "Investment Type",
-        "Investment Amount",
-        "Earning Amount",
-        "Profit/Loss",
+    // Add header row with bold style
+    const headerRow = worksheet.addRow([
+      "S.R.",
+      "Date",
+      "Day",
+      "Time",
+      "Investment Type",
+      "Investment Amount",
+      "Earning Amount",
+      "Profit/Loss",
+    ]);
+    headerRow.font = { bold: true };
+
+     // Center align the header row
+     headerRow.eachCell((cell) => {
+      cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+    });
+
+    // Add the data rows
+    investments.forEach((dataKey, index) => {
+      worksheet.addRow([
+        index + 1,
+        dataKey.investment.date || "N/A",
+        dataKey.investment.day || "N/A",
+        dataKey.investment.time || "N/A",
+        dataKey.investment.typeOfInvestment || "Normal",
+        `${new Intl.NumberFormat("en-IN").format(
+          dataKey.investment.investmentIncome || 0
+        )}`,
+        `${new Intl.NumberFormat("en-IN").format(
+          dataKey.totalEarnings || 0
+        )}`,
+        `${new Intl.NumberFormat("en-IN").format(
+          (dataKey.totalEarnings || 0) -
+            (dataKey.investment.investmentIncome || 0)
+        )}`,
       ]);
-      headerRow.font = { bold: true };
+    });
 
-      // Add the data rows
-      investments.forEach((dataKey, index) => {
-        worksheet.addRow([
-          index + 1,
-          dataKey.investment.date || "N/A",
-          dataKey.investment.day || "N/A",
-          dataKey.investment.time || "N/A",
-          dataKey.investment.typeOfInvestment || "Normal",
-          `${new Intl.NumberFormat("en-IN").format(
-            dataKey.investment.investmentIncome || 0
-          )}`,
-          `${new Intl.NumberFormat("en-IN").format(
-            dataKey.totalEarnings || 0
-          )}`,
-          `${new Intl.NumberFormat("en-IN").format(
-            (dataKey.totalEarnings || 0) -
-              (dataKey.investment.investmentIncome || 0)
-          )}`,
-        ]);
-      });
+    // Center align all the data rows
+    worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      if (rowNumber !== 1) {
+        // Skip the header row
+        row.alignment = { horizontal: "center", vertical: "middle", wrapText: true }; // Added wrapText: true
+      }
+    });
 
-      // Center align all the data rows
-      worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-        if (rowNumber !== 1) {
-          // Skip the header row
-          row.alignment = { horizontal: "center", vertical: "middle" };
-        }
-      });
+    // Add subtotal row with bold style
+    const subtotalRow = worksheet.addRow([
+      "Subtotal",
+      "",
+      "",
+      "",
+      "",
+      `₹${new Intl.NumberFormat("en-IN").format(investingMoney || 0)}`,
+      `₹${new Intl.NumberFormat("en-IN").format(earningMoney || 0)}`,
+      `₹${new Intl.NumberFormat("en-IN").format(totalProfitLoss || 0)}`,
+    ]);
+    subtotalRow.font = { bold: true }; // Make subtotal bold
+    subtotalRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true }; // Center align subtotal with text wrap
 
-      // Add subtotal row with bold style
-      const subtotalRow = worksheet.addRow([
-        "Subtotal",
-        "",
-        "",
-        "",
-        "",
-        `₹${new Intl.NumberFormat("en-IN").format(investingMoney || 0)}`,
-        `₹${new Intl.NumberFormat("en-IN").format(earningMoney || 0)}`,
-        `₹${new Intl.NumberFormat("en-IN").format(totalProfitLoss || 0)}`,
-      ]);
-      subtotalRow.font = { bold: true }; // Make subtotal bold
-      subtotalRow.alignment = { horizontal: "center", vertical: "middle" }; // Center align subtotal
+    // Adjust column widths for better visibility based on the content
+    worksheet.columns = [
+      { width: 10 }, // S.R.
+      { width: 15 }, // Date
+      { width: 15 }, // Day
+      { width: 10 }, // Time
+      { width: 40 }, // Investment Type (set wider to fit long text)
+      { width: 30 }, // Investment Amount
+      { width: 30 }, // Earning Amount
+      { width: 30 }, // Profit/Loss
+    ];
 
-      // Adjust column widths for better visibility
-      worksheet.columns.forEach((col) => {
-        let maxLength = 0;
-        col.eachCell({ includeEmpty: true }, (cell) => {
-          const length = cell.value ? cell.value.toString().length : 0;
-          maxLength = Math.max(maxLength, length);
-        });
-        col.width = maxLength + 2;
-      });
+    // Generate the Excel file and trigger download
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `investment_data.xlsx`);
+      link.click();
 
-      // Generate the Excel file and trigger download
-      workbook.xlsx.writeBuffer().then((buffer) => {
-        const blob = new Blob([buffer], { type: "application/octet-stream" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `investment_data.xlsx`);
-        link.click();
+      // Clean up URL to release memory
+      URL.revokeObjectURL(url);
+    });
+  } catch (err) {
+    console.error("Error generating Excel:", err);
+  }
+};
 
-        // Clean up URL to release memory
-        URL.revokeObjectURL(url);
-      });
-    } catch (err) {
-      console.error("Error generating Excel:", err);
-    }
-  };
 
   return (
     <>
@@ -334,7 +356,13 @@ const Investment = () => {
                 } py-3 flex items-center justify-center   text-white text-center rounded-sm `}
                 disabled={loading}
               >
-                 {loading ? <Loader /> : editCheck ? "Update Investment" : "Add Investment"}
+                {loading ? (
+                  <Loader />
+                ) : editCheck ? (
+                  "Update Investment"
+                ) : (
+                  "Add Investment"
+                )}
               </button>
             </form>
 
@@ -349,7 +377,7 @@ const Investment = () => {
                   <div className="">
                     <h1 className="text-sm md:text-md">Total Investing:</h1>
                     {loading ? (
-                      <LineSkelton/>
+                      <LineSkelton />
                     ) : (
                       <h1 className="text-xl md:text-2xl text-green-500 font-bold">
                         +
@@ -364,7 +392,7 @@ const Investment = () => {
                   <div className="">
                     <h1 className="text-sm md:text-md">Total Earning:</h1>
                     {loading ? (
-                       <LineSkelton/>
+                      <LineSkelton />
                     ) : (
                       <h1 className="text-xl md:text-2xl font-bold text-purple-500">
                         +
@@ -377,7 +405,7 @@ const Investment = () => {
                   <div className="">
                     <h1 className="text-sm md:text-md">Profit/Loss:</h1>
                     {loading ? (
-                      <LineSkelton/>
+                      <LineSkelton />
                     ) : (
                       <h1 className="text-xl md:text-2xl font-bold text-purple-500">
                         {(() => {
@@ -453,7 +481,13 @@ const Investment = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             {dataKey?.investment?.time || "N/A"}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td
+                            className="px-6 py-4 whitespace-nowrap break-word"
+                            style={{
+                              wordWrap: "break-word",
+                              whiteSpace: "normal",
+                            }}
+                          >
                             {dataKey?.investment?.typeOfInvestment || "Normal"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -493,8 +527,9 @@ const Investment = () => {
                               );
                             })()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">
-                            <button
+                          <td className="px-6 py-4 whitespace-nowrap  ">
+                           <div className="flex items-center justify-center gap-2">
+                           <button
                               onClick={() => {
                                 updateIncomeHandler(dataKey.investment?._id);
                               }}
@@ -514,6 +549,7 @@ const Investment = () => {
                                 <MdDelete className="flex text-30 text-white cursor-pointer" />
                               </button>
                             </button>
+                           </div>
                           </td>
                         </tr>
                       ))

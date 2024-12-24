@@ -24,6 +24,7 @@ const AllData = () => {
     { header: "Loss Amount", key: "totalReturnAmount" },
   ];
   const dispatch = useDispatch();
+    const {isAuthenticated} = useSelector((state) => state.user);
   const { monthlyHistoryData, error,loading } = useSelector(
     (state) => state.monthlyHistory
   );
@@ -466,12 +467,20 @@ const AllData = () => {
                       })
                     ) : (
                       <tr>
-                        <td
+                        {isAuthenticated ? (  <td
                           colSpan={columns.length}
                           className="px-6 py-4 text-center"
                         >
                           No income data available for the selected month.
-                        </td>
+                        </td>):(
+                            <td
+                            colSpan={columns.length}
+                            className="px-6 py-4 text-center"
+                          >
+                            Please Login.
+                          </td>
+                        )}
+                      
                       </tr>
                     )}
                   </>

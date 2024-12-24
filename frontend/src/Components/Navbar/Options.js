@@ -13,7 +13,6 @@ const Options = () => {
   const logoutUser = () => {
     dispatch(logout()); // Trigger logout action
     toast.success("Logged out successfully"); // Show success message
-    navigate("/login"); // Redirect to login page
   };
 
   useEffect(() => {

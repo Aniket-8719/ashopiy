@@ -42,9 +42,9 @@ const UpdatePassword = () => {
   return (
     <>
       <MetaData title={"UPDATE PASSWORD"}/>
-      <section className="mt-14 md:mt-20  md:ml-72">
-     <div className=" bg-gray-50 flex items-center justify-center ">
-        <div className="w-full max-w-md bg-white shadow-lg rounded-sm p-8">
+      <section className="md:ml-72">
+     <div className="min-h-screen bg-gray-100 md:bg-gray-200 flex items-center justify-center ">
+        <div className="w-full max-w-md bg-white shadow-lg rounded-sm p-8 mt-14 md:mt-20  ">
           {/* Title */}
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
             Change Password

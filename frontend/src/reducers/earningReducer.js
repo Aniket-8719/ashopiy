@@ -34,6 +34,10 @@ import {
   GET_MONTHLY_HISTORY_SUCCESS,
   GET_MONTHLY_HISTORY_FAIL,
   
+  GET_COMPLETE_DATA_REQUEST,
+  GET_COMPLETE_DATA_SUCCESS,
+  GET_COMPLETE_DATA_FAIL,
+
   CLEAR_ERRORS,
 
 } from "../constants/earningConstants";
@@ -254,6 +258,35 @@ export const monthlyHistoryReducer = (state = { monthlyHistoryData: {} }, action
         monthlyHistoryData: action.payload,
       };
     case GET_MONTHLY_HISTORY_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
+
+// COMPLETE DATA
+export const completeDataReducer = (state = { FullData: {} }, action) => {
+  switch (action.type) {
+    case GET_COMPLETE_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case GET_COMPLETE_DATA_SUCCESS: 
+      return {
+        loading: false,
+        FullData: action.payload,
+      };
+    case GET_COMPLETE_DATA_FAIL:
       return {
         ...state,
         loading: false,

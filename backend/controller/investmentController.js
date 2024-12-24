@@ -2,6 +2,7 @@ const ErrorHandler = require("../utils/errorhandler");
 const catchAsyncError = require("../middleware/catchAsyncError");
 const investmentModel = require("../models/investmentModel");
 const FullDayIncome = require("../models/fullDayRevenue");
+const moment = require("moment-timezone");
 
 // Add daily income controller
 exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
@@ -18,37 +19,37 @@ exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
 
   // Use the custom date if provided, otherwise use the current date and time in Asia/Kolkata timezone
   let indiaDate;
-  if (customDate) {
-    indiaDate = new Date(customDate);
-    if (isNaN(indiaDate.getTime())) {
-      return res
-        .status(400)
-        .json({ message: "Please provide a valid custom date" });
+   // Handle custom date or fallback to current date/time
+   if (customDate) {
+    indiaDate = moment(customDate, "YYYY-MM-DD", true).tz("Asia/Kolkata");
+    if (!indiaDate.isValid()) {
+      return res.status(400).json({ message: "Please provide a valid custom date" });
     }
   } else {
-    const indiaDateTime = new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Kolkata",
-    });
-    indiaDate = new Date(indiaDateTime);
+    indiaDate = moment().tz("Asia/Kolkata");
   }
 
   // Get the current time in the Asia/Kolkata timezone
-  const indiaTime = new Date().toLocaleTimeString("en-US", {
-    timeZone: "Asia/Kolkata",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const currentTimingOFindia = moment.tz("Asia/Kolkata");
+
+  // Adjust to UTC by adding 5 hours and 30 minutes
+  const utcDateTime = indiaDate.clone().add(5, "hours").add(30, "minutes");
+
+  // Format the current time
+  const indiaTime = currentTimingOFindia.format("hh:mm A"); // Format as 12-hour with AM/PM
+
+  // Format the day
+  const dayOfWeek = indiaDate.format("dddd"); // Full day name
+
+  // Format the date for storage
+  const formattedDate = utcDateTime.toDate(); // Convert moment object to JavaScript Date
 
   // Create a new income entry
   const newInvestmentEntry = new investmentModel({
     investmentIncome: Number(investmentIncomeByUser), // Ensure it's stored as a number
     time: indiaTime,
-    day: indiaDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      timeZone: "Asia/Kolkata",
-    }), // Day of the week
-    date: indiaDate, // Store the Date object
+    day: dayOfWeek,
+    date: formattedDate,
     typeOfInvestment: typeOfInvestmentByUser || "Cash",
     user: req.user._id,
   });
@@ -148,38 +149,46 @@ exports.updateInvestment = catchAsyncError(async (req, res, next) => {
     });
   }
 
-  const customDate = req.body.customDate;
-  // Use the custom date if provided, otherwise use the current date and time in Asia/Kolkata timezone
+  const { investmentIncomeByUser, typeOfInvestmentByUser, customDate } = req.body;
+
+  // Validate investmentIncomeByUser
+  if (!investmentIncomeByUser || isNaN(investmentIncomeByUser) || investmentIncomeByUser <= 0) {
+    return res.status(400).json({ message: "Please provide a valid Investment Income" });
+  }
+
   let indiaDate;
+  // Handle custom date or fallback to current date/time
   if (customDate) {
-    indiaDate = new Date(customDate);
-    if (isNaN(indiaDate.getTime())) {
-      return res
-        .status(400)
-        .json({ message: "Please provide a valid custom date" });
+    indiaDate = moment(customDate, "YYYY-MM-DD", true).tz("Asia/Kolkata");
+    if (!indiaDate.isValid()) {
+      return res.status(400).json({ message: "Please provide a valid custom date" });
     }
   } else {
-    const indiaDateTime = new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Kolkata",
-    });
-    indiaDate = new Date(indiaDateTime);
+    indiaDate = moment().tz("Asia/Kolkata");
   }
 
   // Get the current time in the Asia/Kolkata timezone
-  const indiaTime = new Date().toLocaleTimeString("en-US", {
-    timeZone: "Asia/Kolkata",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-  (invest.investmentIncome = req.body.investmentIncomeByUser),
-    (invest.typeOfInvestment = req.body.typeOfInvestmentByUser),
-    (invest.time = indiaTime),
-    (invest.date = indiaDate),
-    (invest.day = indiaDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      timeZone: "Asia/Kolkata",
-    })), // Day of the week,
+  const currentTimingOFindia = moment.tz("Asia/Kolkata");
+
+  // Adjust to UTC by adding 5 hours and 30 minutes
+  const utcDateTime = indiaDate.clone().add(5, "hours").add(30, "minutes");
+
+  // Format the current time
+  const indiaTime = currentTimingOFindia.format("hh:mm A"); // Format as 12-hour with AM/PM
+
+  // Format the day
+  const dayOfWeek = indiaDate.format("dddd"); // Full day name
+
+  // Format the date for storage
+  const formattedDate = utcDateTime.toDate(); // Convert moment object to JavaScript Date
+
+  // Update the investment fields
+  invest.investmentIncome = Number(investmentIncomeByUser); // Ensure it's stored as a number
+  invest.typeOfInvestment = typeOfInvestmentByUser || "Cash";
+  invest.time = indiaTime;
+  invest.date = formattedDate;
+  invest.day = dayOfWeek;
+
     // Save the updated income
     await invest.save();
 
