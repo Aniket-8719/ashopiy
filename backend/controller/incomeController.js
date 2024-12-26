@@ -510,7 +510,7 @@ exports.getYearlyIncome = catchAsyncError(async (req, res, next) => {
     yearlyIncome: formattedYearlyIncome,
   });
 });
-
+ 
 // Fulldayincome for entire Month data (Indian Time)
 exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
   const { year, month } = req.query;

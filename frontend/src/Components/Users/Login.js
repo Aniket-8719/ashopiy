@@ -5,12 +5,20 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../Layouts/Loader";
 import MetaData from "../Layouts/MetaData";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();  
-  const { error, loading, isAuthenticated} = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  const [showPassword, setShowPassword] = useState(false);
+  // Toggle function for showing/hiding Set Password
+  const handleTogglePassword = () => setShowPassword((prev) => !prev);
+
+  const { error, loading, isAuthenticated } = useSelector(
+    (state) => state.user
+  );
   const [loginData, setLoginData] = useState({ email: "", password: "" });
 
   const handleLoginChange = (e) => {
@@ -20,9 +28,6 @@ const Login = () => {
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     dispatch(login(loginData.email, loginData.password));
-    if(!error){
-      toast.success("Login Successfully");
-    }
   };
 
   const redirect = location.state?.from?.pathname || "/";
@@ -34,11 +39,12 @@ const Login = () => {
     }
     if (isAuthenticated) {
       navigate(redirect);
+      toast.success("Login Successfully");
     }
-  }, [dispatch, error, navigate, isAuthenticated,redirect]);
+  }, [dispatch, error, navigate, isAuthenticated, redirect]);
   return (
     <>
-    <MetaData title={"LOGIN"}/>
+      <MetaData title={"LOGIN"} />
       <div className="min-h-screen bg-gray-100 md:bg-gray-300 flex items-center justify-center ">
         <div className="w-full max-w-md bg-white shadow-lg rounded-sm p-8">
           {/* Title */}
@@ -69,7 +75,7 @@ const Login = () => {
             </div>
 
             {/* Password Field */}
-            <div>
+            <div className="relative">
               <label
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
@@ -78,7 +84,7 @@ const Login = () => {
               </label>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={loginData.password}
                 onChange={handleLoginChange}
@@ -86,15 +92,31 @@ const Login = () => {
                 required
                 className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
               />
+              {/* Eye icon for toggling password visibility */}
+              <span
+                className="absolute top-6 inset-y-0 right-3 flex items-center cursor-pointer"
+                onClick={handleTogglePassword} // Toggle for old password
+              >
+                {showPassword ? (
+                  <FaEye className="text-gray-500 text-xl" />
+                ) : (
+                  <FaEyeSlash className="text-gray-500 text-xl" />
+                )}
+              </span>
             </div>
-            <Link to={"/password/forgot"} className="mt-2 text-sm text-blue-500">Forgot Password</Link>
+            <Link
+              to={"/password/forgot"}
+              className="mt-2 text-sm text-blue-500"
+            >
+              Forgot Password
+            </Link>
 
             {/* Submit Button */}
             <button
               type="submit"
               className="flex items-center justify-center  w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              {loading ? <Loader/> : "Login"}
+              {loading ? <Loader /> : "Login"}
             </button>
           </form>
 

@@ -22,6 +22,8 @@ import getHolidayName from "../../Holiday Library/holidays";
 import ExcelJS from "exceljs";
 import { HiDownload } from "react-icons/hi";
 import LineSkelton from "../Skelton/LineSkelton";
+import { lockList, unLockFeature } from "../../actions/appLockAction";
+import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
 
 const DailyEarning = () => {
   const columns = [
@@ -284,230 +286,319 @@ const DailyEarning = () => {
     }
   };
 
+  // Lock List
+  const { LockList } = useSelector((state) => state.lockUnlockList);
+
+  const {
+    loading: unLockPasswordLoading,
+    isUnlock,
+    error: unLockError,
+  } = useSelector((state) => state.unLockFeature);
+
+  // The feature to check
+  const checkLockFeature = "Earning"; // You can dynamically change this value as needed
+
+  // State to manage password pop-up visibility and input
+  const [isLocked, setIsLocked] = useState(false);
+  const [password, setPassword] = useState("");
+
+  // Assuming LockList is always a single document, as per your description
+  const lockedFeatures = LockList[0]?.lockedFeatures || {};
+
+  // Check if the selected feature is locked
+  const isFeatureLocked = lockedFeatures[checkLockFeature];
+
+  const handleUnlockClick = () => {
+    setIsLocked(true);
+  };
+
+  const handlePasswordSubmit = () => {
+    // e.preventDefault();
+    const addData = {
+      featureName: checkLockFeature,
+      setPassword: password,
+    };
+    // Add your logic here to verify the password
+    dispatch(unLockFeature(addData));
+    setIsLocked(false); // After successful verification, you can unlock the screen
+  };
+
+  useEffect(() => {
+    if (unLockError) {
+      toast.error(unLockError);
+      dispatch(clearErrors());
+    }
+    if (isUnlock) {
+      toast.success("Earning Unlock");
+      dispatch({ type: UNLOCK_FEATURE_RESET });
+      dispatch(lockList());
+    }
+  }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
+
   return (
     <>
       <MetaData title="EARNING" />
       <section className="mt-14 md:mt-20  md:ml-72 h-screen">
-        <>
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-center items-center gap-2">
-            {/* Add money */}
-            <form
-              ref={formRef}
-              onSubmit={handleSubmit}
-              className="flex flex-col w-full gap-6 p-4 border md:border-slate-300 rounded-lg md:shadow-sm"
-            >
-              <div className="flex justify-center items-center w-full gap-4">
-                <div className="relative flex justify-center items-center w-full focus-within:border-blue-500 focus-within:ring-0.5 focus-within:ring-blue-500">
-                  <span className="absolute top-[35%] left-2">
-                    <FaIndianRupeeSign className="text-green-600 focus-within:text-blue-500 opacity-65" />
-                  </span>
-                  <input
-                    type="text"
-                    id="dailyIncome"
-                    name="dailyIncome"
-                    required
-                    value={formData.dailyIncome}
-                    onChange={handleChange}
-                    className="py-3 ps-8 w-full text-gray-700 leading-normal border md:border-2 border-slate-300 rounded-sm focus-within:outline-none focus-within:ring-0.5 focus-within:ring-blue-500 focus-within:border-blue-500"
-                    placeholder="Enter amount....."
-                  />
-                </div>
-                <div className="flex  justify-center items-center w-full border md:border-2 border-slate-300  relative focus-within:border-blue-500 focus-within:ring-0.5 focus-within:ring-blue-500 rounded-sm">
-                  <span className="absolute top-[35%] left-2">
-                    <MdOutlineFolderSpecial className="text-black focus-within:text-blue-500 opacity-65" />
-                  </span>
-                  <select
-                    id="earningType"
-                    name="earningType"
-                    value={formData.earningType}
-                    onChange={handleChange}
-                    className="py-3 ps-8 w-full text-gray-700 leading-normal focus:outline-none focus:bg-white focus:border-blue-500 rounded-sm"
-                  >
-                    <option value="Cash">Cash</option>
-                    <option value="Online">Online</option>
-                  </select>
-                </div>
-              </div>
+        <div className="">
+          {isFeatureLocked ? (
+            <div className="flex flex-col items-center justify-center mt-20">
+              <p className="text-xl mb-4">This feature is locked.</p>
               <button
-                type="submit"
-                className={`${
-                  editCheck ? "bg-orange-600" : "bg-blue-600 "
-                } py-3 flex items-center justify-center   text-white text-center rounded-sm `}
-                disabled={loading}
+                onClick={handleUnlockClick}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md"
               >
-                {loading ? <Loader /> : editCheck ? "Update" : "Add"}
+                Unlock Feature
               </button>
-            </form>
-
-            {/* Total amount display */}
-            <div className="flex w-full  mx-auto gap-4  p-4 justify-between items-center border md:border-slate-300 rounded-lg md:shadow-sm ">
-              {/* Box-1 */}
-              <div className="flex flex-col  w-full  gap-2 md:gap-2 md:justify-center ">
-                <div className="">
-                  <h1 className="text-sm md:text-md">Total Income:</h1>
-                  {loading ? (
-                    <LineSkelton/>
-                  ) : (
-                    <h1
-                      className={`text-xl md:text-2xl font-bold ${
-                        (todayData?.totalIncome || 0) >= 0
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {todayData?.totalIncome >= 0 ? "+" : "-"}
-                      {new Intl.NumberFormat("en-IN").format(
-                        Math.abs(todayData?.totalIncome || 0)
-                      )}
-                    </h1>
-                  )}
+              {isLocked && (
+                <div className="flex justify-center items-center mt-4  ">
+                  <div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                      className="w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
+                    />
+                  </div>
+                  <button
+                    onClick={handlePasswordSubmit}
+                    disabled={unLockPasswordLoading}
+                    className="flex justify-center items-center ml-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-sm focus:outline-none  focus:border-green-500"
+                  >
+                    {unLockPasswordLoading ? <Loader /> : "Submit"}
+                  </button>
                 </div>
-                <div className="">
-                  <h1 className="text-sm md:text-md">Customers:</h1>
-                  {loading ? (
-                     <LineSkelton/>
-                  ) : (
-                    <h1 className="text-xl md:text-2xl font-bold text-purple-500">
-                      +{todayData?.totalCustomerCount || 0}{" "}
-                    </h1>
-                  )}
-                </div>
-              </div>
-
-              {/* Box-2 */}
-              <div className="flex flex-col  w-full  gap-4 md:gap-4  md:justify-center ">
-                <div className="">
-                  <h1 className="text-sm md:text-md">Day:</h1>
-                  <h1 className="text-md md:text-lg">{dayName}</h1>
-                </div>
-                <div className="">
-                  <h1 className="text-sm md:text-md">Month:</h1>
-                  <h1 className="text-md md:text-lg">{monthName}</h1>
-                </div>
-              </div>
-
-              {/* Box-3 */}
-              <div className="flex flex-col  w-full  gap-4 md:gap-4  md:justify-center ">
-                <div className="">
-                  <h1 className="text-sm md:text-md">Shop Status:</h1>
-                  {todayData?.totalCustomerCount > 0 ? (
-                    <h1 className="text-md md:text-lg text-green-600">Open</h1>
-                  ) : (
-                    <h1 className="text-md md:text-lg text-red-600">Close</h1>
-                  )}
-                </div>
-                <div className="">
-                  <h1 className="text-sm md:text-md">Special Day:</h1>
-                  <h1 className="text-md md:text-lg text-purple-600">
-                    {holiday}
-                  </h1>
-                </div>
-              </div>
+              )}
             </div>
-          </div>
+          ) : (
+            // <p>Dikh rha h </p>
+            // Feature is Unlcok
+            <div>
+              {/* Header */}
+              <div className="flex flex-col md:flex-row justify-center items-center gap-2">
+                {/* Add money */}
+                <form
+                  ref={formRef}
+                  onSubmit={handleSubmit}
+                  className="flex flex-col w-full gap-6 p-4 border md:border-slate-300 rounded-lg md:shadow-sm"
+                >
+                  <div className="flex justify-center items-center w-full gap-4">
+                    <div className="relative flex justify-center items-center w-full focus-within:border-blue-500 focus-within:ring-0.5 focus-within:ring-blue-500">
+                      <span className="absolute top-[35%] left-2">
+                        <FaIndianRupeeSign className="text-green-600 focus-within:text-blue-500 opacity-65" />
+                      </span>
+                      <input
+                        type="text"
+                        id="dailyIncome"
+                        name="dailyIncome"
+                        required
+                        value={formData.dailyIncome}
+                        onChange={handleChange}
+                        className="py-3 ps-8 w-full text-gray-700 leading-normal border md:border-2 border-slate-300 rounded-sm focus-within:outline-none focus-within:ring-0.5 focus-within:ring-blue-500 focus-within:border-blue-500"
+                        placeholder="Enter amount....."
+                      />
+                    </div>
+                    <div className="flex  justify-center items-center w-full border md:border-2 border-slate-300  relative focus-within:border-blue-500 focus-within:ring-0.5 focus-within:ring-blue-500 rounded-sm">
+                      <span className="absolute top-[35%] left-2">
+                        <MdOutlineFolderSpecial className="text-black focus-within:text-blue-500 opacity-65" />
+                      </span>
+                      <select
+                        id="earningType"
+                        name="earningType"
+                        value={formData.earningType}
+                        onChange={handleChange}
+                        className="py-3 ps-8 w-full text-gray-700 leading-normal focus:outline-none focus:bg-white focus:border-blue-500 rounded-sm"
+                      >
+                        <option value="Cash">Cash</option>
+                        <option value="Online">Online</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    className={`${
+                      editCheck ? "bg-orange-600" : "bg-blue-600 "
+                    } py-3 flex items-center justify-center   text-white text-center rounded-sm `}
+                    disabled={loading}
+                  >
+                    {loading ? <Loader /> : editCheck ? "Update" : "Add"}
+                  </button>
+                </form>
 
-          {/* Table */}
-          <div className="bg-white mt-4 overflow-x-auto relative max-h-[700px] md:max-h-[620px] overflow-y-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-900 text-white sticky top-0 z-10">
-                <tr>
-                  {columns.map((col) => (
-                    <th
-                      key={col.key}
-                      scope="col"
-                      className="px-6 py-3 text-center text-md font-medium uppercase tracking-wider"
-                    >
-                      {col.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+                {/* Total amount display */}
+                <div className="flex w-full  mx-auto gap-4  p-4 justify-between items-center border md:border-slate-300 rounded-lg md:shadow-sm ">
+                  {/* Box-1 */}
+                  <div className="flex flex-col  w-full  gap-2 md:gap-2 md:justify-center ">
+                    <div className="">
+                      <h1 className="text-sm md:text-md">Total Income:</h1>
+                      {loading ? (
+                        <LineSkelton />
+                      ) : (
+                        <h1
+                          className={`text-xl md:text-2xl font-bold ${
+                            (todayData?.totalIncome || 0) >= 0
+                              ? "text-green-500"
+                              : "text-red-500"
+                          }`}
+                        >
+                          {todayData?.totalIncome >= 0 ? "+" : "-"}
+                          {new Intl.NumberFormat("en-IN").format(
+                            Math.abs(todayData?.totalIncome || 0)
+                          )}
+                        </h1>
+                      )}
+                    </div>
+                    <div className="">
+                      <h1 className="text-sm md:text-md">Customers:</h1>
+                      {loading ? (
+                        <LineSkelton />
+                      ) : (
+                        <h1 className="text-xl md:text-2xl font-bold text-purple-500">
+                          +{todayData?.totalCustomerCount || 0}{" "}
+                        </h1>
+                      )}
+                    </div>
+                  </div>
 
-              <tbody className="bg-white divide-y divide-gray-200 text-center relative">
-                {/* Conditionally render the loader inside tbody */}
-                {loading ? (
-                  <tr>
-                    <td colSpan={columns.length} className="relative h-32">
-                      <div className="absolute inset-0 flex justify-center items-center">
-                        <Loader />
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  <>
-                    {todayData?.todayIncome?.length > 0 ? (
-                      todayData.todayIncome.map((dataKey, index) => (
-                        <tr key={dataKey.objectId}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {index + 1}.
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            ₹
-                            {new Intl.NumberFormat("en-IN").format(
-                              dataKey?.income || "N/A"
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {dataKey?.time || "N/A"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {todayData?.date || "N/A"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {dataKey?.earningType || "N/A"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">
-                            <button
-                              onClick={() => {
-                                updateIncomeHandler(dataKey.objectId);
-                              }}
-                              className="rounded-full bg-blue-600 w-[30px] h-[30px] flex items-center justify-center"
-                            >
-                              <div>
-                                <MdModeEdit className="text-white cursor-pointer" />
-                              </div>
-                            </button>
-                            <button
-                              onClick={() =>
-                                deleteIncomeHandler(dataKey.objectId)
-                              }
-                              className="rounded-full bg-red-600 w-[30px] h-[30px] flex items-center justify-center"
-                            >
-                              <button>
-                                <MdDelete className="flex text-30 text-white cursor-pointer" />
-                              </button>
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
+                  {/* Box-2 */}
+                  <div className="flex flex-col  w-full  gap-4 md:gap-4  md:justify-center ">
+                    <div className="">
+                      <h1 className="text-sm md:text-md">Day:</h1>
+                      <h1 className="text-md md:text-lg">{dayName}</h1>
+                    </div>
+                    <div className="">
+                      <h1 className="text-sm md:text-md">Month:</h1>
+                      <h1 className="text-md md:text-lg">{monthName}</h1>
+                    </div>
+                  </div>
+
+                  {/* Box-3 */}
+                  <div className="flex flex-col  w-full  gap-4 md:gap-4  md:justify-center ">
+                    <div className="">
+                      <h1 className="text-sm md:text-md">Shop Status:</h1>
+                      {todayData?.totalCustomerCount > 0 ? (
+                        <h1 className="text-md md:text-lg text-green-600">
+                          Open
+                        </h1>
+                      ) : (
+                        <h1 className="text-md md:text-lg text-red-600">
+                          Close
+                        </h1>
+                      )}
+                    </div>
+                    <div className="">
+                      <h1 className="text-sm md:text-md">Special Day:</h1>
+                      <h1 className="text-md md:text-lg text-purple-600">
+                        {holiday}
+                      </h1>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="bg-white mt-4 overflow-x-auto relative max-h-[700px] md:max-h-[620px] overflow-y-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-900 text-white sticky top-0 z-10">
+                    <tr>
+                      {columns.map((col) => (
+                        <th
+                          key={col.key}
+                          scope="col"
+                          className="px-6 py-3 text-center text-md font-medium uppercase tracking-wider"
+                        >
+                          {col.header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody className="bg-white divide-y divide-gray-200 text-center relative">
+                    {/* Conditionally render the loader inside tbody */}
+                    {loading ? (
                       <tr>
-                        <td colSpan="5" className="px-6 py-4 text-center">
-                          No income data available
-                          <span> ( {`${day}/${month}/${year}`})</span>
+                        <td colSpan={columns.length} className="relative h-32">
+                          <div className="absolute inset-0 flex justify-center items-center">
+                            <Loader />
+                          </div>
                         </td>
                       </tr>
+                    ) : (
+                      <>
+                        {todayData?.todayIncome?.length > 0 ? (
+                          todayData.todayIncome.map((dataKey, index) => (
+                            <tr key={dataKey.objectId}>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {index + 1}.
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                ₹
+                                {new Intl.NumberFormat("en-IN").format(
+                                  dataKey?.income || "N/A"
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {dataKey?.time || "N/A"}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {todayData?.date || "N/A"}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {dataKey?.earningType || "N/A"}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">
+                                <button
+                                  onClick={() => {
+                                    updateIncomeHandler(dataKey.objectId);
+                                  }}
+                                  className="rounded-full bg-blue-600 w-[30px] h-[30px] flex items-center justify-center"
+                                >
+                                  <div>
+                                    <MdModeEdit className="text-white cursor-pointer" />
+                                  </div>
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    deleteIncomeHandler(dataKey.objectId)
+                                  }
+                                  className="rounded-full bg-red-600 w-[30px] h-[30px] flex items-center justify-center"
+                                >
+                                  <button>
+                                    <MdDelete className="flex text-30 text-white cursor-pointer" />
+                                  </button>
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" className="px-6 py-4 text-center">
+                              No income data available
+                              <span> ( {`${day}/${month}/${year}`})</span>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </tbody>
-            </table>
-          </div>
-          {todayData?.todayIncome?.length > 0 && (
-            <div className="flex mt-4 space-x-4 justify-end mx-4 md:mx-8 pb-4">
-              <button
-                onClick={downloadExcel}
-                className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Download Excel
-                <span className="font-bold text-md ml-2">
-                  <HiDownload />
-                </span>
-              </button>
+                  </tbody>
+                </table>
+              </div>
+              {todayData?.todayIncome?.length > 0 && (
+                <div className="flex mt-4 space-x-4 justify-end mx-4 md:mx-8 pb-4">
+                  <button
+                    onClick={downloadExcel}
+                    className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Download Excel
+                    <span className="font-bold text-md ml-2">
+                      <HiDownload />
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
-        </>
+        </div>
       </section>
     </>
   );

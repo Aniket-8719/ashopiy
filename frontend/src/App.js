@@ -34,11 +34,14 @@ import PrivacyPolicy from "./Components/Home/PrivacyPolicy";
 import TermsConditions from "./Components/Home/TermsConditions";
 import ContactUs from "./Components/Home/ContactUs";
 import FAQ from "./Components/Home/Faq";
+import LockFeature from "./Components/Users/LockFeature";
+import { lockList } from "./actions/appLockAction";
 
 function App() {
   const dispatch = useDispatch();
   const {user,isAuthenticated} = useSelector((state) => state.user);
-
+  const {isLock} = useSelector((state) => state.lockFeature);
+ 
   useEffect(() => {
     if (!isAuthenticated || !user?.email) return;
   
@@ -75,6 +78,12 @@ function App() {
     dispatch(loadUser()); // Dispatch an action to check user authentication
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(lockList()); // Dispatch an action to check user authentication
+  }, [dispatch,isLock]);
+
+  
+
   return (
     <>
       <Navbar />
@@ -95,6 +104,14 @@ function App() {
           element={
             <ProtectedRoute requiredRole="user">
              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lock-feature"
+          element={
+            <ProtectedRoute requiredRole="user">
+             <LockFeature />
             </ProtectedRoute>
           }
         />

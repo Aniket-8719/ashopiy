@@ -6,6 +6,8 @@ const sendEmail = require("../utils/sendEmail");
 const cloudinary = require("cloudinary");
 const moment = require("moment-timezone");
 
+
+
 //  Register User
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   const {
@@ -137,7 +139,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   res.status(201).cookie("token", token, options).json({
     success: true,
     user,
-    // token,
+    token,
   });
 });
 
@@ -537,3 +539,6 @@ exports.contactUsEmailRecieve = catchAsyncError(async (req, res, next) => {
       .json({ success: false, message: "Email could not be sent" });
   }
 });
+
+
+

@@ -53,12 +53,14 @@ const dailyIncome = require("./routes/incomeRoute");
 const investment = require("./routes/investmentRoute");
 const userRoute = require("./routes/userRoute");
 const udharRoute = require("./routes/udharBookRoute");
+const appRoute = require("./routes/appLockRoute");
 
 // Registering routes
 app.use("/api/v2", dailyIncome);
 app.use("/api/v2", investment);
 app.use("/api/v2", userRoute);
 app.use("/api/v2", udharRoute);
+app.use("/api/v2", appRoute);
 
 // Error middleware
 app.use(errorMiddleware);

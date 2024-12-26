@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 // import { BsArrowRightSquareFill, BsArrowLeftSquareFill } from "react-icons/bs";
 // import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
@@ -11,18 +11,65 @@ import { IoMdPricetags } from "react-icons/io";
 // import { TbTransactionRupee } from "react-icons/tb";
 // import { GrMoney } from "react-icons/gr";
 import { IoStatsChartSharp } from "react-icons/io5";
-import { FaChartPie } from "react-icons/fa6";
+import { FaChartPie, FaLock, FaUnlock } from "react-icons/fa6";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
 import { IoReceiptSharp } from "react-icons/io5";
 import { MdManageAccounts } from "react-icons/md";
 import { MdOutlineMenuBook } from "react-icons/md";
+import { lockList } from "../../actions/appLockAction";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 // import { useSelector } from "react-redux";
 
  
 
 const AdminDropdown = ({mobileToggle, setMobileToggle}) => { 
-  // const {user,isAuthenticated} = useSelector((state) => state.user); 
+  // const {user,isAuthenticated} = useSelector((state) => state.user);
+  const dispatch = useDispatch(); 
+  // Lock/Unlock
+  // Lock List
+  const { LockList } = useSelector((state) => state.lockUnlockList);
+
+  const {
+    loading: unLockPasswordLoading,
+    isUnlock,
+    error: unLockError,
+  } = useSelector((state) => state.unLockFeature);
+
+  // The feature to check
+  const checkLockEarning = "Earning"; // You can dynamically change this value as needed
+  const checkLockCharts = "Charts";
+  const checkLockInvestments = "Investments";
+  const checkLockUdharBook = "UdharBook";
+  const checkLockHistory = "UdharBook";
+
+  // State to manage password pop-up visibility and input
+  // const [isLocked, setIsLocked] = useState(false);
+  // const [password, setPassword] = useState("");
+
+// Assuming LockList is always a single document
+const lockedFeatures = LockList[0]?.lockedFeatures || {};
+
+// Check the locked status for each feature
+const isEarningLocked = lockedFeatures["Earning"];
+const isChartsLocked = lockedFeatures["Charts"];
+const isInvestmentsLocked = lockedFeatures["Investments"];
+const isUdharBookLocked = lockedFeatures["UdharBook"];
+const isHistoryLocked = lockedFeatures["History"];
+
+useEffect(() => {
+  if (isUnlock) {
+    // Fetch the updated LockList after unlocking a feature
+    dispatch(lockList());
+  }
+}, [isUnlock, dispatch]);
+
+// Function to render lock icon based on the locked status of a feature
+const renderLockIcon = (isLocked) => {
+  return isLocked && <FaLock className="text-gray-500" />;
+};
+
   return (
     <>
       <div
@@ -50,28 +97,49 @@ const AdminDropdown = ({mobileToggle, setMobileToggle}) => {
       {  (
         <>
         
-        <Link to={"/earning"} className="flex items-center gap-4  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+        <Link to={"/earning"} className="flex justify-between items-center  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+        <div className="flex items-center gap-4">
         <div><IoStatsChartSharp className="text-xl"/></div>
         <div><h1 className="text-xl">Earning</h1></div>
+        </div>
+        <div className="mr-4">{renderLockIcon(isEarningLocked)}</div>
         </Link>
 
-        <Link to={"/charts"} className="flex items-center gap-4  p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 ">
+        <Link to={"/charts"} className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 ">
+        <div className="flex items-center gap-4">
         <div><FaChartPie className="text-xl hover:text-blue-500"/></div>
         <div><h1 className="text-xl">Charts</h1></div>
+        </div>
+        <div className="mr-4">{renderLockIcon(isChartsLocked)}</div>
         </Link>
 
-        <Link to={"/investment"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
-        <div><FaMoneyBillTrendUp className="text-xl"/></div>
-        <div><h1 className="text-xl">Investment</h1></div>
+
+        <Link to={"/investment"} className="flex justify-between items-center p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+       <div className="flex items-center gap-4">
+       <div><FaMoneyBillTrendUp className="text-xl"/></div>
+       <div><h1 className="text-xl">Investment</h1></div>
+       </div>
+        <div className="mr-4">{renderLockIcon(isInvestmentsLocked)}</div>
         </Link>
-        <Link to={"/uDhaarBook"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+
+
+        <Link to={"/uDhaarBook"} className="flex justify-between items-center p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+        <div className="flex items-center gap-4">
         <div><MdOutlineMenuBook className="text-2xl"/></div>
         <div><h1 className="text-xl">Udhaar Book</h1></div>
+        </div>
+        <div className="mr-4">{renderLockIcon(isUdharBookLocked)}</div>
         </Link>
-        <Link to={"/history"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
-        <div><FaMoneyBillTransfer className="text-xl"/></div>
-        <div><h1 className="text-xl">History</h1></div>
-        </Link>  
+
+
+        <Link to={"/history"} className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600">
+      <div className="flex items-center gap-4">
+      <div><FaMoneyBillTransfer className="text-xl"/></div>
+      <div><h1 className="text-xl">History</h1></div>
+      </div>
+        <div className="mr-4">{renderLockIcon(isHistoryLocked)}</div>
+        </Link> 
+
         {/* <Link to={"/staffMangement"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
         <div><MdManageAccounts className="text-2xl"/></div>
         <div><h1 className="text-xl">Staff Mangement</h1></div>

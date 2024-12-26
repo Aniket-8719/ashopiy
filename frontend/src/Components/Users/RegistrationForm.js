@@ -9,6 +9,7 @@ import {useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearError, register } from "../../actions/userAction";
 import { shopcategory } from "../../ShopCategories.js/ShopCategories";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -146,6 +147,12 @@ const RegistrationForm = () => {
     }
   }, [dispatch, error, navigate, isAuthenticated]);
 
+  // password visibilty
+    const [showPassword, setShowPassword] = useState(false);
+    // Toggle function for showing/hiding Set Password
+    const handleTogglePassword = () => setShowPassword((prev) => !prev);
+  
+
   return (
     <>
     <MetaData title={"REGISTRATION"}/>
@@ -196,12 +203,12 @@ const RegistrationForm = () => {
                   className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   name="password"
                   value={formData.password}
@@ -209,6 +216,17 @@ const RegistrationForm = () => {
                   placeholder="Enter your password"
                   className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
                 />
+                 {/* Eye icon for toggling password visibility */}
+              <span
+                className="absolute top-6 inset-y-0 right-3 flex items-center cursor-pointer"
+                onClick={handleTogglePassword} // Toggle for old password
+              >
+                {showPassword ? (
+                  <FaEye className="text-gray-500 text-xl" />
+                ) : (
+                  <FaEyeSlash className="text-gray-500 text-xl" />
+                )}
+              </span>
               </div>
             </div>
 

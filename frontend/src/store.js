@@ -5,6 +5,7 @@ import { addEarningReducer, completeDataReducer, deleteORUpdateEarningReducer, e
 import { addInvestmentReducer, deleteORUpdateInvestmentReducer, getInvestmentReducer } from "./reducers/investmentReducer";
 import { allUsersReducer, contactusRducer, forgotPasswordReducer, profileReducer, userDetailsReducer, userReducer } from "./reducers/userReducer";
 import {addUdharReducer, deleteORUpdateUdharReducer, getSingleUdharReducer, getUdharReducer} from "./reducers/udharReducer";
+import { lockFeatureReducer, lockListReducer, unLockFeatureReducer } from "./reducers/featureLockReducer";
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -27,6 +28,9 @@ const rootReducer = combineReducers({
   monthlyHistory:monthlyHistoryReducer,
   completeData: completeDataReducer,
   contactUsMessage: contactusRducer,
+  lockFeature: lockFeatureReducer,
+  unLockFeature: unLockFeatureReducer,
+  lockUnlockList: lockListReducer,
   // admin
   allUser:allUsersReducer,
   singleUser:userDetailsReducer,

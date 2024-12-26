@@ -162,9 +162,6 @@ const downloadExcel = useCallback(() => {
     dispatch(getCompleteData()); // Fetch the data, loading state will be set in Redux
   };
 
- 
-
-
  // Trigger downloadExcel when data is loaded and the user has triggered the download
  useEffect(() => {
   if (!loading && FullData && FullData.length > 0 && isDownloadTriggered) { 
@@ -259,7 +256,7 @@ const downloadExcel = useCallback(() => {
               </Link>
               <Link
              
-                to="/app-lock"
+                to="/lock-feature"
                 className="flex justify-center text-sm items-center w-full  bg-purple-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-purple-700 focus:outline-none"
               >
                 App Lock 
