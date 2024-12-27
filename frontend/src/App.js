@@ -78,10 +78,12 @@ function App() {
     dispatch(loadUser()); // Dispatch an action to check user authentication
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(lockList()); // Dispatch an action to check user authentication
-  }, [dispatch,isLock]);
-
+ // Fetch lockList details when user is authenticated
+ useEffect(() => {
+  if (isAuthenticated) {     
+    dispatch(lockList());   
+  }
+}, [dispatch, isAuthenticated, isLock]);    
   
 
   return (

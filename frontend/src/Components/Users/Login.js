@@ -13,6 +13,7 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [wasAuthenticated, setWasAuthenticated] = useState(false);
   // Toggle function for showing/hiding Set Password
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
@@ -37,11 +38,12 @@ const Login = () => {
       toast.error(error);
       dispatch(clearError());
     }
-    if (isAuthenticated) {
+    if (isAuthenticated && !wasAuthenticated) {
+      setWasAuthenticated(true); // Mark as authenticated
       navigate(redirect);
       toast.success("Login Successfully");
     }
-  }, [dispatch, error, navigate, isAuthenticated, redirect]);
+  }, [dispatch, error, navigate, isAuthenticated, wasAuthenticated, redirect]);
   return (
     <>
       <MetaData title={"LOGIN"} />
