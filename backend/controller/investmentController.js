@@ -71,18 +71,19 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
 
   for (let i = 0; i < investments.length; i++) {
     const investment = investments[i];
-    const startDate = investment.date;
+    const startDate = new Date(investment.date); // Convert to Date object
 
+    // Subtract 5 hours and 30 minutes
+    const adjustedStartDate = new Date(startDate.getTime() - (5 * 60 + 30) * 60 * 1000);
+  
+    // Determine the end date: use the next investment's date or the current date
+    const nextDate = investments[i + 1] ? new Date(investments[i + 1].date) : new Date();
+    const adjustedEndDate = new Date(nextDate.getTime() - (5 * 60 + 30) * 60 * 1000);
+  
+    // Format as ISO strings for consistent output
+    console.log("start:", adjustedStartDate.toISOString());
+    console.log("end:", adjustedEndDate.toISOString());
 
-    // If there’s a next investment, use its date as the end date, otherwise use the current date
-    const endDate = investments[i + 1] ? investments[i + 1].date : new Date();
-
-    // Ensure both dates are in ISO 8601 format for consistency
-  const formattedStartDate = new Date(startDate).toISOString();
-  const formattedEndDate = new Date(endDate).toISOString();
-
-  console.log("start:", formattedStartDate);
-  console.log("end:", formattedEndDate); 
 
     // Calculate earnings from `FullDayIncome` between startDate and endDate
     const earnings = await FullDayIncome.aggregate([
@@ -90,8 +91,8 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
         $match: {
           user: req.user._id,
           date: {
-            $gte: startDate,
-            $lt: endDate,
+            $gte: adjustedStartDate,
+            $lt: adjustedEndDate,
           },
         },
       },
