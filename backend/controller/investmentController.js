@@ -73,8 +73,12 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
     const investment = investments[i];
     const startDate = investment.date;
 
+    console.log("start:", startDate);
+
     // If there’s a next investment, use its date as the end date, otherwise use the current date
     const endDate = investments[i + 1] ? investments[i + 1].date : new Date();
+
+    console.log("end:", endDate);
 
     // Calculate earnings from `FullDayIncome` between startDate and endDate
     const earnings = await FullDayIncome.aggregate([
@@ -168,7 +172,7 @@ exports.updateInvestment = catchAsyncError(async (req, res, next) => {
   }
 
   // Get the current time in the Asia/Kolkata timezone
-  const currentTimingOFindia = moment.tz("Asia/Kolkata");
+  const currentTimingOFindia = moment.tz("Asia/Kolkata"); 
 
   // Adjust to UTC by adding 5 hours and 30 minutes
   const utcDateTime = indiaDate.clone().add(5, "hours").add(30, "minutes");
