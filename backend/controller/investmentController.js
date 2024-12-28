@@ -77,18 +77,16 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
     const adjustedStartDate = new Date(startDate.getTime() - (5 * 60 + 30) * 60 * 1000);
   
     // Determine the end date: use the next investment's date or the current date
-    const nextDate = investments[i + 1] ? new Date(investments[i + 1].date) : new Date();
-    const adjustedEndDate = new Date(nextDate.getTime() - (5 * 60 + 30) * 60 * 1000);
-  
-    // Format as ISO strings for consistent output
-    console.log("start:", adjustedStartDate.toISOString());
-    console.log("end:", adjustedEndDate.toISOString());
+    const endDate = investments[i + 1] ? new Date(investments[i + 1].date) : new Date();
 
+     // Subtract 5 hours and 30 minutes
+    const adjustedEndDate = new Date(endDate.getTime() - (5 * 60 + 30) * 60 * 1000);
+  
 
     // Calculate earnings from `FullDayIncome` between startDate and endDate
     const earnings = await FullDayIncome.aggregate([
       {
-        $match: {
+        $match: { 
           user: req.user._id,
           date: {
             $gte: adjustedStartDate,
