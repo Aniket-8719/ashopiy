@@ -73,12 +73,16 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
     const investment = investments[i];
     const startDate = investment.date;
 
-    console.log("start:", startDate);
 
     // If there’s a next investment, use its date as the end date, otherwise use the current date
     const endDate = investments[i + 1] ? investments[i + 1].date : new Date();
 
-    console.log("end:", endDate);
+    // Ensure both dates are in ISO 8601 format for consistency
+  const formattedStartDate = new Date(startDate).toISOString();
+  const formattedEndDate = new Date(endDate).toISOString();
+
+  console.log("start:", formattedStartDate);
+  console.log("end:", formattedEndDate); 
 
     // Calculate earnings from `FullDayIncome` between startDate and endDate
     const earnings = await FullDayIncome.aggregate([
