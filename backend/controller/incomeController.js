@@ -272,8 +272,7 @@ exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
   }
 
   income.dailyIncome = req.body.dailyIncome;
-  income.earningType = req.body.earningType; 
-  
+  income.earningType = req.body.earningType;
 
   // Save the updated income
   await income.save();
@@ -331,10 +330,9 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     .startOf("day")
     .toDate();
   const endDate = moment
-    .utc(`${queryYear}-${queryMonth}-${daysInMonth}`, "YYYY-MM-DD") 
+    .utc(`${queryYear}-${queryMonth}-${daysInMonth}`, "YYYY-MM-DD")
     .endOf("day")
-    .toDate(); 
-
+    .toDate();
 
   // Aggregate income data
   const fullDayIncome = await FullDayIncome.aggregate([
@@ -391,13 +389,13 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
     const day = idx + 1;
 
     // Calculate the date for the current day in the loop
-    const date = moment.utc(
-      { year: queryYear, month: queryMonth - 1, day },
-    )
+    const date = moment.utc({ year: queryYear, month: queryMonth - 1, day });
 
     // Skip generating data for dates before `userJoiningDate` or future dates
     if (
-      (queryYear === todayYear && queryMonth === todayMonth && day > todayDay) // Skip future dates
+      queryYear === todayYear &&
+      queryMonth === todayMonth &&
+      day > todayDay // Skip future dates
     ) {
       return null;
     }
@@ -510,7 +508,7 @@ exports.getYearlyIncome = catchAsyncError(async (req, res, next) => {
     yearlyIncome: formattedYearlyIncome,
   });
 });
- 
+
 // Fulldayincome for entire Month data (Indian Time)
 exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
   const { year, month } = req.query;
@@ -542,33 +540,26 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
     .tz({ year: queryYear, month: queryMonth - 1 }, "Asia/Kolkata")
     .daysInMonth();
 
-  let endDate;
-  if (queryYear === todayYear && queryMonth === todayMonth) {
-    // Limit end date to the current day and time
-    endDate = moment
-      .tz(today, "Asia/Kolkata")
-      .utc() // Convert to UTC
-      .endOf("day") // End of the day in UTC
-      .toDate();
-  } else {
-    // For past months, include the full last day of the month
-    endDate = moment
-      .tz(
-        { year: queryYear, month: queryMonth - 1, day: daysInMonth },
-        "Asia/Kolkata"
-      )
-      .utc() // Convert to UTC
-      .endOf("day") // End of the day in UTC 
-      .toDate();
-  }
-
   const startDate = moment
     .tz({ year: queryYear, month: queryMonth - 1, day: 1 }, "Asia/Kolkata")
-    .utc() // Convert to UTC
-    .startOf("day") // Start of the day in UTC
+    .startOf("day")
+    .utc()
     .toDate();
 
+  const endDate =
+    queryYear === todayYear && queryMonth === todayMonth
+      ? moment.tz(today, "Asia/Kolkata").endOf("day").utc().toDate()
+      : moment
+          .tz(
+            { year: queryYear, month: queryMonth - 1, day: daysInMonth },
+            "Asia/Kolkata"
+          )
+          .endOf("day")
+          .utc()
+          .toDate();
 
+          console.log("startDate: ", startDate);
+          console.log("endDate: ", endDate);
   // Aggregate income data with proper timezone handling
   const fullDayIncome = await FullDayIncome.aggregate([
     {
@@ -624,18 +615,17 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
   // Format daily income, ensuring no future data for today
   const formattedDailyIncome = Array.from({ length: daysInMonth }, (_, idx) => {
     const day = idx + 1;
-    const date = moment.utc(
-      { year: queryYear, month: queryMonth - 1, day },
-    );
+    const date = moment.utc({ year: queryYear, month: queryMonth - 1, day });
 
     if (
-      (queryYear === todayYear && queryMonth === todayMonth && day > todayDay)
+      queryYear === todayYear &&
+      queryMonth === todayMonth &&
+      day > todayDay
     ) {
       return null;
     }
 
-
-    const foundDay = fullDayIncome.find((item) => item.day === day); 
+    const foundDay = fullDayIncome.find((item) => item.day === day);
 
     return {
       date: date.format("DD/MM/YYYY"),
