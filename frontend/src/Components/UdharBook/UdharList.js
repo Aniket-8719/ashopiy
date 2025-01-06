@@ -44,10 +44,10 @@ const UdharList = () => {
   const [updateID, setUpdateID] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    // Fetch udhars when the component mounts and after successful add, update, or delete
-    dispatch(getAllUdhar(searchQuery));
-  }, [dispatch, isAdded, isUpdated, isDeleted]);
+  // useEffect(() => {
+  //   // Fetch udhars when the component mounts and after successful add, update, or delete
+  //   dispatch(getAllUdhar(searchQuery));
+  // }, [dispatch, isAdded, isUpdated, isDeleted]);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -154,6 +154,10 @@ const UdharList = () => {
       dispatch({ type: UNLOCK_FEATURE_RESET });
       dispatch(lockList());
     }
+    // Fetch udhars only when the feature is unlocked
+  if (!isFeatureLocked) {
+    dispatch(getAllUdhar(searchQuery));
+  }
   }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
   return (
     <>

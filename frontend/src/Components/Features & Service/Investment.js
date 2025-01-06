@@ -141,11 +141,8 @@ const Investment = () => {
   const deleteIncomeHandler = (id) => {
     dispatch(deleteInvestment(id));
   };
-const navigate = useNavigate();
+  const navigate = useNavigate();
   useEffect(() => {
-    // Fetch today's earnings when the component mounts and after successful add, update, or delete
-    dispatch(getInvestment());
-
     if (isAdded || isUpdated || isDeleted) {
       dispatch(getInvestment()); // Re-fetch after add, update, or delete
     }
@@ -155,8 +152,11 @@ const navigate = useNavigate();
     // Handle error and success messages
     if (error) {
       toast.error(error);
-      if (error === "You do not have an active subscription. Please subscribe to access this resource.") {
-        navigate('/pricing');
+      if (
+        error ===
+        "You do not have an active subscription. Please subscribe to access this resource."
+      ) {
+        navigate("/pricing");
       }
       dispatch(clearErrors());
     }
@@ -167,8 +167,11 @@ const navigate = useNavigate();
     }
     if (addingError) {
       toast.error(addingError);
-      if (addingError === "You do not have an active subscription. Please subscribe to access this resource.") {
-        navigate('/pricing');
+      if (
+        addingError ===
+        "You do not have an active subscription. Please subscribe to access this resource."
+      ) {
+        navigate("/pricing");
       }
       dispatch(clearErrors());
     }
@@ -365,6 +368,13 @@ const navigate = useNavigate();
       toast.success("Invesment Unlock");
       dispatch({ type: UNLOCK_FEATURE_RESET });
       dispatch(lockList());
+
+      // After unlocking, fetch investment details
+      dispatch(getInvestment());
+    }
+    // Fetch investment details if the feature is already unlocked
+    if (!isFeatureLocked) {
+      dispatch(getInvestment());
     }
   }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
 
