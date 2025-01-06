@@ -45,18 +45,17 @@ const OneLineDaysLeft = () => {
   const textColor = totalDaysLeft <= 7 ? "text-red-600" : "text-indigo-600";
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex items-center justify-center w-full">
-        {totalDaysLeft > 0 && (
-            <span className={`text-md font-bold ${textColor}`}>
-            {totalDaysLeft}
-          </span>
-        )}
-        {
-            totalDaysLeft > 0 ? (<span className="ml-2 text-md text-gray-500">left</span>): (<span className="ml-2 text-md text-red-500">expired</span>)
-        }
-      </div>
-    </div>
+    <div className="flex items-center justify-center w-full">
+    {/* Check if any plan is active */}
+    {(user?.subscription.basic?.isActive || user?.subscription.premium?.isActive) && (
+      <>
+        <span className={`text-xl font-bold ${textColor}`}>
+          {totalDaysLeft}
+        </span>
+        <span className="ml-2 text-md text-gray-500">left</span>
+      </>
+    )}
+  </div>  
   );
 };
 
