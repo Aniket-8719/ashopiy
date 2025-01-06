@@ -36,6 +36,7 @@ import ContactUs from "./Components/Home/ContactUs";
 import FAQ from "./Components/Home/Faq";
 import LockFeature from "./Components/Users/LockFeature";
 import { lockList } from "./actions/appLockAction";
+import PaymentSuccess from "./Components/Payment/PaymentSuccess";
 
 function App() {
   const dispatch = useDispatch();
@@ -168,6 +169,7 @@ function App() {
         <Route path="/terms-conditions" element={<TermsConditions />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route exact path="/paymentsuccess" element={<PaymentSuccess/>} />
         <Route exact path="*" element={<NotFound/>} />
       </Routes>
     </>

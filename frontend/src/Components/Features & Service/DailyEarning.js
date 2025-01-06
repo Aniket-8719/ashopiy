@@ -24,6 +24,7 @@ import { HiDownload } from "react-icons/hi";
 import LineSkelton from "../Skelton/LineSkelton";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
+import { useNavigate } from "react-router-dom";
 
 const DailyEarning = () => {
   const columns = [
@@ -36,6 +37,7 @@ const DailyEarning = () => {
   ];
 
   // Create a reference for the form section
+  const navigate = useNavigate();
   const formRef = useRef(null);
   const [holiday, setHoliday] = useState("Normal");
   const [editCheck, setEditCheck] = useState(false);
@@ -142,10 +144,16 @@ const DailyEarning = () => {
   useEffect(() => {
     if (error) {
       toast.error(error);
+      if (error === "You do not have an active subscription. Please subscribe to access this resource.") {
+        navigate('/pricing');
+      }
       dispatch(clearErrors());
     }
     if (addingError) {
       toast.error(addingError);
+      if (addingError === "You do not have an active subscription. Please subscribe to access this resource.") {
+        navigate('/pricing');
+      }
       dispatch(clearErrors());
     }
     if (deleteError) {

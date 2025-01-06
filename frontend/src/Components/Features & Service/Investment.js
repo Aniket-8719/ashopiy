@@ -22,6 +22,7 @@ import { HiDownload } from "react-icons/hi";
 import LineSkelton from "../Skelton/LineSkelton";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
+import { useNavigate } from "react-router-dom";
 
 const Investment = () => {
   const columns = [
@@ -140,7 +141,7 @@ const Investment = () => {
   const deleteIncomeHandler = (id) => {
     dispatch(deleteInvestment(id));
   };
-
+const navigate = useNavigate();
   useEffect(() => {
     // Fetch today's earnings when the component mounts and after successful add, update, or delete
     dispatch(getInvestment());
@@ -154,6 +155,9 @@ const Investment = () => {
     // Handle error and success messages
     if (error) {
       toast.error(error);
+      if (error === "You do not have an active subscription. Please subscribe to access this resource.") {
+        navigate('/pricing');
+      }
       dispatch(clearErrors());
     }
 
@@ -163,6 +167,9 @@ const Investment = () => {
     }
     if (addingError) {
       toast.error(addingError);
+      if (addingError === "You do not have an active subscription. Please subscribe to access this resource.") {
+        navigate('/pricing');
+      }
       dispatch(clearErrors());
     }
     if (isAdded) {

@@ -4,6 +4,7 @@ const cloudinary = require("cloudinary").v2;
 const connectDatabase = require("./config/database");
 
 
+
 // Handling Uncought Exception ---> when you declare irrelevant console.log(youtube);
 process.on("uncaughtException", (err)=>{
     console.log(`Error: ${err.message}`);
@@ -24,7 +25,10 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
- 
+
+
+
+
 // server is running
 const server = app.listen(process.env.PORT || 5000, () => {
     console.log(`Server is running on port ${process.env.PORT}`);

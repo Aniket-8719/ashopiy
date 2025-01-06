@@ -17,6 +17,7 @@ import { FaPlus } from "react-icons/fa6";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
 import Loader from "../Layouts/Loader";
+import { useNavigate } from "react-router-dom";
 
 const UdharList = () => {
   const dispatch = useDispatch();
@@ -48,6 +49,7 @@ const UdharList = () => {
     dispatch(getAllUdhar(searchQuery));
   }, [dispatch, isAdded, isUpdated, isDeleted]);
 
+  const navigate = useNavigate();
   useEffect(() => {
     // Handle error and success messages
     if (error) {
@@ -56,6 +58,9 @@ const UdharList = () => {
     }
     if (addingError) {
       toast.error(addingError);
+      if (addingError === "You do not have an active subscription. Please subscribe to access this resource.") {
+        navigate('/pricing');
+      }
       dispatch(clearErrors());
     }
     if (deleteORupdateError) {

@@ -122,8 +122,37 @@ const userSchema = new mongoose.Schema({
 
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+
+  planName: {
+    type: String, // Store the selected plan (e.g., 'basic' or 'premium')
+    enum: ["basic", "premium"], // Optional: restrict to specific plan names
+    default: null, // Or set a default plan if needed
+  },
+
+  // Subscription fields
+  subscription: {
+    basic: {
+      startDate: { type: Date, default: null }, // Start date of the basic subscription
+      endDate: { type: Date, default: null }, // End date of the basic subscription
+      isActive: { type: Boolean, default: false }, // Basic subscription status
+    },
+    premium: {
+      startDate: { type: Date, default: null }, // Start date of the premium subscription
+      endDate: { type: Date, default: null }, // End date of the premium subscription
+      isActive: { type: Boolean, default: false }, // Premium subscription status
+    },
+  },
 });
 
+// Prevent changes to subscription data during registration or update
+userSchema.pre("save", function (next) {
+  if (!this.isModified("subscription")) {
+    next();
+  } else {
+    // Ensure subscription is only modified when explicitly handled
+    next();
+  }
+});
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();

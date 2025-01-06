@@ -54,6 +54,8 @@ const investment = require("./routes/investmentRoute");
 const userRoute = require("./routes/userRoute");
 const udharRoute = require("./routes/udharBookRoute");
 const appRoute = require("./routes/appLockRoute");
+const subcription = require("./routes/subcriptionRoute");
+const startCronJobs = require("./scheduler");
 
 // Registering routes
 app.use("/api/v2", dailyIncome);
@@ -61,6 +63,14 @@ app.use("/api/v2", investment);
 app.use("/api/v2", userRoute);
 app.use("/api/v2", udharRoute);
 app.use("/api/v2", appRoute);
+app.use("/api/v2", subcription);
+
+app.get("/api/v2/getKey", (req,res)=>{
+  res.status(200).json({key:process.env.RAZORPAY_API_KEY})
+})
+ 
+startCronJobs(); 
+
 
 // Error middleware
 app.use(errorMiddleware);

@@ -8,13 +8,14 @@ const {
   updateUdhar,
   getSingleUdhar,
 } = require("../controller/udharBookController");
+const { checkSubscriptionStatus } = require("../middleware/subscribe");
 
-router.route("/createUdhar").post(isAuthenticatedUser, createUdhar);
+router.route("/createUdhar").post(isAuthenticatedUser, checkSubscriptionStatus, createUdhar);
 router.route("/allUdhars").get(isAuthenticatedUser, getAllUdhar);
 router
   .route("/udhar/:id")
   .get(isAuthenticatedUser, getSingleUdhar)
-  .delete(isAuthenticatedUser, deleteUdhar)
-  .put(isAuthenticatedUser, updateUdhar);
+  .delete(isAuthenticatedUser, checkSubscriptionStatus, deleteUdhar)
+  .put(isAuthenticatedUser, checkSubscriptionStatus, updateUdhar);
 
 module.exports = router;
