@@ -45,9 +45,9 @@ const OneLineDaysLeft = () => {
   const textColor = totalDaysLeft <= 7 ? "text-red-600" : "text-indigo-600";
 
   return (
-    <div className="flex items-center justify-center w-full">
+    <div className="flex items-center justify-center w-full ">
     {/* Check if any plan is active */}
-    {(user?.subscription.basic?.isActive || user?.subscription.premium?.isActive) && (
+    {(user?.subscription?.basic?.isActive || user?.subscription?.premium?.isActive) && (
       <>
         <span className={`text-xl font-bold ${textColor}`}>
           {totalDaysLeft}

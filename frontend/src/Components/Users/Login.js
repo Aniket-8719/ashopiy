@@ -41,7 +41,6 @@ const Login = () => {
     if (isAuthenticated && !wasAuthenticated) {
       setWasAuthenticated(true); // Mark as authenticated
       navigate(redirect);
-      toast.success("Login Successfully");
     }
   }, [dispatch, error, navigate, isAuthenticated, wasAuthenticated, redirect]);
   return (
