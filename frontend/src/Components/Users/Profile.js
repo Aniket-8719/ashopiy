@@ -7,6 +7,7 @@ import { getCompleteData } from "../../actions/earningAction";
 import ExcelJS from "exceljs";
 import Loader from "../Layouts/Loader";
 import { HiDownload } from "react-icons/hi";
+import SubscriptionDaysLeft from "../Payment/SubscriptionDaysLeft";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -239,35 +240,48 @@ const downloadExcel = useCallback(() => {
                 </div>
               </div>
             </div>
-
+          <div className="flex flex-col md:flex-row  md:gap-8 items-center w-full">
+          <div >
+          <SubscriptionDaysLeft/>
+          </div>
             {/* Action Buttons */}
-            <div className="mt-8 flex flex-col md:flex-row justify-between gap-4">
-              <Link
+            <div className="mt-8 flex flex-col justify-between gap-4 w-full  p-4">
+
+             <div className="flex flex-col md:flex-row gap-4 w-full">
+             <Link
                 to="/me/update"
                 className="flex justify-center text-sm items-center w-full  bg-blue-600 text-white  px-4 py-2 md:px-6 rounded-md hover:bg-blue-700 focus:outline-none"
               >
                 Edit Profile
               </Link>
+
               <Link
                 to="/password/update"
                 className="flex justify-center text-sm items-center w-full  bg-yellow-500 text-white px-4 py-2 md:px-6 rounded-md hover:bg-yellow-600 focus:outline-none"
               >
                 Change Password
               </Link>
-              <Link
-             
+             </div>
+
+             <div className="flex flex-col md:flex-row gap-4 w-full">
+             <Link
                 to="/lock-feature"
                 className="flex justify-center text-sm items-center w-full  bg-purple-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-purple-700 focus:outline-none"
               >
                 App Lock 
               </Link>
+
               <button
                onClick={handleSubmit}
                disabled={loading}
                className="flex justify-center text-sm items-center w-full gap-2 bg-green-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-green-700 focus:outline-none">
               {loading ? <Loader/> : "  Download Complete Data"} <div className="text-lg"><HiDownload/></div>
               </button>
+
+             </div>
             </div>
+        
+          </div>
           </div>
         </div>
       </section>

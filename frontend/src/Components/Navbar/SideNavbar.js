@@ -20,6 +20,7 @@ import { MdOutlineMenuBook } from "react-icons/md";
 import { lockList } from "../../actions/appLockAction";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import OneLineDaysLeft from "../Payment/OneLineDaysLeft";
 // import { useSelector } from "react-redux";
 
  
@@ -152,9 +153,14 @@ const renderLockIcon = (isLocked) => {
       )
       
     }
-        <Link to={"/pricing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 ">
+        <Link to={"/pricing"} className="flex items-center justify-between  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 ">
+        <div className="flex items-center gap-4 ">
         <div><IoMdPricetags className="text-xl"/></div>
         <div><h1 className="text-xl">Pricing</h1></div>
+        </div>
+        <div className="mr-2">
+        <OneLineDaysLeft/>
+        </div>
         </Link>
         
       </div>
