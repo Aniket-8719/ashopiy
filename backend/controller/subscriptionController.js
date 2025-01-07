@@ -92,7 +92,7 @@ const updateSubscription = async (user) => {
 
   if (!planName) throw new Error("No plan name found in user document");
 
-  const durationInMonths = planName.toLowerCase() === "basic" ? 1 : 12; // Basic = 1 month, Premium = 12 months
+  const durationInMonths = planName.toLowerCase() === "basic" ? 29 : 365;// Basic = 1 month, Premium = 12 months
   const subscription = user.subscription[planName.toLowerCase()];
 
   if (!subscription) throw new Error("Invalid subscription plan name");
@@ -115,12 +115,12 @@ const updateSubscription = async (user) => {
     } else if (subscription.isActive && subscription.endDate) {
       // Extend the Basic plan
       subscription.endDate = moment(subscription.endDate)
-        .add(durationInMonths, "months")
+        .add(durationInMonths, "days")
         .toDate();
     } else {
       // New Basic plan
       subscription.startDate = currentDate.toDate();
-      subscription.endDate = currentDate.clone().add(durationInMonths, "months").toDate();
+      subscription.endDate = currentDate.clone().add(durationInMonths, "days").toDate();
       subscription.isActive = true;
     }
   } else if (planName.toLowerCase() === "premium") {
@@ -131,12 +131,12 @@ const updateSubscription = async (user) => {
     } else if (subscription.isActive && subscription.endDate) {
       // Extend the Premium plan
       subscription.endDate = moment(subscription.endDate)
-        .add(durationInMonths, "months")
+        .add(durationInMonths, "days")
         .toDate();
     } else {
       // New Premium plan
       subscription.startDate = currentDate.toDate();
-      subscription.endDate = currentDate.clone().add(durationInMonths, "months").toDate();
+      subscription.endDate = currentDate.clone().add(durationInMonths, "days").toDate();
       subscription.isActive = true;
     }
   }
@@ -326,6 +326,7 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
         user.subscription.basic.isActive &&
         moment(user.subscription.basic.endDate).isBefore(currentDate)
       ) {
+        const endDate = user.subscription.basic.endDate; // Save the original end date
         user.subscription.basic.isActive = false;
         user.subscription.basic.startDate = null;
         user.subscription.basic.endDate = null;
@@ -334,7 +335,7 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
           user,
           subscriptionType: "Basic",
           state: "expired",
-          endDate: user.subscription.basic.endDate,
+          endDate,
         });
       }
 
@@ -342,6 +343,7 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
         user.subscription.premium.isActive &&
         moment(user.subscription.premium.endDate).isBefore(currentDate)
       ) {
+        const endDate = user.subscription.premium.endDate; // Save the original end date
         user.subscription.premium.isActive = false;
         user.subscription.premium.startDate = null;
         user.subscription.premium.endDate = null;
@@ -350,7 +352,7 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
           user,
           subscriptionType: "Premium",
           state: "expired",
-          endDate: user.subscription.premium.endDate,
+          endDate,
         });
       }
 

@@ -12,22 +12,21 @@ const OneLineDaysLeft = () => {
     const currentDate = moment(); // Current date
     const { basic, premium } = user.subscription;
 
-   // Collect relevant dates only for active plans
-  const dates = [];
+    // Collect relevant dates only for active plans
+    const dates = [];
 
-  if (basic?.isActive) {
-    if (basic.startDate) dates.push(moment(basic.startDate));
-    if (basic.endDate) dates.push(moment(basic.endDate));
-  }
+    if (basic?.isActive) {
+      if (basic.startDate) dates.push(moment(basic.startDate));
+      if (basic.endDate) dates.push(moment(basic.endDate));
+    }
 
-  if (premium?.isActive) {
-    if (premium.startDate) dates.push(moment(premium.startDate));
-    if (premium.endDate) dates.push(moment(premium.endDate));
-  }
+    if (premium?.isActive) {
+      if (premium.startDate) dates.push(moment(premium.startDate));
+      if (premium.endDate) dates.push(moment(premium.endDate));
+    }
 
-  // If no active dates are found, return 0
-  if (dates.length === 0) return 0;
-
+    // If no active dates are found, return 0
+    if (dates.length === 0) return 0;
 
     // Find the maximum (latest) date
     const maxDate = moment.max(dates);
@@ -46,16 +45,17 @@ const OneLineDaysLeft = () => {
 
   return (
     <div className="flex items-center justify-center w-full ">
-    {/* Check if any plan is active */}
-    {(user?.subscription?.basic?.isActive || user?.subscription?.premium?.isActive) && (
-      <>
-        <span className={`text-xl font-bold ${textColor}`}>
-          {totalDaysLeft}
-        </span>
-        <span className="ml-2 text-md text-gray-500">left</span>
-      </>
-    )}
-  </div>  
+      {/* Check if any plan is active */}
+      {(user?.subscription?.basic?.isActive ||
+        user?.subscription?.premium?.isActive) && (
+        <>
+          <span className={`text-xl font-bold ${textColor}`}>
+            {totalDaysLeft}
+          </span>
+          <span className="ml-2 text-md text-gray-500">left</span>
+        </>
+      )}
+    </div>
   );
 };
 

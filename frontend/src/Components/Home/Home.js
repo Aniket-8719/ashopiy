@@ -11,17 +11,20 @@ const Home = () => {
       <div className="mt-12 md:mt-16 md:ml-72">
         {/* Main Hero Section */}
         <section className="">
-          <div className="flex flex-col-reverse md:flex-row items-center justify-between px-2 md:px-12 py-8 md:py-2 bg-gray-50 rounded-md ">
+          <div className="flex flex-col gap-8 mt-16 md:mt-0 md:gap-0 md:flex-row items-center justify-between px-2 md:px-12 py-8 md:py-2 bg-gray-50 rounded-md ">
             {/* Text Section */}
-            <div className="text-left w-full md:max-w-[50%] lg:max-w-[45%] px-2">
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-snug md:leading-normal mb-6 text-gray-900 ">
-             <span className="text-2xl sm:text-3xl md:text-5xl text-amber-600 mr-2 md:mr-4 ">ashopiy</span>  के साथ अब अपनी दैनिक आय का हिसाब रखना हुआ और भी आसान.
+            <div className="text-left w-full md:max-w-[70%] lg:max-w-[60%] px-2">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight md:leading-snug">
+                <span className=" text-amber-600">
+                  ashopiy
+                </span>{" "}
+                के साथ अब अपनी दैनिक आय का हिसाब रखना हुआ और भी आसान.
               </h1>
-              <p className="text-sm sm:text-md md:text-lg mb-6 text-gray-600">
+              <p className="text-gray-600 text-lg md:text-xl mt-4">
                 Our platform is designed to simplify how you manage your
                 inventory, track sales, and grow your business.
               </p>
-             <div className="flex justify-start items-center gap-8">
+              {/* <div className="flex justify-start items-center gap-8">
             <Link to={"/pricing"}>
             <button className="text-white  bg-amber-600 font-bold py-3 px-6 rounded-full shadow-lg hover:bg-amber-700 transition-all">
                 Join Us Today
@@ -33,11 +36,25 @@ const Home = () => {
                 Watch Video
               </button>
               </div>
-             </div>
+             </div> */}
+
+              <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center md:justify-start">
+                <Link
+                  to={"/pricing"}
+                  className="bg-indigo-600 flex items-center justify-center text-white font-medium text-lg px-8 py-3 rounded-lg shadow-lg hover:bg-indigo-700 transition"
+                >
+                  Join Now
+                </Link>
+
+                <button className="flex items-center justify-center gap-2 bg-white text-amber-600 font-medium text-lg px-6 py-3 rounded-lg shadow-lg border border-amber-600 hover:bg-amber-600 hover:text-white transition focus:outline-none  focus:border-amber-500">
+                  <FaCirclePlay className="" />
+                  <button className="">Watch Video</button>
+                </button>
+              </div>
             </div>
 
             {/* Image Section */}
-            <div className="w-full md:w-[50%] lg:w-[45%] mb-6 md:mb-0 ">
+            <div className="w-full md:w-[30%] lg:w-[45%] mb-6 md:mb-0 ">
               <img
                 src={heroImg}
                 alt="Shop Management Banner"
@@ -136,8 +153,8 @@ const Home = () => {
             </div>
           </div>
         </section>
-        <FAQ/>
-        <Footer/>
+        <FAQ />
+        <Footer />
       </div>
     </>
   );
