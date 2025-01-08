@@ -45,8 +45,7 @@ const Home = () => {
                 >
                   Join Now
                 </Link>
-
-                <button className="flex items-center justify-center gap-2 bg-white text-amber-600 font-medium text-lg px-6 py-3 rounded-lg shadow-lg border border-amber-600 hover:bg-amber-600 hover:text-white transition focus:outline-none  focus:border-amber-500">
+                <button className="flex items-center justify-center gap-2 bg-white text-amber-600 font-medium text-lg px-6 py-3 rounded-lg  border border-amber-600 hover:bg-amber-600 hover:text-white transition focus:outline-none  focus:border-amber-500">
                   <FaCirclePlay className="" />
                   <button className="">Watch Video</button>
                 </button>

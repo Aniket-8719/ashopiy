@@ -25,12 +25,8 @@ const Faq = () => {
       answer: 'No, we do not offer a free trial for new users. However, we provide budget-friendly pricing to ensure that our platform is accessible to shopkeepers of all sizes, whether large or small.',
     },
     {
-      question: 'Can I upgrade or downgrade my plan later?',
-      answer: 'Yes, you can upgrade or downgrade your plan at any time from your account settings. Changes will take effect immediately, and charges will be adjusted accordingly.',
-    },
-    {
       question: 'How can I contact support?',
-      answer: 'You can contact our support team by emailing support@example.com or using the live chat feature on our website. We are here to help 24/7.',
+      answer: 'You can contact our support team by emailing info.ashopiy@gmail.com or using the live chat feature on our whatsApp No. We are here to help 24/7.',
     },
   ];
 

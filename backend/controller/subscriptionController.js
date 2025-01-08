@@ -17,7 +17,8 @@ const instance = new Razorpay({
 });
 
 exports.createRazorpayOrder = catchAsyncError(async (req, res, next) => {
-  const { planName, userId } = req.body; // Get planName from request body
+  const { planName } = req.body; // Get planName from request body
+  const userId = req.user._id;
   if (!planName) {
     return res
       .status(400)
@@ -39,11 +40,21 @@ exports.createRazorpayOrder = catchAsyncError(async (req, res, next) => {
   };
 
   const order = await instance.orders.create(options);
+  // Save order details in Payment model with 'pending' status
+  const payment = await Payment.create({
+    userId,
+    planName,
+    razorpayOrderId: order.id,
+    amount: req.body.amount,
+    status: "pending",
+    createdAt: moment().utc().add(5, "hours").add(30, "minutes"),
+  });
 
   // console.log(order);
   res.status(200).json({
     success: true,
     order,
+    payment,
   });
 });
 
@@ -98,7 +109,7 @@ const updateSubscription = async (user) => {
   if (!subscription) throw new Error("Invalid subscription plan name");
 
   // Retrieve both subscriptions for cross-checking
-  const basicSubscription = user.subscription.basic; 
+  const basicSubscription = user.subscription.basic;
   const premiumSubscription = user.subscription.premium;
 
   // Helper to calculate the start date for a new subscription
@@ -111,11 +122,14 @@ const updateSubscription = async (user) => {
 
   if (planName.toLowerCase() === "basic") {
     // If Basic Plan is chosen
-    if (premiumSubscription?.isActive && premiumSubscription?.endDate && !subscription.isActive) {
+    if (
+      premiumSubscription?.isActive &&
+      premiumSubscription?.endDate &&
+      !subscription.isActive
+    ) {
       // Start Basic after Premium ends
       subscription.isActive = true;
-      subscription.startDate = moment(premiumSubscription.endDate)
-        .toDate(); // Ensure the start date is a moment object
+      subscription.startDate = moment(premiumSubscription.endDate).toDate(); // Ensure the start date is a moment object
       subscription.endDate = moment(subscription.startDate)
         .add(durationInMonths, "days")
         .toDate(); // Wrap in moment
@@ -127,9 +141,12 @@ const updateSubscription = async (user) => {
     } else {
       // Get the current UTC time
       const currentUTC = moment.utc();
-      
+
       // Add 5 hours and 30 minutes to convert to IST
-      const indiaDateTimeManual = currentUTC.clone().add(5, "hours").add(30, "minutes");
+      const indiaDateTimeManual = currentUTC
+        .clone()
+        .add(5, "hours")
+        .add(30, "minutes");
       // New Premium plan
       subscription.startDate = indiaDateTimeManual.toDate();
       subscription.endDate = moment(indiaDateTimeManual)
@@ -142,11 +159,14 @@ const updateSubscription = async (user) => {
     }
   } else if (planName.toLowerCase() === "premium") {
     // If Premium Plan is chosen
-    if (basicSubscription?.isActive && basicSubscription?.endDate && !subscription.isActive) {
+    if (
+      basicSubscription?.isActive &&
+      basicSubscription?.endDate &&
+      !subscription.isActive
+    ) {
       // Start Premium after Basic ends
       subscription.isActive = true;
-      subscription.startDate = moment(basicSubscription.endDate)
-        .toDate(); // Ensure the start date is a moment object
+      subscription.startDate = moment(basicSubscription.endDate).toDate(); // Ensure the start date is a moment object
       subscription.endDate = moment(subscription.startDate)
         .add(durationInMonths, "days")
         .toDate(); // Wrap in moment
@@ -158,10 +178,12 @@ const updateSubscription = async (user) => {
     } else {
       // Get the current UTC time
       const currentUTC = moment.utc();
-      
-      // Add 5 hours and 30 minutes to convert to IST
-      const indiaDateTimeManual = currentUTC.clone().add(5, "hours").add(30, "minutes");
 
+      // Add 5 hours and 30 minutes to convert to IST
+      const indiaDateTimeManual = currentUTC
+        .clone()
+        .add(5, "hours")
+        .add(30, "minutes");
 
       // New Premium plan
       subscription.startDate = indiaDateTimeManual.toDate();
@@ -196,26 +218,29 @@ exports.paymentSuccess = catchAsyncError(async (req, res) => {
   const isAuthentic = expectedSignature === razorpay_signature;
 
   if (isAuthentic) {
-    // 1. Update the payment record
+    // Update payment record
     const payment = await Payment.findOneAndUpdate(
       { razorpayOrderId: razorpay_order_id },
       {
-        userId: req.user._id,
         razorpayPaymentId: razorpay_payment_id,
         razorpaySignature: razorpay_signature,
         status: "completed",
+        createdAt: moment().utc().add(5, "hours").add(30, "minutes"),
       },
-      { new: true, upsert: true }
+      { new: true }
     );
 
     if (!payment) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to create or update payment record",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Payment record not found" });
     }
-
-    // 3. Update the user subscription
+    // Delete all pending payments for the same user
+    await Payment.deleteMany({
+      userId: payment.userId, // Assuming payments are associated with a user
+      status: "pending", // Condition to match pending payments
+    });
+    // Update user subscription
     const user = await User.findById(req.user._id);
     if (!user) {
       return res
@@ -225,12 +250,18 @@ exports.paymentSuccess = catchAsyncError(async (req, res) => {
 
     await updateSubscription(user);
 
-    // 4. Redirect to frontend with success reference
+    // Redirect to frontend with success reference
     res.redirect(
       `${process.env.FRONTEND_URL}/paymentsuccess?reference=${razorpay_payment_id}`
     );
   } else {
     // Handle failed payment
+    await Payment.findOneAndUpdate(
+      { razorpayOrderId: razorpay_order_id },
+      { status: "failed" },
+      { createdAt: moment().utc().add(5, "hours").add(30, "minutes") }
+    );
+
     res
       .status(400)
       .json({ success: false, message: "Payment verification failed" });
@@ -275,11 +306,11 @@ const sendSubscriptionEmail = async ({
 };
 
 exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
-const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
-const threeDaysAhead = moment(currentDate).add(3, "days");
+  const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+  const threeDaysAhead = moment(currentDate).add(3, "days");
 
-console.log("start date:", currentDate.toDate());
-console.log("three Days: ", threeDaysAhead.toDate());
+  console.log("start date:", currentDate.toDate());
+  console.log("three Days: ", threeDaysAhead.toDate());
 
   // Find all users with active subscriptions
   const expiringUsers = await User.find({
@@ -333,10 +364,8 @@ console.log("three Days: ", threeDaysAhead.toDate());
 });
 
 exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
-
-   const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
-   console.log("current Time:", currentDate.toDate());
-
+  const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+  console.log("expired Time:", currentDate.toDate());
 
   const expiredUsers = await User.find({
     $or: [
@@ -398,6 +427,27 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
     }
   }
 });
+
+// Get Payment History Controller
+exports.getPaymentHistory = async (req, res) => {
+  try {
+    const userId = req.user._id; // Extract user ID from authenticated request (e.g., req.user is populated via middleware)
+
+    // Fetch payment history for the authenticated user
+    const payments = await Payment.find({ userId }).sort({ createdAt: -1 });
+
+    // If no payments are found
+    if (!payments.length) {
+      return res.status(404).json({ message: "No payment history found." });
+    }
+
+    // Return payment data
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error("Error fetching payment history:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
 
 // exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
 //   await checkExpiringSubscriptionsLogic();

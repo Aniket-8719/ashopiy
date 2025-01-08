@@ -45,6 +45,12 @@ const Options = () => {
           >
             Profile
           </Link>
+          <Link
+            className="hover:text-blue-600 w-full   border-black py-1.5"
+            to={"/paymentHistory"}
+          >
+            Payment History
+          </Link>
           <button
             onClick={logoutUser}
             className="flex justify-center items-center  py-1.5  border-black text-red-500 gap-2"

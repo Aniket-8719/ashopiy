@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const PaymentSummary = () => {
   const { user } = useSelector((state) => state.user);
@@ -16,7 +17,7 @@ const PaymentSummary = () => {
   ).toFixed(2);
 
   const checkoutHandler = async (amount) => {
-    const userId = user._id;
+    // const userId = user._id;
     const planNameLowercase = planName.toLowerCase(); 
     try {
       const {
@@ -29,7 +30,10 @@ const PaymentSummary = () => {
         data: { order },
       } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/v2/checkout`,
-        { amount, planName:planNameLowercase, userId } // Send amount inside an object
+        { amount, planName:planNameLowercase }, // Send amount inside an object
+        {
+          withCredentials: true, // Include cookies with the request
+        }
       );
 
       // Step 2: Set Razorpay options with order details
@@ -59,6 +63,7 @@ const PaymentSummary = () => {
         "Error during checkout:",
         error.response?.data || error.message
       );
+      toast.error(error.response?.data?.message);
     }
   };
 
