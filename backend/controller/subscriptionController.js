@@ -92,52 +92,83 @@ const updateSubscription = async (user) => {
 
   if (!planName) throw new Error("No plan name found in user document");
 
-  const durationInMonths = planName.toLowerCase() === "basic" ? 1 : 365;// Basic = 1 month, Premium = 12 months
+  const durationInMonths = planName.toLowerCase() === "basic" ? 28 : 365; // Basic = 1 month, Premium = 12 months
   const subscription = user.subscription[planName.toLowerCase()];
 
   if (!subscription) throw new Error("Invalid subscription plan name");
 
   // Retrieve both subscriptions for cross-checking
-  const basicSubscription = user.subscription.basic;
+  const basicSubscription = user.subscription.basic; 
   const premiumSubscription = user.subscription.premium;
 
   // Helper to calculate the start date for a new subscription
   const calculateStartDate = (otherEndDate) => {
     const otherPlanEndDate = moment(otherEndDate);
-    return otherPlanEndDate.isAfter(currentDate) ? otherPlanEndDate : currentDate;
+    return otherPlanEndDate.isAfter(currentDate)
+      ? otherPlanEndDate
+      : currentDate;
   };
 
   if (planName.toLowerCase() === "basic") {
     // If Basic Plan is chosen
-    if (premiumSubscription?.isActive && premiumSubscription?.endDate) {
+    if (premiumSubscription?.isActive && premiumSubscription?.endDate && !subscription.isActive) {
       // Start Basic after Premium ends
-      subscription.startDate = calculateStartDate(premiumSubscription.endDate).toDate();
+      subscription.isActive = true;
+      subscription.startDate = moment(premiumSubscription.endDate)
+        .toDate(); // Ensure the start date is a moment object
+      subscription.endDate = moment(subscription.startDate)
+        .add(durationInMonths, "days")
+        .toDate(); // Wrap in moment
     } else if (subscription.isActive && subscription.endDate) {
       // Extend the Basic plan
       subscription.endDate = moment(subscription.endDate)
         .add(durationInMonths, "days")
-        .toDate();
+        .toDate(); // Wrap in moment
     } else {
-      // New Basic plan
-      subscription.startDate = currentDate.toDate();
-      subscription.endDate = currentDate.clone().add(durationInMonths, "days").toDate();
+      // Get the current UTC time
+      const currentUTC = moment.utc();
+      
+      // Add 5 hours and 30 minutes to convert to IST
+      const indiaDateTimeManual = currentUTC.clone().add(5, "hours").add(30, "minutes");
+      // New Premium plan
+      subscription.startDate = indiaDateTimeManual.toDate();
+      subscription.endDate = moment(indiaDateTimeManual)
+        .add(durationInMonths, "days")
+        .toDate(); // Wrap in moment
       subscription.isActive = true;
     }
   } else if (planName.toLowerCase() === "premium") {
     // If Premium Plan is chosen
-    if (basicSubscription?.isActive && basicSubscription?.endDate) {
+    if (basicSubscription?.isActive && basicSubscription?.endDate && !subscription.isActive) {
       // Start Premium after Basic ends
-      subscription.startDate = calculateStartDate(basicSubscription.endDate).toDate();
+      subscription.isActive = true;
+      subscription.startDate = moment(basicSubscription.endDate)
+        .toDate(); // Ensure the start date is a moment object
+      subscription.endDate = moment(subscription.startDate)
+        .add(durationInMonths, "days")
+        .toDate(); // Wrap in moment
     } else if (subscription.isActive && subscription.endDate) {
       // Extend the Premium plan
       subscription.endDate = moment(subscription.endDate)
         .add(durationInMonths, "days")
-        .toDate();
+        .toDate(); // Wrap in moment
     } else {
+      // Get the current UTC time
+      const currentUTC = moment.utc();
+      
+      // Add 5 hours and 30 minutes to convert to IST
+      const indiaDateTimeManual = currentUTC.clone().add(5, "hours").add(30, "minutes");
+
+
       // New Premium plan
-      subscription.startDate = currentDate.toDate();
-      subscription.endDate = currentDate.clone().add(durationInMonths, "days").toDate();
+      subscription.startDate = indiaDateTimeManual.toDate();
+      subscription.endDate = moment(indiaDateTimeManual)
+        .add(durationInMonths, "days")
+        .toDate(); // Wrap in moment
       subscription.isActive = true;
+
+      console.log("current Time:", currentUTC);
+      console.log("buy subscription: ", indiaDateTimeManual.toDate());
     }
   }
 
@@ -147,7 +178,6 @@ const updateSubscription = async (user) => {
   // Save the updated user document
   await user.save();
 };
-
 
 exports.paymentSuccess = catchAsyncError(async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -204,9 +234,12 @@ exports.paymentSuccess = catchAsyncError(async (req, res) => {
   }
 });
 
-
-
-const sendSubscriptionEmail = async ({ user, subscriptionType, state, endDate }) => {
+const sendSubscriptionEmail = async ({
+  user,
+  subscriptionType,
+  state,
+  endDate,
+}) => {
   const emailSubject =
     state === "expiring"
       ? `Your ${subscriptionType} Subscription is About to Expire!`
@@ -239,30 +272,23 @@ const sendSubscriptionEmail = async ({ user, subscriptionType, state, endDate })
 };
 
 exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
-  const currentDate = moment();
-  const threeDaysAhead = moment().add(3, "days");
+const currentDate = moment.tz("Asia/Kolkata");
+const threeDaysAhead = moment.tz("Asia/Kolkata").add(3, "days");
 
+console.log("current Time:", currentDate.toDate());
+console.log("buy subscription: ", threeDaysAhead.toDate());
+
+  // Find all users with active subscriptions
   const expiringUsers = await User.find({
     $or: [
-      {
-        "subscription.basic.isActive": true,
-        "subscription.basic.endDate": {
-          $gte: currentDate.toDate(),
-          $lte: threeDaysAhead.toDate(),
-        },
-      },
-      {
-        "subscription.premium.isActive": true,
-        "subscription.premium.endDate": {
-          $gte: currentDate.toDate(),
-          $lte: threeDaysAhead.toDate(),
-        },
-      },
+      { "subscription.basic.isActive": true },
+      { "subscription.premium.isActive": true },
     ],
   });
 
   for (const user of expiringUsers) {
     try {
+      // Check for basic subscription expiration
       if (
         user.subscription.basic.isActive &&
         moment(user.subscription.basic.endDate).isBetween(
@@ -280,6 +306,7 @@ exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
         });
       }
 
+      // Check for premium subscription expiration
       if (
         user.subscription.premium.isActive &&
         moment(user.subscription.premium.endDate).isBetween(
@@ -297,13 +324,16 @@ exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
         });
       }
     } catch (err) {
-      console.error(`Failed to send email for user ${user.email}:`, err);
+      console.error(`Failed to process user ${user.email}:`, err);
     }
   }
 });
 
 exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
-  const currentDate = moment();
+  
+   const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+   console.log("current Time:", currentDate.toDate());
+
 
   const expiredUsers = await User.find({
     $or: [
@@ -358,49 +388,13 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
 
       if (isUpdated) await user.save();
     } catch (err) {
-      console.error(`Failed to process expired subscription for user ${user.email}:`, err);
+      console.error(
+        `Failed to process expired subscription for user ${user.email}:`,
+        err
+      );
     }
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
 //   await checkExpiringSubscriptionsLogic();

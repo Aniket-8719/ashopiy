@@ -41,9 +41,9 @@ const PaymentSummary = () => {
         order_id: order.id, // Razorpay order ID
         callback_url: `${process.env.REACT_APP_BACKEND_URL}/api/v2/payment-success`, // Callback URL for payment verification
         prefill: {
-          name: "User Name",
-          email: "user@example.com",
-          contact: "9876543210",
+          name: user?.shopOwnerName,
+          email: user?.email,
+          contact: user?.mobileNo || user?.whatsappNo,
         },
         notes: {
           address: "Razorpay Corporate Office",
