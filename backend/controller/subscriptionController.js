@@ -92,7 +92,7 @@ const updateSubscription = async (user) => {
 
   if (!planName) throw new Error("No plan name found in user document");
 
-  const durationInMonths = planName.toLowerCase() === "basic" ? 29 : 365;// Basic = 1 month, Premium = 12 months
+  const durationInMonths = planName.toLowerCase() === "basic" ? 1 : 365;// Basic = 1 month, Premium = 12 months
   const subscription = user.subscription[planName.toLowerCase()];
 
   if (!subscription) throw new Error("Invalid subscription plan name");
