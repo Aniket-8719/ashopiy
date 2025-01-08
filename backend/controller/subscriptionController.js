@@ -136,6 +136,9 @@ const updateSubscription = async (user) => {
         .add(durationInMonths, "days")
         .toDate(); // Wrap in moment
       subscription.isActive = true;
+
+      console.log("start subscription: ", indiaDateTimeManual.toDate());
+      console.log("start subscription: ", subscription.endDate);
     }
   } else if (planName.toLowerCase() === "premium") {
     // If Premium Plan is chosen
@@ -167,8 +170,8 @@ const updateSubscription = async (user) => {
         .toDate(); // Wrap in moment
       subscription.isActive = true;
 
-      console.log("current Time:", currentUTC);
-      console.log("buy subscription: ", indiaDateTimeManual.toDate());
+      console.log("start subscription: ", indiaDateTimeManual.toDate());
+      console.log("start subscription: ", subscription.endDate);
     }
   }
 
