@@ -272,11 +272,11 @@ const sendSubscriptionEmail = async ({
 };
 
 exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
-const currentDate = moment.tz("Asia/Kolkata");
-const threeDaysAhead = moment.tz("Asia/Kolkata").add(3, "days");
+const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+const threeDaysAhead = moment(currentDate).add(3, "days");
 
-console.log("current Time:", currentDate.toDate());
-console.log("buy subscription: ", threeDaysAhead.toDate());
+console.log("start date:", currentDate.toDate());
+console.log("three Days: ", threeDaysAhead.toDate());
 
   // Find all users with active subscriptions
   const expiringUsers = await User.find({
@@ -330,7 +330,7 @@ console.log("buy subscription: ", threeDaysAhead.toDate());
 });
 
 exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
-  
+
    const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
    console.log("current Time:", currentDate.toDate());
 

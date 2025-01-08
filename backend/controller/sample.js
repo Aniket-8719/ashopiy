@@ -57,10 +57,18 @@ const moment = require("moment-timezone");
 // console.log("indian Time:", indiaDateTimeManual.toDate());
 // console.log("three:", threeDaysAhead);
 
-const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+// const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
 
-console.log("current Time:", currentDate.toDate());
+// console.log("current Time:", currentDate.toDate());
+// // console.log("buy subscription: ", threeDaysAhead.toDate());
+
+// const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+// const threeDaysAhead = moment(currentDate).add(3, "days");
+
+// console.log("current Time:", currentDate.toDate());
 // console.log("buy subscription: ", threeDaysAhead.toDate());
 
+   const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
+   console.log("current Time:", currentDate.toDate());
 
 
