@@ -138,7 +138,7 @@ const updateSubscription = async (user) => {
       subscription.isActive = true;
 
       console.log("start subscription: ", indiaDateTimeManual.toDate());
-      console.log("start subscription: ", subscription.endDate);
+      console.log("end subscription: ", subscription.endDate);
     }
   } else if (planName.toLowerCase() === "premium") {
     // If Premium Plan is chosen
@@ -171,7 +171,7 @@ const updateSubscription = async (user) => {
       subscription.isActive = true;
 
       console.log("start subscription: ", indiaDateTimeManual.toDate());
-      console.log("start subscription: ", subscription.endDate);
+      console.log("end subscription: ", subscription.endDate);
     }
   }
 
