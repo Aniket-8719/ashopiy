@@ -6,8 +6,8 @@ const {
 
 const startCronJobs = () => {
   // cron.schedule("30 18 * * *", async () => {
-  cron.schedule("* * * * *", async () => {
-    console.log("Running the subscription check..."); 
+  cron.schedule("0 */12 * * *", async () => {
+    console.log("Running the subscription check...");
     try {
       await checkExpiringSubscriptions(); // Test expiring subscriptions
       await checkExpiredSubscriptions();  // Test expired subscriptions
