@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useSelector } from "react-redux";
+import Loader from "../Layouts/Loader";
 
 const PaymentHistory = () => {
   const { user } = useSelector((state) => state.user);
@@ -33,69 +34,73 @@ const PaymentHistory = () => {
 
     fetchPayments();
   }, []);
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
+  
   // Generate PDF Receipt
   const downloadReceipt = (payment) => {
     const doc = new jsPDF();
     // Title
-  doc.setFontSize(22);
-  doc.setFont("helvetica", "bold");
-  doc.text("Payment Receipt", 105, 20, null, null, "center");
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("Payment Receipt", 105, 20, null, null, "center");
 
-  
-  // Shopkeeper Info Section
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
+    // Shopkeeper Info Section
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
 
-  doc.text(`Name: ${user.shopOwnerName}`, 20, 40);
-  doc.text(`Email: ${user.email}`, 20, 50);
-  doc.text(`Mobile/WhatsApp: ${user.mobileNo || user.whatsappNo}`, 20, 60);
+    doc.text(`Name: ${user.shopOwnerName}`, 20, 40);
+    doc.text(`Email: ${user.email}`, 20, 50);
+    doc.text(`Mobile/WhatsApp: ${user.mobileNo || user.whatsappNo}`, 20, 60);
 
-  // Add another line separator after user info
-  doc.setLineWidth(0.5);
-  doc.line(20, 65, 190, 65); // Horizontal line
+    // Add another line separator after user info
+    doc.setLineWidth(0.5);
+    doc.line(20, 65, 190, 65); // Horizontal line
 
-  // Add a Table for Payment Details
-  doc.autoTable({
-    startY: 75, // Start the table after the separator line
-    head: [["Field", "Value"]],
-    body: [
-      ["Plan Name", payment.planName],
-      ["Amount", `${new Intl.NumberFormat("en-IN").format(payment.amount.toFixed(2))}`],
-      ["Date", formatDate(payment.createdAt)],
-      ["Status", payment.status],
-      ["Payment ID", payment.razorpayPaymentId || "N/A"],
-    ],
-    theme: "striped",  // Makes the table have alternating row colors
-    styles: {
-      fontSize: 12,
-      cellPadding: 3,
-      minCellHeight: 10,
-      halign: "left",  // Align all cells to the left
-    },
-    headStyles: {
-      fillColor: [41, 128, 185], // Blue color for header row
-      textColor: 255,  // White text color
-    },
-    alternateRowStyles: {
-      fillColor: [235, 236, 240],  // Light gray for alternating rows
-    },
-    margin: { top: 20 },
-  });
+    // Add a Table for Payment Details
+    doc.autoTable({
+      startY: 75, // Start the table after the separator line
+      head: [["Field", "Value"]],
+      body: [
+        ["Plan Name", payment.planName],
+        [
+          "Amount",
+          `${new Intl.NumberFormat("en-IN").format(payment.amount.toFixed(2))}`,
+        ],
+        ["Date", formatDate(payment.createdAt)],
+        ["Status", payment.status],
+        ["Payment ID", payment.razorpayPaymentId || "N/A"],
+      ],
+      theme: "striped", // Makes the table have alternating row colors
+      styles: {
+        fontSize: 12,
+        cellPadding: 3,
+        minCellHeight: 10,
+        halign: "left", // Align all cells to the left
+      },
+      headStyles: {
+        fillColor: [41, 128, 185], // Blue color for header row
+        textColor: 255, // White text color
+      },
+      alternateRowStyles: {
+        fillColor: [235, 236, 240], // Light gray for alternating rows
+      },
+      margin: { top: 20 },
+    });
 
-  // Footer message
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "italic");
-  const footerText = "Thank you for your payment!";
-  doc.text(footerText, 105, doc.lastAutoTable.finalY + 10, null, null, "center");
+    // Footer message
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    const footerText = "Thank you for your payment!";
+    doc.text(
+      footerText,
+      105,
+      doc.lastAutoTable.finalY + 10,
+      null,
+      null,
+      "center"
+    );
 
-  
-
-  // Save the PDF with a custom name
-  doc.save(`Receipt_${payment.razorpayPaymentId || "N/A"}.pdf`);
+    // Save the PDF with a custom name
+    doc.save(`Receipt_${payment.razorpayPaymentId || "N/A"}.pdf`);
   };
 
   return (
@@ -106,7 +111,11 @@ const PaymentHistory = () => {
             <h1 className="text-2xl font-bold text-gray-700 mb-6 ml-6">
               Payment History
             </h1>
-            {payments.length === 0 ? (
+            {loading ? (
+             <div className="flex justify-center items-center mt-24">
+               <Loader />
+              </div>
+            ) : payments.length === 0 ? (
               <p>No payment history available.</p>
             ) : (
               <div className="overflow-x-auto">

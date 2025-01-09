@@ -250,6 +250,49 @@ exports.paymentSuccess = catchAsyncError(async (req, res) => {
 
     await updateSubscription(user);
 
+    // Send success email to the user
+    const emailOptions = {
+      email: user.email,
+      subject: "Subscription Activated Successfully",
+      message: `Hi ${user.shopOwnerName},\n\nYour subscription has been activated successfully. Thank you for choosing Ashopiy!`,
+      htmlMessage: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+          <h2 style="color: #4CAF50;">Subscription Activated!</h2>
+          <p>Dear ${user.shopOwnerName},</p>
+          <p>We are thrilled to inform you that your subscription has been successfully activated.</p>
+          <table style="width: 100%; margin-top: 20px; border-collapse: collapse; text-align: left;">
+            <tr>
+              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Subscription Plan</th>
+              <td style="border-bottom: 1px solid #ddd; padding: 8px;">${
+                payment.planName
+              }</td>
+            </tr>
+            <tr>
+              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Amount Paid</th>
+              <td style="border-bottom: 1px solid #ddd; padding: 8px;">₹${
+                payment.amount
+              }</td>
+            </tr>
+            <tr>
+              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Payment ID</th>
+              <td style="border-bottom: 1px solid #ddd; padding: 8px;">${razorpay_payment_id}</td>
+            </tr>
+            <tr>
+              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Payment Date</th>
+              <td style="border-bottom: 1px solid #ddd; padding: 8px;">${moment(
+                payment.createdAt
+              ).format("DD/MM/YYYY")}</td>
+            </tr>
+          </table>
+          <p style="margin-top: 20px;">If you have any questions or need support, feel free to reach out to our team at <a href="mailto:info.ashopiy@gmail.com">info.ashopiy@gmail.com</a>.</p>
+          <p style="margin-top: 20px;">Thank you for choosing Ashopiy!</p>
+          <p style="margin-top: 20px;">Best regards,<br>The Ashopiy Team</p>
+        </div>
+      `,
+    };
+
+    await sendEmail(emailOptions);
+
     // Redirect to frontend with success reference
     res.redirect(
       `${process.env.FRONTEND_URL}/paymentsuccess?reference=${razorpay_payment_id}`
@@ -288,14 +331,102 @@ const sendSubscriptionEmail = async ({
       ? `Dear ${user.shopOwnerName}, your ${subscriptionType} subscription will expire on ${formattedDate}. Please renew it to continue enjoying our services.`
       : `Dear ${user.shopOwnerName}, your ${subscriptionType} subscription expired on ${formattedDate}. Please renew it to regain access to our services.`;
 
-  const htmlMessage =
-    state === "expiring"
-      ? `<p>Dear ${user.shopOwnerName},</p>
-          <p>Your ${subscriptionType} subscription will expire on <strong>${formattedDate}</strong>. Please renew it to continue enjoying our services.</p>
-          <a href="${process.env.FRONTEND_URL}/pricing">Renew Subscription</a>`
-      : `<p>Dear ${user.shopOwnerName},</p>
-          <p>Your ${subscriptionType} subscription expired on <strong>${formattedDate}</strong>. Please renew it to regain access to our services.</p>
-          <a href="${process.env.FRONTEND_URL}/pricing">Renew Subscription</a>`;
+  const htmlMessage = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          .email-header {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+          }
+          .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+          }
+          .email-body {
+            padding: 20px;
+            color: #333333;
+            line-height: 1.6;
+          }
+          .email-body p {
+            margin: 0 0 15px;
+          }
+          .email-body strong {
+            color: #007bff;
+          }
+          .email-footer {
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 15px;
+            font-size: 12px;
+            color: #888888;
+          }
+          .email-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+          }
+          .email-button:hover {
+            background-color: #0056b3;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email-container">
+          <div class="email-header">
+            <h1>${
+              state === "expiring"
+                ? "Subscription Notice"
+                : "Subscription Expired"
+            }</h1>
+          </div>
+          <div class="email-body">
+            <p>Dear <strong>${user.shopOwnerName}</strong>,</p>
+            <p>
+              ${
+                state === "expiring"
+                  ? `Your <strong>${subscriptionType}</strong> subscription will expire on <strong>${formattedDate}</strong>. Please renew it to continue enjoying our services.`
+                  : `We would like to inform you that your <strong>${subscriptionType}</strong> subscription expired on <strong>${formattedDate}</strong>.<br> To continue enjoying uninterrupted access to our services, we kindly request you to renew your subscription at your earliest convenience.<br><br> Thank you for choosing us, and we look forward to serving you again.<br><br> Best regards.`
+              }
+            </p>
+            <a href="${
+              process.env.FRONTEND_URL
+            }/pricing" class="email-button">Renew Subscription</a>
+          </div>
+          <div class="email-footer">
+            <p>
+              Thank you for choosing our services. If you have any questions, feel free to contact us at
+              <a href="mailto:info.ashopiy@gmail.com">info.ashopiy@gmail.com</a>.
+            </p>
+            <p>&copy; ${new Date().getFullYear()} Ashopiy. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+      `;
 
   await sendEmail({
     email: user.email,
@@ -365,7 +496,7 @@ exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
 
 exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
   const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
-  console.log("expired Time:", currentDate.toDate());
+ 
 
   const expiredUsers = await User.find({
     $or: [
@@ -419,6 +550,7 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
       }
 
       if (isUpdated) await user.save();
+      console.log("expired wala Time:", currentDate.toDate());
     } catch (err) {
       console.error(
         `Failed to process expired subscription for user ${user.email}:`,

@@ -5,7 +5,7 @@ const {
 } = require("./controller/subscriptionController");
 
 const startCronJobs = () => {
-  // Schedule `checkExpiringSubscriptions` every 12 hours
+  // Schedule `checkExpiringSubscriptions` every 6 hours
   cron.schedule("0 */6 * * *", async () => {
     console.log("Running the expiring subscriptions check...");
     try {
@@ -16,8 +16,8 @@ const startCronJobs = () => {
     }
   });
 
-  // Schedule `checkExpiredSubscriptions` every 6 hours
-  cron.schedule("0 */2 * * *", async () => {
+  // Schedule `checkExpiredSubscriptions` every 2 hours
+  cron.schedule("0 */1 * * *", async () => {
     console.log("Running the expired subscriptions check...");
     try {
       await checkExpiredSubscriptions();
