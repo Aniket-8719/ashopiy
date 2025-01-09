@@ -34,6 +34,8 @@ const SubscriptionDaysLeft = () => {
 
     // Calculate days left from current date to the maximum date
     const totalDaysLeft = maxDate.diff(currentDate, "days");
+    // const totalDaysLeft = Math.round(maxDate.diff(currentDate, "days") / 24);
+
 
     // Return days left or 0 if the maxDate is in the past
     return totalDaysLeft > 0 ? totalDaysLeft : 0;

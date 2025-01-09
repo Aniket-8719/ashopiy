@@ -5,15 +5,25 @@ const {
 } = require("./controller/subscriptionController");
 
 const startCronJobs = () => {
-  // cron.schedule("30 18 * * *", async () => {
-  cron.schedule("0 */12 * * *", async () => {
-    console.log("Running the subscription check...");
+  // Schedule `checkExpiringSubscriptions` every 12 hours
+  cron.schedule("*/2 * * * *", async () => {
+    console.log("Running the expiring subscriptions check...");
     try {
-      await checkExpiringSubscriptions(); // Test expiring subscriptions
-      await checkExpiredSubscriptions();  // Test expired subscriptions
-      console.log("good");
+      await checkExpiringSubscriptions();
+      console.log("Expiring subscriptions check completed.");
     } catch (error) {
-      console.error("Error running subscription check:", error.message);
+      console.error("Error running expiring subscriptions check:", error.message);
+    }
+  });
+
+  // Schedule `checkExpiredSubscriptions` every 6 hours
+  cron.schedule("0 */6 * * *", async () => {
+    console.log("Running the expired subscriptions check...");
+    try {
+      await checkExpiredSubscriptions();
+      console.log("Expired subscriptions check completed.");
+    } catch (error) {
+      console.error("Error running expired subscriptions check:", error.message);
     }
   });
 
