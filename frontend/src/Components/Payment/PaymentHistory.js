@@ -145,34 +145,34 @@ const PaymentHistory = () => {
                   <tbody>
                     {payments.map((payment) => (
                       <tr
-                        key={payment._id}
+                        key={payment?._id}
                         className="border-t border-gray-200"
                       >
                         <td className="px-6 py-4 text-gray-700 capitalize">
-                          {payment.planName}
+                          {payment?.planName}
                         </td>
                         <td className="px-6 py-4 text-gray-700">
                           ₹
                           {new Intl.NumberFormat("en-IN").format(
-                            payment.amount.toFixed(2)
+                            (payment?.amount ?? 0).toFixed(2)
                           )}
                         </td>
                         <td className="px-6 py-4 text-gray-700">
-                          {formatDate(payment.createdAt)}
+                          {formatDate(payment?.createdAt)}
                         </td>
                         <td
                           className={`px-6 py-4 ${
-                            payment.status === "completed"
+                            payment?.status === "completed"
                               ? "text-green-500"
-                              : payment.status === "pending"
+                              : payment?.status === "pending"
                               ? "text-yellow-500"
                               : "text-red-500"
                           }`}
                         >
-                          {payment.status}
+                          {payment?.status}
                         </td>
                         <td className="px-6 py-4 text-gray-700 capitalize">
-                          {payment.razorpayPaymentId}
+                          {payment?.razorpayPaymentId}
                         </td>
                         <td className="px-6 py-4">
                           <button
