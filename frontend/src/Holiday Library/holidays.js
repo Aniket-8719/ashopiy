@@ -10,7 +10,7 @@ const holidaysData = {
     "25/12/2024": "Christmas Day",
 
     // Holiday list 2025
-    "01/01/2025": "New Year's Day",
+    "01/01/2025": "New Year Day",
     "06/01/2025": "Guru Gobind Singh Jayanti",
     "12/01/2025": "Swami Vivekananda Jayanti",
     "14/01/2025": "Makara Sankranti",

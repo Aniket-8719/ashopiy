@@ -27,6 +27,16 @@ const startCronJobs = () => {
     }
   });
 
+  // Schedule a cron job to run daily at 12:00 AM IST
+cron.schedule("0 18 * * *", async () => {
+  const currentTimeIST = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  console.log(`Cron Job executed at IST time: ${currentTimeIST}`); 
+
+  // Add your scheduled task logic here
+}, {
+  scheduled: true,
+  timezone: "Asia/Kolkata", // Optional but helps in documentation
+});
   console.log("Cron jobs have been initialized.");
 };
 
