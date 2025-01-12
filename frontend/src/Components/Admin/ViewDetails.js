@@ -9,13 +9,15 @@ import {
 import { toast } from "react-toastify";
 import Loader from "../Layouts/Loader";
 import defaultUserImg from "../assests/default-user-profile-img.png";
+import SubcriptionDaysOfSingleUser from "./SubcriptionDaysOfSingleUser";
+import StorageUsage from "./StorageUsage";
 
 const ViewDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, error, user } = useSelector((state) => state.singleUser);
+  const { loading, error, user, dailyData, fullDayData, investData } = useSelector((state) => state.singleUser);
 
   const deleteUserHandler = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
@@ -115,7 +117,14 @@ const ViewDetails = () => {
                   </div>
                 </div>
               </div>
-
+              <div className="flex justify-center items-center">
+              <div className="w-full">
+              <SubcriptionDaysOfSingleUser user={user}/>
+              </div>
+              <div className="w-full">
+              <StorageUsage dailyData={dailyData} fullDayData={fullDayData} investData={investData} />
+              </div>
+              </div>
               {/* Action Buttons */}
               <div className="mt-8 flex justify-between gap-4">
                 <Link

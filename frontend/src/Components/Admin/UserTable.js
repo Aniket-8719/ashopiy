@@ -1,6 +1,7 @@
-import React from 'react';
-import Loader from '../Layouts/Loader';
-import { Link} from "react-router-dom";
+import React from "react";
+import Loader from "../Layouts/Loader";
+import { Link } from "react-router-dom";
+import OneLineSingleUserSubscription from "./OneLineSingleUserSubscription";
 
 const UserTable = ({ users, loading }) => {
   const columns = [
@@ -10,6 +11,8 @@ const UserTable = ({ users, loading }) => {
     { key: "shopType", label: "Shop Type" },
     { key: "shopOwnerName", label: "Owner Name" },
     { key: "city", label: "City" },
+    { key: "subscriptionDays", label: "Subscription Days" },
+    { key: "status", label: "Status" },
     { key: "actions", label: "Actions" },
   ];
 
@@ -65,8 +68,22 @@ const UserTable = ({ users, loading }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {user.city || "N/A"}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {<OneLineSingleUserSubscription user={user} /> || "N/A"}
+                      </td>
+                      <td className="font-bold px-6 py-4 whitespace-nowrap">
+                        {user.subscription.basic.isActive ||
+                        user.subscription.premium.isActive ? (
+                          <span className="text-green-500">Active</span>
+                        ) : (
+                          <span className="text-red-500">Inactive</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">
-                        <Link to={`/admin/user/${user?._id}`} className="rounded-md text-blue-600 underline underline-offset-2 flex items-center justify-center">
+                        <Link
+                          to={`/admin/user/${user?._id}`}
+                          className="rounded-md text-blue-600 underline underline-offset-2 flex items-center justify-center"
+                        >
                           view Details
                         </Link>
                       </td>
@@ -74,7 +91,10 @@ const UserTable = ({ users, loading }) => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={columns.length} className="px-6 py-4 text-center">
+                    <td
+                      colSpan={columns.length}
+                      className="px-6 py-4 text-center"
+                    >
                       No user data available
                     </td>
                   </tr>

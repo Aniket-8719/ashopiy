@@ -242,7 +242,12 @@ export const getUserDetails = (id) => async (dispatch) => {
       withCredentials: true, // Include this option to send cookies with the request
     });
 
-    dispatch({ type: USER_DETAILS_SUCCESS, payload: data.user });
+    dispatch({ type: USER_DETAILS_SUCCESS, payload: {
+      user: data.user,
+      dailyData: data.dailyData,
+      fullDayData: data.fullDayData,
+      investData: data.investData,
+    }, });
   } catch (error) {
     dispatch({ type: USER_DETAILS_FAIL, payload: error.response.data.message });
   }
