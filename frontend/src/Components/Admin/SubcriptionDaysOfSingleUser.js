@@ -2,9 +2,7 @@ import React from "react";
 import moment from "moment";
 import { useSelector } from "react-redux";
 
-const SubscriptionDaysLeft = () => {
-  const { user } = useSelector((state) => state.user);
-
+const SubcriptionDaysOfSingleUser = ({ user }) => {
   // Function to calculate total days left
   const calculateTotalDaysLeft = () => {
     if (!user?.subscription) return 0;
@@ -12,22 +10,21 @@ const SubscriptionDaysLeft = () => {
     const currentDate = moment(); // Current date
     const { basic, premium } = user.subscription;
 
-   // Collect relevant dates only for active plans
-  const dates = [];
+    // Collect relevant dates only for active plans
+    const dates = [];
 
-  if (basic?.isActive) {
-    if (basic.startDate) dates.push(moment(basic.startDate));
-    if (basic.endDate) dates.push(moment(basic.endDate));
-  }
+    if (basic?.isActive) {
+      if (basic.startDate) dates.push(moment(basic.startDate));
+      if (basic.endDate) dates.push(moment(basic.endDate));
+    }
 
-  if (premium?.isActive) {
-    if (premium.startDate) dates.push(moment(premium.startDate));
-    if (premium.endDate) dates.push(moment(premium.endDate));
-  }
+    if (premium?.isActive) {
+      if (premium.startDate) dates.push(moment(premium.startDate));
+      if (premium.endDate) dates.push(moment(premium.endDate));
+    }
 
-  // If no active dates are found, return 0
-  if (dates.length === 0) return 0;
-
+    // If no active dates are found, return 0
+    if (dates.length === 0) return 0;
 
     // Find the maximum (latest) date
     const maxDate = moment.max(dates);
@@ -35,7 +32,6 @@ const SubscriptionDaysLeft = () => {
     // Calculate days left from current date to the maximum date
     const totalDaysLeft = maxDate.diff(currentDate, "days");
     // const totalDaysLeft = Math.round(maxDate.diff(currentDate, "days") / 24);
-
 
     // Return days left or 0 if the maxDate is in the past
     return totalDaysLeft > 0 ? totalDaysLeft : 0;
@@ -72,4 +68,4 @@ const SubscriptionDaysLeft = () => {
   );
 };
 
-export default SubscriptionDaysLeft;
+export default SubcriptionDaysOfSingleUser;

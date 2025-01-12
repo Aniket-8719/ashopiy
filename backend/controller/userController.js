@@ -5,6 +5,9 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const cloudinary = require("cloudinary");
 const moment = require("moment-timezone");
+const DailyIncome = require("../models/dailyRevenue");
+const FullDayIncome = require("../models/fullDayRevenue");
+const investmentModel = require("../models/investmentModel");
 
 
 
@@ -470,9 +473,34 @@ exports.getAllAdmins = catchAsyncError(async (req, res, next) => {
   });
 });
 
+const storage = (document)=>{
+  // Calculate total size in bytes
+  let totalSizeInBytes = 0;
+
+  document.forEach((doc) => {
+    // Convert the document to JSON and calculate its size in bytes
+    const docJson = JSON.stringify(doc);
+    const docSize = Buffer.byteLength(docJson, 'utf8'); // Size in bytes
+    totalSizeInBytes += docSize;
+  });
+
+  const totalSizeInMB = totalSizeInBytes / (1024 * 1024); // Convert bytes to MB
+  return totalSizeInMB;
+  
+}
+
 // Get Single User (Admin)
 exports.getSingleUser = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const userId = req.params.id;
+  const user = await User.findById(userId);
+    // Fetch all DailyIncome documents for the user
+    const dailyIncome = await DailyIncome.find({ user: userId });
+    const fullDayIncome = await FullDayIncome.find({user:userId});
+    const investmentDocument = await investmentModel.find({user:userId});
+
+    const dailyData = storage(dailyIncome);
+    const fullDayData = storage(fullDayIncome);
+    const investData = storage(investmentDocument);
 
   if (!user) {
     return next(
@@ -482,6 +510,9 @@ exports.getSingleUser = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     user,
+    dailyData: dailyData.toFixed(2),
+    fullDayData: fullDayData.toFixed(2),
+    investData: investData.toFixed(2),
   });
 });
 

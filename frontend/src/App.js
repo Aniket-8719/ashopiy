@@ -53,7 +53,7 @@ function App() {
     const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
     const previousDay = moment().tz("Asia/Kolkata").subtract(1, 'day').startOf('day').format("YYYY-MM-DD");
 
-    console.log(previousDay); // This will output the previous day's date in "YYYY-MM-DD" format
+    // console.log(previousDay); // This will output the previous day's date in "YYYY-MM-DD" format
 
     try {
       const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
@@ -65,14 +65,14 @@ function App() {
         });
         localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
         localStorage.setItem("lastProcessedDate", today);
-        console.log("Reset userProcessedMap for a new day");
+        // console.log("Reset userProcessedMap for a new day");
       }
       if (!userProcessedMap[user.email]) {
         dispatch(addFullDayEarning({ date: previousDay }));
         userProcessedMap[user.email] = true;
         localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-        console.log(`Processed income for user: ${user.email}`);
-        toast.success("Previous income added");
+        // console.log(`Processed income for user: ${user.email}`);
+        // toast.success("Previous income added");
       }
     } catch (error) {
       console.error("Error in useEffect:", error);
