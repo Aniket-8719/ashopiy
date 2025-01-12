@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import video1 from "./WhatsApp Video 2025-01-12 at 21.51.22_f3c00a51.mp4";
-import { FaVideo } from "react-icons/fa";
+import { BsPlayCircleFill } from "react-icons/bs";
 
 const videos = [
   {
@@ -89,7 +89,7 @@ const VideoPlayer = () => {
                     </h2>
                   </div>
                   <div className="mr-4">
-                    <FaVideo />
+                    <BsPlayCircleFill size={20} />
                   </div>
                 </div>
                 <p className="text-gray-700 mb-4">{video.description}</p>
