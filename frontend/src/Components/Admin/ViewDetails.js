@@ -117,7 +117,7 @@ const ViewDetails = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-center items-center">
+              <div className="flex flex-col md:flex-row justify-center items-center">
               <div className="w-full">
               <SubcriptionDaysOfSingleUser user={user}/>
               </div>
