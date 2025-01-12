@@ -41,6 +41,7 @@ import AboutUs from "./Components/Home/AboutUs";
 import PaymentHistory from "./Components/Payment/PaymentHistory";
 import CancellationAndRefunds from "./Components/Home/CancellationAndRefunds";
 import ShippingPolicy from "./Components/Home/ShippingPolicy";
+import VideoPlayer from "./Components/Video/VideoPlayer";
 
 function App() {
   const dispatch = useDispatch();
@@ -178,6 +179,7 @@ function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route exact path="/paymentsuccess" element={<PaymentSuccess/>} />
         <Route exact path="/paymentHistory" element={<PaymentHistory/>} />
+        <Route exact path="/video" element={<VideoPlayer/>} />
         <Route exact path="*" element={<NotFound/>} />
       </Routes>
     </>

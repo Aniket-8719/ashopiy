@@ -251,7 +251,7 @@ const UdharList = () => {
                     {/* Close Button */}
                     <button
                       onClick={() => setIsModalOpen(false)}
-                      className=" absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-gray-300 text-gray-600 rounded-full hover:bg-gray-400 hover:text-white"
+                      className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-gray-300 text-gray-600 rounded-full hover:bg-gray-400 hover:text-white"
                     >
                       <IoMdClose size={20} />
                     </button>
