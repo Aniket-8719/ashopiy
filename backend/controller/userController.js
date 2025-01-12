@@ -484,8 +484,8 @@ const storage = (document)=>{
     totalSizeInBytes += docSize;
   });
 
-  const totalSizeInMB = totalSizeInBytes / (1024 * 1024); // Convert bytes to MB
-  return totalSizeInMB;
+  const TotalSizeInMB = totalSizeInBytes / (1024 * 1024); // Convert bytes to MB
+  return TotalSizeInMB;
   
 }
 
@@ -501,6 +501,8 @@ exports.getSingleUser = catchAsyncError(async (req, res, next) => {
     const dailyData = storage(dailyIncome);
     const fullDayData = storage(fullDayIncome);
     const investData = storage(investmentDocument);
+
+    console.log("all data storeage", `${dailyData.toFixed(2)}, ${fullDayData.toFixed(2)}, ${investData.toFixed(2)}`)
 
   if (!user) {
     return next(
