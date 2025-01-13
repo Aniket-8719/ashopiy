@@ -8,7 +8,7 @@ const videos = [
     id: 1,
     title: "Register",
     description: "How to register when you are new.",
-    url: video1,
+    url: "#",
   },
   {
     id: 2,
