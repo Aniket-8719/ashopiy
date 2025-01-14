@@ -71,20 +71,25 @@ const UdharList = () => {
       toast.success("Udhar Added");
       dispatch({ type: ADD_UDHAR_RESET });
       setIsModalOpen(false);
+      dispatch(getAllUdhar(searchQuery));
     }
 
     if (isUpdated) {
       toast.success(message);
       dispatch({ type: UPDATE_UDHAR_RESET });
       setIsUpdateModalOpen(false);
+      dispatch(getAllUdhar(searchQuery));
     }
 
     if (isDeleted) {
       toast.success(message);
       dispatch({ type: DELETE_UDHAR_RESET });
+      dispatch(getAllUdhar(searchQuery));
     }
   }, [
     dispatch,
+    navigate,
+    searchQuery,
     error,
     addingError,
     deleteORupdateError,
@@ -158,7 +163,7 @@ const UdharList = () => {
   if (!isFeatureLocked) {
     dispatch(getAllUdhar(searchQuery));
   }
-  }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
+  }, [unLockError, isUnlock, isFeatureLocked,searchQuery, dispatch]);
   return (
     <>
       <section className="mt-14 md:mt-20  md:ml-72 ">

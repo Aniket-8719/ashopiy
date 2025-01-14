@@ -52,8 +52,8 @@ const AllData = () => {
       // Get today's date to skip it
       const today = new Date().toLocaleDateString("en-GB"); // Format: DD/MM/YYYY
       // Get the current month and year to include in the file name
-      const currentMonthName = moment().format("MMMM"); // Full month name (e.g., "November")
-      const currentYear = moment().format("YYYY"); // Current year (e.g., "2024")
+      let dataMonthName = "";
+      let dataYear = "";
 
       // Create a new workbook and worksheet
       const workbook = new ExcelJS.Workbook();
@@ -87,6 +87,7 @@ const AllData = () => {
       let totalOnlineAmountSum = 0;
       let totalReturnCustomersSum = 0;
       let totalReturnAmountSum = 0;
+      
 
       // Add the data rows
       monthlyHistoryData.data.forEach((row) => {
@@ -94,6 +95,10 @@ const AllData = () => {
         if (row.date === today) {
           return;
         }
+
+        // Parse the date and format it to get the month name
+        dataMonthName = moment(row?.date, "DD/MM/YYYY").format("MMMM");
+        dataYear = moment(row?.date, "DD/MM/YYYY").format("YYYY");
 
         // Convert open and close times to AM/PM format using moment.js, or display "Close" if empty
         const formattedOpenTime = row.time[0]
@@ -173,10 +178,14 @@ const AllData = () => {
         const link = document.createElement("a");
         link.href = url;
 
+        if (!dataMonthName || !dataYear) {
+          throw new Error("Unable to determine month and year from data.");
+        }
+
         // Use current month and year in the file name
         link.setAttribute(
           "download",
-          `${currentMonthName}_${currentYear}_statement.xlsx`
+          `${dataMonthName}_${dataYear}_statement.xlsx`
         );
         link.click();
 
