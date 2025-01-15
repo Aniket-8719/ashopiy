@@ -350,7 +350,7 @@ const DailyEarning = () => {
   return (
     <>
       <MetaData title="EARNING" />
-      <section className="mt-14 md:mt-20  md:ml-72 h-screen">
+      <section className="mt-14 md:mt-20  md:ml-72">
         <div className="">
           {isFeatureLocked ? (
             <div className="flex flex-col items-center justify-center mt-20">

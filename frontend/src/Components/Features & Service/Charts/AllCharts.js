@@ -65,7 +65,7 @@ const AllCharts = () => {
   return (
     <>
       <MetaData title={"CHARTS"} />
-      <section className="mt-14 md:mt-20  md:ml-72 h-screen">
+      <section className="mt-14 md:mt-20  md:ml-72">
         <>
           <div className="">
             {isFeatureLocked ? (
