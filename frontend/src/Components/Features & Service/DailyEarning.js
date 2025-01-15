@@ -53,6 +53,10 @@ const DailyEarning = () => {
   const { isAdded, error: addingError } = useSelector(
     (state) => state.currentEarning
   );
+  const { isAuthenticated } = useSelector(
+    (state) => state.user
+  );
+
   const {
     error: deleteError,
     isDeleted,
@@ -449,7 +453,7 @@ const DailyEarning = () => {
                               : "text-red-500"
                           }`}
                         >
-                          {todayData?.totalIncome >= 0 ? "+" : "-"}
+                         {isAuthenticated && (todayData?.totalIncome >= 0 ? "+" : "-")}
                           {new Intl.NumberFormat("en-IN").format(
                             Math.abs(todayData?.totalIncome || 0)
                           )}
@@ -462,7 +466,7 @@ const DailyEarning = () => {
                         <LineSkelton />
                       ) : (
                         <h1 className="text-xl md:text-2xl font-bold text-purple-500">
-                          +{todayData?.totalCustomerCount || 0}{" "}
+                     {isAuthenticated ? `${+(todayData?.totalCustomerCount || 0)} ` : 0}
                         </h1>
                       )}
                     </div>
