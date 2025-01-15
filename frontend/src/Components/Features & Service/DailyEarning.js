@@ -466,7 +466,7 @@ const DailyEarning = () => {
                         <LineSkelton />
                       ) : (
                         <h1 className="text-xl md:text-2xl font-bold text-purple-500">
-                     {isAuthenticated ? `${+(todayData?.totalCustomerCount || 0)} ` : 0}
+                     {isAuthenticated ? `+${(todayData?.totalCustomerCount || 0)} ` : 0}
                         </h1>
                       )}
                     </div>
