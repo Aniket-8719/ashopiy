@@ -501,7 +501,7 @@ const Investment = () => {
                           {loading ? (
                             <LineSkelton />
                           ) : (
-                            <h1 className="text-xl md:text-2xl text-green-500 font-bold">
+                            <h1 className="text-xl md:text-2xl text-purple-500 font-bold">
                               +
                               {new Intl.NumberFormat("en-IN").format(
                                 investingMoney || 0
@@ -516,7 +516,7 @@ const Investment = () => {
                           {loading ? (
                             <LineSkelton />
                           ) : (
-                            <h1 className="text-xl md:text-2xl font-bold text-purple-500">
+                            <h1 className="text-xl md:text-2xl font-bold text-green-500">
                               +
                               {new Intl.NumberFormat("en-IN").format(
                                 earningMoney || 0
