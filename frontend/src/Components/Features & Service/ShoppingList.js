@@ -114,7 +114,7 @@ const ShoppingList = () => {
           {/* Add/Edit Item Form */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-wrap gap-4 mb-8 items-end  p-2 border md:border-slate-300 rounded shadow-md "
+            className="flex flex-wrap gap-4 pb-4 items-end  p-2 rounded shadow-md "
           >
             {/* <div className="flex flex-col justify-center w-full"> */}
             <div className="flex flex-col md:flex-row w-full md:gap-4">
@@ -149,7 +149,7 @@ const ShoppingList = () => {
                       name="unit"
                       value={formData.unit}
                       onChange={handleChange}
-                      className="py-3 ps-8 w-full text-gray-700 leading-normal border md:border-2 border-slate-300 rounded-sm focus-within:outline-none focus-within:ring-0.5 focus-within:ring-blue-500 focus-within:border-blue-500"
+                      className="py-3.5 bg-white ps-8 w-full text-gray-700 leading-normal border md:border-2 border-slate-300 rounded-sm focus-within:outline-none focus-within:ring-0.5 focus-within:ring-blue-500 focus-within:border-blue-500"
                       required
                     >
                       <option value="kg">kg</option>

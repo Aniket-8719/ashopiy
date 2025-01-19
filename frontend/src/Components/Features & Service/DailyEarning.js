@@ -419,7 +419,7 @@ const DailyEarning = () => {
                         name="earningType"
                         value={formData.earningType}
                         onChange={handleChange}
-                        className="py-3 ps-8 w-full text-gray-700 leading-normal focus:outline-none focus:bg-white focus:border-blue-500 rounded-sm"
+                        className="py-3 ps-8 w-full bg-white text-gray-700 leading-normal focus:outline-none focus:bg-white focus:border-blue-500 rounded-sm"
                       >
                         <option value="Cash">Cash</option>
                         <option value="Online">Online</option>
