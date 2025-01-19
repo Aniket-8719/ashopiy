@@ -114,7 +114,7 @@ const ShoppingList = () => {
           {/* Add/Edit Item Form */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-wrap gap-4 mb-8 items-end bg-gray-100 p-2 rounded shadow-md "
+            className="flex flex-wrap gap-4 mb-8 items-end  p-2 border md:border-slate-300 rounded shadow-md "
           >
             {/* <div className="flex flex-col justify-center w-full"> */}
             <div className="flex flex-col md:flex-row w-full md:gap-4">
