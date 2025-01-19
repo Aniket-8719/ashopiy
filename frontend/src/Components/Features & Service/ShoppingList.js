@@ -143,13 +143,13 @@ const ShoppingList = () => {
                       required
                     />
                   </div>
-                  <div className="flex flex-col w-full">
+                  <div className="flex flex-col w-[150px]">
                     <label className="mb-1 text-sm">Unit</label>
                     <select
                       name="unit"
                       value={formData.unit}
                       onChange={handleChange}
-                      className="py-3.5 bg-white ps-8 w-full text-gray-700 leading-normal border md:border-2 border-slate-300 rounded-sm focus-within:outline-none focus-within:ring-0.5 focus-within:ring-blue-500 focus-within:border-blue-500"
+                      className="md:py-3 py-3.5 bg-white ps-4 w-full text-gray-700 leading-normal border md:border-2 border-slate-300 rounded-sm focus-within:outline-none focus-within:ring-0.5 focus-within:ring-blue-500 focus-within:border-blue-500"
                       required
                     >
                       <option value="kg">kg</option>
