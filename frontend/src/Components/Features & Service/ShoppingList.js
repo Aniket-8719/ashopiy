@@ -129,7 +129,7 @@ const ShoppingList = () => {
                   required
                 />
               </div>
-              <div className="flex flex-col md:flex-row w-full mt-4">
+              <div className="flex flex-col md:flex-row w-full mt-4 md:mt-0">
                 <div className="flex w-full gap-2">
                   <div className="flex flex-col w-full ">
                     <label className="mb-1 text-sm">Quantity</label>
