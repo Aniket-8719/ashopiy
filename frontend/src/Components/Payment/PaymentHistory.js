@@ -34,7 +34,7 @@ const PaymentHistory = () => {
 
     fetchPayments();
   }, []);
-  
+
   // Generate PDF Receipt
   const downloadReceipt = (payment) => {
     const doc = new jsPDF();
@@ -112,8 +112,8 @@ const PaymentHistory = () => {
               Payment History
             </h1>
             {loading ? (
-             <div className="flex justify-center items-center mt-24">
-               <Loader />
+              <div className="flex justify-center items-center mt-24">
+                <Loader />
               </div>
             ) : payments.length === 0 ? (
               <p>No payment history available.</p>
@@ -174,14 +174,16 @@ const PaymentHistory = () => {
                         <td className="px-6 py-4 text-gray-700 capitalize">
                           {payment?.razorpayPaymentId}
                         </td>
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() => downloadReceipt(payment)}
-                            className="text-blue-500 rounded-sm hover:text-blue-600"
-                          >
-                            Download Receipt
-                          </button>
-                        </td>
+                        {payment?.status === "completed" && (
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => downloadReceipt(payment)}
+                              className="text-blue-500 rounded-sm hover:text-blue-600"
+                            >
+                              Download Receipt
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

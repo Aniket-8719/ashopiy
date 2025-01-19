@@ -42,6 +42,7 @@ import PaymentHistory from "./Components/Payment/PaymentHistory";
 import CancellationAndRefunds from "./Components/Home/CancellationAndRefunds";
 import ShippingPolicy from "./Components/Home/ShippingPolicy";
 import VideoPlayer from "./Components/Video/VideoPlayer";
+import ShoppingList from "./Components/Features & Service/ShoppingList";
 
 function App() {
   const dispatch = useDispatch();
@@ -105,6 +106,7 @@ function App() {
         <Route path="/charts" element={<AllCharts />} />
         <Route path="/history" element={<AllData />} />
         <Route path="/investment" element={<Investment />} />
+        <Route path="/shopping-list" element={<ShoppingList />} />
 
         {/* protected routes */}
         <Route
