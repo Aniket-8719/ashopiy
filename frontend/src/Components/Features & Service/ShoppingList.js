@@ -64,46 +64,72 @@ const ShoppingList = () => {
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("Shopping List", 10, 10);
+  
+    // Set title font and size
+    doc.setFont("helvetica", "bold"); // Set font to bold
+    doc.setFontSize(18); // Set font size to large
+    doc.text("Shopping List", doc.internal.pageSize.width / 2, 15, { align: "center" }); // Center-align the title
+  
+    // Set item font and add items to the PDF
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12); // Regular font size for items
     items.forEach((item, index) => {
       doc.text(
         `${index + 1}. ${item.name} - ${item.quantity} ${item.unit}`,
         10,
-        20 + index * 10
+        30 + index * 10
       );
     });
+  
+    // Save the PDF
     doc.save("shopping-list.pdf");
   };
+  
 
   const downloadExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Shopping List");
-
+  
+    // Define worksheet columns with alignment for headers
     worksheet.columns = [
-      { header: "#", key: "index", width: 5 },
-      { header: "Name", key: "name", width: 20 },
-      { header: "Quantity", key: "quantity", width: 15 },
-      { header: "Unit", key: "unit", width: 10 },
+      { header: "#", key: "index", width: 5, style: { alignment: { horizontal: "center" } } },
+      { header: "Name", key: "name", width: 20, style: { alignment: { horizontal: "center" } } },
+      { header: "Quantity", key: "quantity", width: 15, style: { alignment: { horizontal: "center" } } },
     ];
-
+  
+    // Add rows with data and apply center alignment to cells
     items.forEach((item, index) => {
-      worksheet.addRow({
+      const row = worksheet.addRow({
         index: index + 1,
         name: item.name,
-        quantity: item.quantity,
-        unit: item.unit,
+        quantity: `${item.quantity} - ${item.unit}`,
+      });
+  
+      // Center-align the content of the row
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: "center", vertical: "middle" };
       });
     });
-
+  
+    // Center-align the header row
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.font = { bold: true }; // Set font to bold
+    });
+  
+    // Generate Excel file
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
+  
+    // Create a download link and trigger download
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
     link.download = "shopping-list.xlsx";
     link.click();
   };
+  
 
   return (
     <>
