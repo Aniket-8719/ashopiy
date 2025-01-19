@@ -400,7 +400,7 @@ const DailyEarning = () => {
                         <FaIndianRupeeSign className="text-green-600 focus-within:text-blue-500 opacity-65" />
                       </span>
                       <input
-                        type="text"
+                        type="number"
                         id="dailyIncome"
                         name="dailyIncome"
                         required

@@ -433,7 +433,7 @@ const Investment = () => {
                             <FaIndianRupeeSign className="text-black focus-within:text-blue-500 opacity-65" />
                           </span>
                           <input
-                            type="text"
+                            type="number"
                             id="investmentIncomeByUser"
                             name="investmentIncomeByUser"
                             required
