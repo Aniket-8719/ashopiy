@@ -23,10 +23,25 @@ exports.OnlinePaymentFlow = catchAsyncError(async (req, res) => {
       const earningData = {
         dailyIncome: amount / 100, // Convert from paise to INR
         earningType: "Online",
-        // latestSpecialDay: "Normal",
+        latestSpecialDay: "Normal",
         // shopkeeperEmail: email, // Keep track of customer emails
       };
 
+      // Send earningData to your backend API
+      const API_URL = process.env.BACKEND_URL;
+      const config = {
+        headers: { "Content-Type": "application/json" },
+      };
+
+      // Make a POST request to the backend API
+      const { data } = await axios.post(
+        `${API_URL}/api/v2/newIncome`, // The backend API endpoint
+        earningData,
+        config
+      );
+
+      console.log("Response from /newIncome API:", data);
+      console.log("After saving================");
       console.log("Earning Data for Shopkeeper:", user.email, earningData);
 
       // Save to DB or push to frontend via WebSocket
@@ -38,5 +53,6 @@ exports.OnlinePaymentFlow = catchAsyncError(async (req, res) => {
     console.error("Webhook Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-//    return res.json({ status: 'success', message: 'Payment processed' });
+   return res.json({ status: 'success', message: 'Payment processed' });
+   
 });
