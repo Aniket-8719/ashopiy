@@ -25,7 +25,6 @@ import LineSkelton from "../Skelton/LineSkelton";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
 import { useNavigate } from "react-router-dom";
-import AutoPlayVideo from "../Video/AutoPlayVideo";
 
 const DailyEarning = () => {
   const columns = [
@@ -628,7 +627,6 @@ const DailyEarning = () => {
             </div>
           )}
         </div>
-        <AutoPlayVideo/>
       </section>
     </>
   );
