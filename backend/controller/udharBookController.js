@@ -153,3 +153,31 @@ exports.deleteUdhar = catchAsyncError(async (req, res, next) => {
     message: "Udhar record deleted successfully",
   });
 });
+
+
+const QRCode = require("qrcode");
+
+exports.QRCodeGen = catchAsyncError(async (req, res) => {
+  const { upiId, amount } = req.body;
+
+  if (!upiId || !amount) {
+    return res.status(400).json({ error: "Missing UPI ID or amount" });
+  }
+
+  const uniqueOrderId = `TXN${Date.now()}`;  // Unique ID to track payments
+
+  const upiURL = `upi://pay?pa=${upiId}&pn=AshopiyShopkeeper&mc=0000&tid=${uniqueOrderId}&tr=${uniqueOrderId}&tn=Purchase&am=${amount}&cu=INR`;
+
+  try {
+    const qrCodeImage = await QRCode.toDataURL(upiURL);
+    res.status(200).json({ qrCodeUrl: qrCodeImage, orderId: uniqueOrderId });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to generate QR code" });
+  }
+});
+
+
+
+
+
+
