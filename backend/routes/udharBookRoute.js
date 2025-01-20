@@ -12,7 +12,7 @@ const {
 const { checkSubscriptionStatus } = require("../middleware/subscribe");
 
 router.route("/createUdhar").post(isAuthenticatedUser, checkSubscriptionStatus, createUdhar);
-router.route("/generate-qr").post(QRCodeGen);
+// router.route("/generate-qr").post(QRCodeGen);
 router.route("/allUdhars").get(isAuthenticatedUser, getAllUdhar);
 router
   .route("/udhar/:id")
