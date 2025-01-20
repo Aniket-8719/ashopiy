@@ -53,9 +53,7 @@ const DailyEarning = () => {
   const { isAdded, error: addingError } = useSelector(
     (state) => state.currentEarning
   );
-  const { isAuthenticated } = useSelector(
-    (state) => state.user
-  );
+  const { isAuthenticated } = useSelector((state) => state.user);
 
   const {
     error: deleteError,
@@ -148,15 +146,21 @@ const DailyEarning = () => {
   useEffect(() => {
     if (error) {
       toast.error(error);
-      if (error === "You do not have an active subscription. Please subscribe to access this resource.") {
-        navigate('/pricing');
+      if (
+        error ===
+        "You do not have an active subscription. Please subscribe to access this resource."
+      ) {
+        navigate("/pricing");
       }
       dispatch(clearErrors());
     }
     if (addingError) {
       toast.error(addingError);
-      if (addingError === "You do not have an active subscription. Please subscribe to access this resource.") {
-        navigate('/pricing');
+      if (
+        addingError ===
+        "You do not have an active subscription. Please subscribe to access this resource."
+      ) {
+        navigate("/pricing");
       }
       dispatch(clearErrors());
     }
@@ -348,9 +352,9 @@ const DailyEarning = () => {
     }
   }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
 
-    const [showPassword, setShowPassword] = useState(false);
-      // Toggle function for showing/hiding Set Password
-    const handleTogglePassword = () => setShowPassword((prev) => !prev);
+  const [showPassword, setShowPassword] = useState(false);
+  // Toggle function for showing/hiding Set Password
+  const handleTogglePassword = () => setShowPassword((prev) => !prev);
   return (
     <>
       <MetaData title="EARNING" />
@@ -367,31 +371,31 @@ const DailyEarning = () => {
               </button>
               {isLocked && (
                 <div className="flex justify-center items-center mt-4  ">
-                   <div className="relative">
-                                        <input
-                                          type={showPassword ? "text" : "password"}
-                                          value={password}
-                                          onChange={(e) => setPassword(e.target.value)}
-                                          placeholder="Enter password"
-                                          required
-                                          className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                                        />
-                                        {/* Eye icon for toggling password visibility */}
-                                        <span
-                                          className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
-                                          onClick={handleTogglePassword} // Toggle for old password
-                                        >
-                                          {showPassword ? (
-                                            <FaEye className="text-gray-500 text-xl" />
-                                          ) : (
-                                            <FaEyeSlash className="text-gray-500 text-xl" />
-                                          )}
-                                        </span>
-                                      </div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                      required
+                      className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
+                    />
+                    {/* Eye icon for toggling password visibility */}
+                    <span
+                      className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
+                      onClick={handleTogglePassword} // Toggle for old password
+                    >
+                      {showPassword ? (
+                        <FaEye className="text-gray-500 text-xl" />
+                      ) : (
+                        <FaEyeSlash className="text-gray-500 text-xl" />
+                      )}
+                    </span>
+                  </div>
                   <button
                     onClick={handlePasswordSubmit}
                     disabled={unLockPasswordLoading}
-                    className="flex justify-center items-center ml-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-sm focus:outline-none  focus:border-green-500"
+                    className="flex justify-center items-center ml-2 mt-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-sm focus:outline-none  focus:border-green-500"
                   >
                     {unLockPasswordLoading ? <Loader /> : "Submit"}
                   </button>
@@ -469,7 +473,8 @@ const DailyEarning = () => {
                               : "text-red-500"
                           }`}
                         >
-                         {isAuthenticated && (todayData?.totalIncome >= 0 ? "+" : "-")}
+                          {isAuthenticated &&
+                            (todayData?.totalIncome >= 0 ? "+" : "-")}
                           {new Intl.NumberFormat("en-IN").format(
                             Math.abs(todayData?.totalIncome || 0)
                           )}
@@ -482,7 +487,9 @@ const DailyEarning = () => {
                         <LineSkelton />
                       ) : (
                         <h1 className="text-xl md:text-2xl font-bold text-purple-500">
-                     {isAuthenticated ? `+${(todayData?.totalCustomerCount || 0)} ` : 0}
+                          {isAuthenticated
+                            ? `+${todayData?.totalCustomerCount || 0} `
+                            : 0}
                         </h1>
                       )}
                     </div>
