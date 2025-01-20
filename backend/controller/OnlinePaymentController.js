@@ -1,58 +1,55 @@
 const catchAsyncError = require("../middleware/catchAsyncError");
-const moment = require("moment-timezone");
+const axios = require("axios");
 
 exports.OnlinePaymentFlow = catchAsyncError(async (req, res) => {
   try {
-    const { entity } = req.body.payload.payment;
-    const { amount, status, email, contact } = entity;
-    const razorpayMerchantId = entity.notes.merchant_id; // Ensure merchants provide this in their notes
+    console.log("Webhook Payload:", JSON.stringify(req.body, null, 2)); // Log the payload for debugging
 
-    if (!razorpayMerchantId) {
-      return res.status(400).json({ error: "Missing merchant ID" });
+    // Validate payload structure
+    const { payload } = req.body;
+    if (!payload || !payload.payment || !payload.payment.entity) {
+      return res.status(400).json({ error: "Invalid webhook payload structure" });
     }
 
-    // // Find the shopkeeper using merchant ID
-    // const user = await User.findOne({ razorpayMerchantId });
+    const { entity } = payload.payment; // Extract the payment entity
+    const { amount, status, email, contact, notes } = entity;
 
-    // if (!user) {
-    //     return res.status(404).json({ error: 'Shopkeeper not found' });
-    // }
+    // Check for merchant ID in notes
+    const razorpayMerchantId = notes?.merchant_id || null;
 
-    // Process only successful payments
+    if (!razorpayMerchantId) {
+      console.warn("Merchant ID is missing in the notes field.");
+      // Optional: Proceed only if merchant ID is critical
+      // return res.status(400).json({ error: "Missing merchant ID in notes" });
+    }
+
     if (status === "captured") {
+      // Handle captured payment
       const earningData = {
-        dailyIncome: amount / 100, // Convert from paise to INR
+        dailyIncome: amount / 100, // Convert paise to INR
         earningType: "Online",
         latestSpecialDay: "Normal",
-        // shopkeeperEmail: email, // Keep track of customer emails
       };
 
-      // Send earningData to your backend API
       const API_URL = process.env.BACKEND_URL;
       const config = {
         headers: { "Content-Type": "application/json" },
       };
 
-      // Make a POST request to the backend API
+      // Make a POST request to save earning data
       const { data } = await axios.post(
-        `${API_URL}/api/v2/newIncome`, // The backend API endpoint
+        `${API_URL}/api/v2/newIncome`,
         earningData,
         config
       );
 
-      console.log("Response from /newIncome API:", data);
-      console.log("After saving================");
-      console.log("Earning Data for Shopkeeper:", user.email, earningData);
-
-      // Save to DB or push to frontend via WebSocket
+      console.log("Earning Data Saved:", data);
       return res.json({ status: "success", message: "Payment processed" });
     }
 
-    res.status(400).json({ error: "Unhandled event type" });
+    res.status(400).json({ error: "Unhandled payment status" });
   } catch (error) {
     console.error("Webhook Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-   return res.json({ status: 'success', message: 'Payment processed' });
-   
 });
