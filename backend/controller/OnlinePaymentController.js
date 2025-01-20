@@ -2,21 +2,23 @@ const catchAsyncError = require("../middleware/catchAsyncError");
 const axios = require("axios");
 
 exports.OnlinePaymentFlow = catchAsyncError(async (req, res) => {
+  console.log("webhook chal gya");
   const payload = req.body;
 
   try {
     // Extract the Razorpay account ID from the webhook payload
-    const merchantId = payload.account_id;
+    // const merchantId = payload.account_id;
 
-    // Find the shopkeeper using the merchant ID
-    const shopkeeper = await User.findOne({ merchantId });
+    // // Find the shopkeeper using the merchant ID
+    // const shopkeeper = await User.findOne({ merchantId });
 
-    if (!shopkeeper) {
-      return res.status(404).json({ status: 'error', message: 'Merchant not found' });
-    }
+    // if (!shopkeeper) {
+    //   return res.status(404).json({ status: 'error', message: 'Merchant not found' });
+    // }
 
     // Extract payment details
     const payment = payload.payload.payment.entity;
+    console.log("payload ka data", payment.status);
 
     // Check if payment is captured
     if (payment.status === 'captured') {
@@ -44,7 +46,7 @@ exports.OnlinePaymentFlow = catchAsyncError(async (req, res) => {
         message: 'Payment processed and earnings updated',
       });
     }
-
+  
     // If payment is not captured
     return res.status(200).json({
       status: 'ignored',
