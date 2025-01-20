@@ -13,7 +13,7 @@ import {
 } from "../../constants/udharConstants";
 import { toast } from "react-toastify";
 import EditUdhar from "./EditUdhar";
-import { FaPlus } from "react-icons/fa6";
+import { FaEye, FaEyeSlash, FaPlus } from "react-icons/fa6";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
 import Loader from "../Layouts/Loader";
@@ -164,6 +164,10 @@ const UdharList = () => {
     dispatch(getAllUdhar(searchQuery));
   }
   }, [unLockError, isUnlock, isFeatureLocked,searchQuery, dispatch]);
+
+  const [showPassword, setShowPassword] = useState(false);
+  // Toggle function for showing/hiding Set Password
+const handleTogglePassword = () => setShowPassword((prev) => !prev);
   return (
     <>
       <section className="mt-14 md:mt-20  md:ml-72 ">
@@ -179,15 +183,27 @@ const UdharList = () => {
               </button>
               {isLocked && (
                 <div className="flex justify-center items-center mt-4  ">
-                  <div>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      className="w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                    />
-                  </div>
+                  <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter password"
+                        required
+                        className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
+                      />
+                      {/* Eye icon for toggling password visibility */}
+                      <span
+                        className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
+                        onClick={handleTogglePassword} // Toggle for old password
+                      >
+                        {showPassword ? (
+                          <FaEye className="text-gray-500 text-xl" />
+                        ) : (
+                          <FaEyeSlash className="text-gray-500 text-xl" />
+                        )}
+                      </span>
+                    </div>
                   <button
                     onClick={handlePasswordSubmit}
                     disabled={unLockPasswordLoading}

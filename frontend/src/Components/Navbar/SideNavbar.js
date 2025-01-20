@@ -11,17 +11,14 @@ import { IoMdPricetags } from "react-icons/io";
 // import { TbTransactionRupee } from "react-icons/tb";
 // import { GrMoney } from "react-icons/gr";
 import { IoStatsChartSharp } from "react-icons/io5";
-import { FaChartPie, FaLock, FaUnlock } from "react-icons/fa6";
+import { FaChartPie, FaLock } from "react-icons/fa6";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
-import { IoReceiptSharp } from "react-icons/io5";
-import { MdManageAccounts } from "react-icons/md";
 import { MdOutlineMenuBook } from "react-icons/md";
-import { RiFileList3Line } from "react-icons/ri";
 import { lockList } from "../../actions/appLockAction";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import OneLineDaysLeft from "../Payment/OneLineDaysLeft";
+import { RiFileList3Fill } from "react-icons/ri";
 // import { useSelector } from "react-redux";
 
 const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
@@ -32,17 +29,17 @@ const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
   const { LockList } = useSelector((state) => state.lockUnlockList);
 
   const {
-    loading: unLockPasswordLoading,
+    // loading: unLockPasswordLoading,
     isUnlock,
-    error: unLockError,
+    // error: unLockError,
   } = useSelector((state) => state.unLockFeature);
 
   // The feature to check
-  const checkLockEarning = "Earning"; // You can dynamically change this value as needed
-  const checkLockCharts = "Charts";
-  const checkLockInvestments = "Investments";
-  const checkLockUdharBook = "UdharBook";
-  const checkLockHistory = "UdharBook";
+  // const checkLockEarning = "Earning"; // You can dynamically change this value as needed
+  // const checkLockCharts = "Charts";
+  // const checkLockInvestments = "Investments";
+  // const checkLockUdharBook = "UdharBook";
+  // const checkLockHistory = "UdharBook";
 
   // State to manage password pop-up visibility and input
   // const [isLocked, setIsLocked] = useState(false);
@@ -189,7 +186,7 @@ const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
               >
                 <div className="flex items-center gap-4">
                   <div>
-                    <RiFileList3Line className="text-xl" />
+                    <RiFileList3Fill className="text-xl" />
                   </div>
                   <div>
                     <h1 className="text-xl">Shopping List</h1>

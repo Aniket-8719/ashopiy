@@ -36,7 +36,6 @@ const [formData, setFormData] = useState({
   state: "UP",
   city: "",
   pincode: "",
-  area: "",
   landmark: "",
   address: "",
   agentID: "",
@@ -59,7 +58,6 @@ useEffect(() => {
       state: user?.state || "UP",
       city: user?.city || "",
       pincode: user?.pincode || "",
-      area: user?.area || "",
       landmark: user?.landmark || "",
       address: user?.address || "",
       agentID: user?.agentID || "",
@@ -446,19 +444,7 @@ useEffect(() => {
             </div>
 
             {/* Landmark */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Area
-              </label>
-              <input
-                type="text"
-                name="area"
-                value={formData.area}
-                onChange={handleChange}
-                placeholder="E.g. Raja Nagar"
-                className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-              />
-            </div>
+          
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Landmark<span>(optional)</span>

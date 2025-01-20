@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MdDelete, MdModeEdit, MdOutlineFolderSpecial } from "react-icons/md";
-import { FaIndianRupeeSign } from "react-icons/fa6";
+import { FaEye, FaEyeSlash, FaIndianRupeeSign } from "react-icons/fa6";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addTodayEarning,
@@ -25,6 +25,7 @@ import LineSkelton from "../Skelton/LineSkelton";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
 import { useNavigate } from "react-router-dom";
+import AutoPlayVideo from "../Video/AutoPlayVideo";
 
 const DailyEarning = () => {
   const columns = [
@@ -179,6 +180,7 @@ const DailyEarning = () => {
     }
   }, [
     dispatch,
+    navigate,
     error,
     addingError,
     deleteError,
@@ -347,6 +349,9 @@ const DailyEarning = () => {
     }
   }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
 
+    const [showPassword, setShowPassword] = useState(false);
+      // Toggle function for showing/hiding Set Password
+    const handleTogglePassword = () => setShowPassword((prev) => !prev);
   return (
     <>
       <MetaData title="EARNING" />
@@ -363,15 +368,27 @@ const DailyEarning = () => {
               </button>
               {isLocked && (
                 <div className="flex justify-center items-center mt-4  ">
-                  <div>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      className="w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                    />
-                  </div>
+                   <div className="relative">
+                                        <input
+                                          type={showPassword ? "text" : "password"}
+                                          value={password}
+                                          onChange={(e) => setPassword(e.target.value)}
+                                          placeholder="Enter password"
+                                          required
+                                          className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
+                                        />
+                                        {/* Eye icon for toggling password visibility */}
+                                        <span
+                                          className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
+                                          onClick={handleTogglePassword} // Toggle for old password
+                                        >
+                                          {showPassword ? (
+                                            <FaEye className="text-gray-500 text-xl" />
+                                          ) : (
+                                            <FaEyeSlash className="text-gray-500 text-xl" />
+                                          )}
+                                        </span>
+                                      </div>
                   <button
                     onClick={handlePasswordSubmit}
                     disabled={unLockPasswordLoading}
@@ -611,6 +628,7 @@ const DailyEarning = () => {
             </div>
           )}
         </div>
+        <AutoPlayVideo/>
       </section>
     </>
   );

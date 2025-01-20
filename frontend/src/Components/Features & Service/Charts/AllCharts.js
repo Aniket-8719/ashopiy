@@ -10,6 +10,7 @@ import { clearErrors } from "../../../actions/earningAction";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../Layouts/Loader";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const AllCharts = () => {
   // Lock/Unlock
@@ -62,6 +63,12 @@ const AllCharts = () => {
       dispatch(lockList());
     }
   }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
+
+
+  const [showPassword, setShowPassword] = useState(false);
+  // Toggle function for showing/hiding Set Password
+const handleTogglePassword = () => setShowPassword((prev) => !prev);
+
   return (
     <>
       <MetaData title={"CHARTS"} />
@@ -79,14 +86,26 @@ const AllCharts = () => {
                 </button>
                 {isLocked && (
                   <div className="flex justify-center items-center mt-4  ">
-                    <div>
+                    <div className="relative">
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter password"
-                        className="w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
+                        required
+                        className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
                       />
+                      {/* Eye icon for toggling password visibility */}
+                      <span
+                        className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
+                        onClick={handleTogglePassword} // Toggle for old password
+                      >
+                        {showPassword ? (
+                          <FaEye className="text-gray-500 text-xl" />
+                        ) : (
+                          <FaEyeSlash className="text-gray-500 text-xl" />
+                        )}
+                      </span>
                     </div>
                     <button
                       onClick={handlePasswordSubmit}
