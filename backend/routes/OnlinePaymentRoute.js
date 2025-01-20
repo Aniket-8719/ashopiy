@@ -4,6 +4,6 @@ const router = express.Router();
 
 
 
-router.route("/payment/webhook").post(OnlinePaymentFlow);
+router.route("/webhooks/payment").post(OnlinePaymentFlow);
 
 module.exports = router;
