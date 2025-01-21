@@ -223,13 +223,17 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
   // console.log("endOfDay: ", endOfDay);
 
   const todayIncomeData = await DailyIncome.find({
-    $or: [
-      { user: req.user._id, date: { $gte: startOfDay, $lte: endOfDay } },
+    $and: [
       {
-        merchantID: req.user.merchantID,
-        date: { $gte: startOfDay, $lte: endOfDay },
+        $or: [
+          { user: req.user._id },
+          { merchantID: req.user.merchantID }
+        ]
       },
-    ],
+      {
+        date: { $gte: startOfDay, $lte: endOfDay }
+      }
+    ]
   });
 
   const formattedIncome = todayIncomeData.map((item) => ({
