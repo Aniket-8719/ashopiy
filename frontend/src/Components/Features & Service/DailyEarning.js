@@ -579,7 +579,13 @@ const DailyEarning = () => {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 {todayData?.date || "N/A"}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                              <td
+                                className={`px-6 py-4 whitespace-nowrap ${
+                                  dataKey?.earningType === "Online"
+                                    ? "text-blue-600 bg-blue-100"
+                                    : "text-green-600 bg-green-100"
+                                }`}
+                              >
                                 {dataKey?.earningType || "N/A"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">

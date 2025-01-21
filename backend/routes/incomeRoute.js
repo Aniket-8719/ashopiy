@@ -5,6 +5,7 @@ const { isAuthenticatedUser } = require("../middleware/auth");
 const { checkSubscriptionStatus } = require("../middleware/subscribe");
 const { checkFeatureLock } = require("../middleware/lock");
 
+
 router.route("/newIncome").post(isAuthenticatedUser,checkSubscriptionStatus, addDailyIncome);
 router.route("/completeData").get(isAuthenticatedUser, getCompleteData);
 router.route("/addFullDayIncome").post(isAuthenticatedUser, addFullDayIncome);

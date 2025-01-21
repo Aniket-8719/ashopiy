@@ -73,7 +73,12 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     console.log("End Date UTC: ", endDateUTC);
 
     // Get the earliest income record for the user
-    const firstIncome = await DailyIncome.findOne({ user: req.user._id }).sort({
+    const firstIncome = await DailyIncome.findOne({
+      $or: [
+        { user: req.user._id },
+        { merchantID: req.user.merchantID }, // Replace with dynamic merchant ID as needed
+      ],
+    }).sort({
       date: 1,
     });
     if (!firstIncome) {
@@ -98,7 +103,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       // Fetch all incomes within the IST day range
       const dayIncomes = await DailyIncome.find({
-        user: req.user._id,
+        $or: [{ user: req.user._id }, { merchantID: req.user.merchantID }],
         date: { $gte: dayStartUTC, $lte: dayEndUTC },
       }).sort({ time: 1 });
 
@@ -147,7 +152,10 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       if (incomeIds.length > 0) {
         await DailyIncome.deleteMany({
-          user: req.user._id,
+          $or: [
+            { user: req.user._id },
+            { merchantID: req.user.merchantID },
+          ],
           _id: { $in: incomeIds },
         });
       }
@@ -215,8 +223,13 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
   // console.log("endOfDay: ", endOfDay);
 
   const todayIncomeData = await DailyIncome.find({
-    user: req.user._id,
-    date: { $gte: startOfDay, $lte: endOfDay },
+    $or: [
+      { user: req.user._id, date: { $gte: startOfDay, $lte: endOfDay } },
+      {
+        merchantID: req.user.merchantID,
+        date: { $gte: startOfDay, $lte: endOfDay },
+      },
+    ],
   });
 
   const formattedIncome = todayIncomeData.map((item) => ({
@@ -558,8 +571,8 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
           .utc()
           .toDate();
 
-          console.log("startDate: ", startDate);
-          console.log("endDate: ", endDate);
+  console.log("startDate: ", startDate);
+  console.log("endDate: ", endDate);
   // Aggregate income data with proper timezone handling
   const fullDayIncome = await FullDayIncome.aggregate([
     {

@@ -9,7 +9,6 @@ import Investment from "./Components/Features & Service/Investment";
 import { useDispatch, useSelector } from "react-redux";
 import { addFullDayEarning } from "./actions/earningAction";
 import moment from "moment-timezone";
-import { toast } from "react-toastify";
 import Login from "./Components/Users/Login";
 import RegistrationForm from "./Components/Users/RegistrationForm";
 import { loadUser } from "./actions/userAction";
@@ -43,6 +42,7 @@ import CancellationAndRefunds from "./Components/Home/CancellationAndRefunds";
 import ShippingPolicy from "./Components/Home/ShippingPolicy";
 import VideoPlayer from "./Components/Video/VideoPlayer";
 import ShoppingList from "./Components/Features & Service/ShoppingList";
+import UpdateMerchantIDForm from "./Components/Users/UpdateMerchantIDForm";
 
 function App() {
   const dispatch = useDispatch();
@@ -165,6 +165,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* <Route
+          path="/user/merchantID"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <UpdateMerchantIDForm />
+            </ProtectedRoute>
+          }
+        /> */}
+        <Route path="/user/merchantID" element={<UpdateMerchantIDForm />} /> 
         {/* <Route path="/staffMangement" element={<StaffManagement />} />
         <Route path="/billing" element={<Billing />} /> */}
         <Route path="/addUdhar" element={<AddUdhar />} />

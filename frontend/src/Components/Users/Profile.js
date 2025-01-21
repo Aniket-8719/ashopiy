@@ -8,6 +8,7 @@ import ExcelJS from "exceljs";
 import Loader from "../Layouts/Loader";
 import { HiDownload } from "react-icons/hi";
 import SubscriptionDaysLeft from "../Payment/SubscriptionDaysLeft";
+import { MdEdit } from "react-icons/md";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -175,7 +176,7 @@ const downloadExcel = useCallback(() => {
   return (
     <>
       <MetaData title={"PROFILE"} /> 
-      <section className="mt-14 md:mt-20  md:ml-72 ">
+      <section className="mt-14 md:mt-10  md:ml-72 ">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="w-full rounded-lg">
             <div className="text-center">
@@ -222,22 +223,31 @@ const downloadExcel = useCallback(() => {
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg shadow">
+                 
                   <p className="text-gray-600 text-sm">GST No.</p>
                   <p className="text-gray-800 font-semibold">{user?.gstNo}</p>
                 </div>
+               
 
+                <div className="bg-gray-50 p-4 rounded-lg shadow">
+                <div className="flex gap-2 items-center">
+                 <p className="text-gray-600 text-sm">MerchantID </p>
+                 <Link to="/user/merchantID" className="p-1 rounded-full bg-blue-500 text-white items-center flex justify-center"><MdEdit/></Link>
+                 </div>
+                 <p className="text-gray-800 font-semibold">{user?.merchantID}</p>
+                </div>
                 <div className="bg-gray-50 p-4 rounded-lg shadow">
                   <p className="text-gray-600 text-sm">Address</p>
                   <p className="text-gray-800 font-semibold">
                     {user?.address}, {user?.landmark}, {user?.area},{" "}
-                    {user?.city}, {user?.state} - {user?.pincode}
+                    {user?.city}, {user?.state} - {user?.pincode}, {user?.country}
                   </p>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
+                {/* <div className="bg-gray-50 p-4 rounded-lg shadow">
                   <p className="text-gray-600 text-sm">Country</p>
                   <p className="text-gray-800 font-semibold">{user?.country}</p>
-                </div>
+                </div> */}
               </div>
             </div>
           <div className="flex flex-col md:flex-row  md:gap-8 items-center w-full">
@@ -248,6 +258,7 @@ const downloadExcel = useCallback(() => {
             <div className="mt-8 flex flex-col justify-between gap-4 w-full  p-4">
 
              <div className="flex flex-col md:flex-row gap-4 w-full">
+            
              <Link
                 to="/me/update"
                 className="flex justify-center text-sm items-center w-full  bg-blue-600 text-white  px-4 py-2 md:px-6 rounded-md hover:bg-blue-700 focus:outline-none"

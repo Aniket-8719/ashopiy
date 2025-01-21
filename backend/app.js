@@ -47,9 +47,9 @@ app.use(
     tempFileDir: "/tmp/",
   })
 );
-app.use(
-  express.raw({ type: 'application/json' })
-);
+// app.use(
+//   express.raw({ type: 'application/json' })
+// );
 
 
 // Routes import

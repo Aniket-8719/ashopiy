@@ -9,8 +9,6 @@ const DailyIncome = require("../models/dailyRevenue");
 const FullDayIncome = require("../models/fullDayRevenue");
 const investmentModel = require("../models/investmentModel");
 
-
-
 //  Register User
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   const {
@@ -57,11 +55,11 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Email already exists", 400));
   }
 
-    // Get the current date and time in the Asia/Kolkata timezone
-    const indiaDateTime = moment.tz("Asia/Kolkata");
-  
-    // Add 5 hours and 30 minutes to adjust to UTC
-    const utcDateTime = indiaDateTime.clone().add(5, "hours").add(30, "minutes");
+  // Get the current date and time in the Asia/Kolkata timezone
+  const indiaDateTime = moment.tz("Asia/Kolkata");
+
+  // Add 5 hours and 30 minutes to adjust to UTC
+  const utcDateTime = indiaDateTime.clone().add(5, "hours").add(30, "minutes");
 
   // Create a new user
   const user = await User.create({
@@ -95,7 +93,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     ),
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: "None",
   };
 
   res.status(201).cookie("token", token, options).json({
@@ -152,7 +150,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
     expires: new Date(Date.now()),
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: "None",
   });
 
   res.status(200).json({
@@ -412,7 +410,7 @@ exports.getAllUser = catchAsyncError(async (req, res, next) => {
     const searchRegex = new RegExp(search, "i"); // Case-insensitive regex
     query.$or = [
       { email: searchRegex },
-      { mobileNo: searchRegex }, 
+      { mobileNo: searchRegex },
       { whatsappNo: searchRegex },
       { shopOwnerName: searchRegex },
       { shopName: searchRegex },
@@ -473,36 +471,40 @@ exports.getAllAdmins = catchAsyncError(async (req, res, next) => {
   });
 });
 
-const storage = (document)=>{
+const storage = (document) => {
   // Calculate total size in bytes
   let totalSizeInBytes = 0;
 
   document.forEach((doc) => {
     // Convert the document to JSON and calculate its size in bytes
     const docJson = JSON.stringify(doc);
-    const docSize = Buffer.byteLength(docJson, 'utf8'); // Size in bytes
+    const docSize = Buffer.byteLength(docJson, "utf8"); // Size in bytes
     totalSizeInBytes += docSize;
   });
 
   const TotalSizeInMB = totalSizeInBytes / (1024 * 1024); // Convert bytes to MB
   return TotalSizeInMB;
-  
-}
+};
 
 // Get Single User (Admin)
 exports.getSingleUser = catchAsyncError(async (req, res, next) => {
   const userId = req.params.id;
   const user = await User.findById(userId);
-    // Fetch all DailyIncome documents for the user
-    const dailyIncome = await DailyIncome.find({ user: userId });
-    const fullDayIncome = await FullDayIncome.find({user:userId});
-    const investmentDocument = await investmentModel.find({user:userId});
+  // Fetch all DailyIncome documents for the user
+  const dailyIncome = await DailyIncome.find({ user: userId });
+  const fullDayIncome = await FullDayIncome.find({ user: userId });
+  const investmentDocument = await investmentModel.find({ user: userId });
 
-    const dailyData = storage(dailyIncome);
-    const fullDayData = storage(fullDayIncome);
-    const investData = storage(investmentDocument);
+  const dailyData = storage(dailyIncome);
+  const fullDayData = storage(fullDayIncome);
+  const investData = storage(investmentDocument);
 
-    console.log("all data storeage", `${dailyData.toFixed(2)}, ${fullDayData.toFixed(2)}, ${investData.toFixed(2)}`)
+  console.log(
+    "all data storeage",
+    `${dailyData.toFixed(2)}, ${fullDayData.toFixed(2)}, ${investData.toFixed(
+      2
+    )}`
+  );
 
   if (!user) {
     return next(
@@ -573,5 +575,25 @@ exports.contactUsEmailRecieve = catchAsyncError(async (req, res, next) => {
   }
 });
 
+// add merchant ID
+exports.addMerchantID = catchAsyncError(async (req, res, next) => {
+  const { merchantID } = req.body;
+  const email = req.user.email;
 
+  // Find the user by email and update the merchantID field
+  const user = await User.findOneAndUpdate(
+    { email },
+    { $set: { merchantID } },
+    { new: true, runValidators: true }
+  );
 
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Merchant ID added successfully",
+    merchantID: user.merchantID,
+  });
+});

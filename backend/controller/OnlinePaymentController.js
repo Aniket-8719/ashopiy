@@ -1,60 +1,72 @@
 const catchAsyncError = require("../middleware/catchAsyncError");
-const axios = require("axios");
+const moment = require("moment-timezone");
+const DailyIncome = require("../models/dailyRevenue");
+const User = require("../models/userModel");
 
+// captured by webhook
 exports.OnlinePaymentFlow = catchAsyncError(async (req, res) => {
-  console.log("webhook chal gya");
-  const payload = req.body;
-
   try {
-    // Extract the Razorpay account ID from the webhook payload
-    // const merchantId = payload.account_id;
+    const payload = req.body;
 
-    // // Find the shopkeeper using the merchant ID
-    // const shopkeeper = await User.findOne({ merchantId });
-
-    // if (!shopkeeper) {
-    //   return res.status(404).json({ status: 'error', message: 'Merchant not found' });
-    // }
-
-    // Extract payment details
+    // Extract payment details from the payload
     const payment = payload.payload.payment.entity;
-    console.log("payload ka data", payment.status);
 
-    // Check if payment is captured
-    if (payment.status === 'captured') {
-      // Prepare earning data
-      const earningData = {
-        dailyIncome: payment.amount / 100, // Convert from paise to INR
-        earningType: 'Online',
-        latestSpecialDay: 'Normal',
-      };
+    // Extract and process the merchant ID from the payload
+    const merchantId = payload.account_id;
+    const merchantID_sub = merchantId.split("_")[1]; // Extract 'PZUqcmc8wPqtC0'
 
-      // Save earnings via your backend API
-      const API_URL = process.env.BACKEND_URL;
-      const config = { headers: { 'Content-Type': 'application/json' } };
+    // Find the user by merchantID_sub in the User model
+    const user = await User.findOne({ merchantID: merchantID_sub });
 
-      const { data } = await axios.post(
-        `${API_URL}/api/v2/newIncome`,
-        earningData,
-        config
-      );
+    // Check if the user has an active subscription (basic or premium)
+    if (
+      user &&
+      (user.subscription.basic.isActive || user.subscription.premium.isActive)
+    ) {
+      // Proceed if payment is captured
+      if (payment.status === "captured") {
+        // Get the current date and time in the Asia/Kolkata timezone
+        const indiaDateTime = moment.tz("Asia/Kolkata");
 
-      console.log('Earning Data Saved:', data);
+        // Adjust to UTC by adding 5 hours and 30 minutes
+        const utcDateTime = indiaDateTime
+          .clone()
+          .add(5, "hours")
+          .add(30, "minutes");
 
-      return res.status(200).json({
-        status: 'success',
-        message: 'Payment processed and earnings updated',
-      });
+        // Create a new income entry
+        const newIncomeEntry = new DailyIncome({
+          dailyIncome: Number(payment.amount / 100), // Convert paise to INR
+          time: indiaDateTime.format("HH:mm:ss"), // Time in 'HH:mm:ss' format
+          day: indiaDateTime.format("dddd"), // Day of the week
+          date: utcDateTime.toDate(), // UTC Date object
+          earningType: "Online",
+          latestSpecialDay: "Normal", // Or any logic to set special day
+          merchantID: merchantID_sub, // Merchant ID from the extracted value
+        });
+
+        // Save the new income entry to the database
+        await newIncomeEntry.save();
+
+        return res.status(200).json({
+          status: "success",
+          message: "Payment processed and earnings updated",
+        });
+      }
     }
-  
-    // If payment is not captured
+
+    // If payment is not captured or no active subscription
     return res.status(200).json({
-      status: 'ignored',
-      message: 'Payment is not captured. No action taken.',
+      status: "ok",
+      message:
+        "Payment is not captured or no active subscription. No action taken.",
     });
   } catch (error) {
-    console.error('Error processing webhook:', error.message);
-    return res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    console.error("Error processing webhook:", error.message);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
   }
 });
 

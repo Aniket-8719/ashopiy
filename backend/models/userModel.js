@@ -66,6 +66,12 @@ const userSchema = new mongoose.Schema({
     required: [true, "Mobile number is required"],
     match: [/^\d{10}$/, "Please enter a valid 10-digit mobile number"],
   },
+  merchantID: {
+    type: String,
+    trim: true,
+    default: null,
+    unique: true, // Ensure merchantID is unique
+  },
   gstNo: {
     type: String,
     trim: true,
