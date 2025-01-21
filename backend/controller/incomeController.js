@@ -103,8 +103,17 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       // Fetch all incomes within the IST day range
       const dayIncomes = await DailyIncome.find({
-        $or: [{ user: req.user._id }, { merchantID: req.user.merchantID }],
-        date: { $gte: dayStartUTC, $lte: dayEndUTC },
+        $and: [
+          {
+            $or: [
+              { user: req.user._id },
+              { merchantID: req.user.merchantID }
+            ]
+          },
+          {
+            date: { $gte: dayStartUTC, $lte: dayEndUTC },
+          }
+        ]
       }).sort({ time: 1 });
 
       if (dayIncomes.length > 0) {
