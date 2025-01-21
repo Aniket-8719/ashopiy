@@ -101,20 +101,22 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       console.log("dayStart: ", dayStartUTC);
       console.log("dayEnd: ", dayEndUTC);
 
-      // Fetch all incomes within the IST day range
-      const dayIncomes = await DailyIncome.find({
-        $and: [
-          {
-            $or: [
-              { user: req.user._id },
-              { merchantID: req.user.merchantID }
-            ]
-          },
-          {
-            date: { $gte: dayStartUTC, $lte: dayEndUTC },
-          }
-        ]
-      }).sort({ time: 1 });
+      // Prepare the query based on the merchantID or user._id
+      const query = {
+        date: { $gte: dayStartUTC, $lte: dayEndUTC },
+        $or: [],
+      };
+
+      // If merchantID exists, prioritize it
+      if (req.user.merchantID) {
+        query.$or.push({ merchantID: req.user.merchantID });
+      }
+
+      // Always include the user._id in the query to fall back if needed
+      query.$or.push({ user: req.user._id });
+
+      // Fetch all incomes within the UTC day range
+      const dayIncomes = await DailyIncome.find(query).sort({ time: 1 });
 
       if (dayIncomes.length > 0) {
         // Aggregate the data
@@ -161,10 +163,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       if (incomeIds.length > 0) {
         await DailyIncome.deleteMany({
-          $or: [
-            { user: req.user._id },
-            { merchantID: req.user.merchantID },
-          ],
+          $or: [{ user: req.user._id }, { merchantID: req.user.merchantID }],
           _id: { $in: incomeIds },
         });
       }
@@ -234,15 +233,12 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
   const todayIncomeData = await DailyIncome.find({
     $and: [
       {
-        $or: [
-          { user: req.user._id },
-          { merchantID: req.user.merchantID }
-        ]
+        $or: [{ user: req.user._id }, { merchantID: req.user.merchantID }],
       },
       {
-        date: { $gte: startOfDay, $lte: endOfDay }
-      }
-    ]
+        date: { $gte: startOfDay, $lte: endOfDay },
+      },
+    ],
   });
 
   const formattedIncome = todayIncomeData.map((item) => ({
