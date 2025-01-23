@@ -230,16 +230,22 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
   // console.log("startOfDay: ", startOfDay);
   // console.log("endOfDay: ", endOfDay);
 
-  const todayIncomeData = await DailyIncome.find({
-    $and: [
-      {
-        $or: [{ user: req.user._id }, { merchantID: req.user.merchantID }],
-      },
-      {
-        date: { $gte: startOfDay, $lte: endOfDay },
-      },
-    ],
-  });
+  // Prepare the query based on merchantID or user._id
+  const query = {
+    date: { $gte: startOfDay, $lte: endOfDay }, // Date range filter
+    $or: [],
+  };
+
+  // If merchantID exists, prioritize it
+  if (req.user.merchantID) {
+    query.$or.push({ merchantID: req.user.merchantID });
+  }
+
+  // Always include the user._id in the query as a fallback
+  query.$or.push({ user: req.user._id });
+
+  // Fetch all incomes within the date range
+  const todayIncomeData = await DailyIncome.find(query);
 
   const formattedIncome = todayIncomeData.map((item) => ({
     income: item.dailyIncome,
