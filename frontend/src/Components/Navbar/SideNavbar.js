@@ -19,6 +19,7 @@ import { lockList } from "../../actions/appLockAction";
 import { useDispatch, useSelector } from "react-redux";
 import OneLineDaysLeft from "../Payment/OneLineDaysLeft";
 import { RiFileList3Fill } from "react-icons/ri";
+import { SiAuthentik } from "react-icons/si";
 // import { useSelector } from "react-redux";
 
 const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
@@ -181,6 +182,20 @@ const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
               </Link>
 
               <Link
+                to={"/lock-feature"}
+                className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
+              >
+                <div className="flex items-center gap-4">
+                  <div>
+                    <SiAuthentik className="text-xl" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl">Lock System</h1>
+                  </div>
+                </div>
+                {/* <div className="mr-4">{renderLockIcon(isHistoryLocked)}</div> */}
+              </Link>
+              <Link
                 to={"/shopping-list"}
                 className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
               >
@@ -192,7 +207,6 @@ const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
                     <h1 className="text-xl">Shopping List</h1>
                   </div>
                 </div>
-                {/* <div className="mr-4">{renderLockIcon(isHistoryLocked)}</div> */}
               </Link>
 
               {/* <Link to={"/staffMangement"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">

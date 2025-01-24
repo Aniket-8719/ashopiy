@@ -1,6 +1,6 @@
 import React from "react";
 
-const StorageUsage = ({dailyData,fullDayData,investData}) => {
+const StorageUsage = ({dailyData,fullDayData,investData,DataNumbers}) => {
     // const dailyData=1; 
     // const fullDayData=9; 
     // const investData=3;  // Let's assume a hypothetical storage limit for each type (e.g., 100 MB)
@@ -54,6 +54,9 @@ const StorageUsage = ({dailyData,fullDayData,investData}) => {
           ></div>
         </div>
         <p className="text-xs text-gray-500">Used {investPercentage.toFixed(2)}% of {investDataTotalStorageLimit}MB</p>
+      </div>
+      <div>
+        {DataNumbers}
       </div>
     </div>
   );

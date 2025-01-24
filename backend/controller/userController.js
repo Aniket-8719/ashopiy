@@ -61,6 +61,9 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   // Add 5 hours and 30 minutes to adjust to UTC
   const utcDateTime = indiaDateTime.clone().add(5, "hours").add(30, "minutes");
 
+  const subscriptionStartDate = utcDateTime.toDate();
+  const subscriptionEndDate = new Date("2025-02-27T23:59:59.999Z"); // End of January 27, 2025
+
   // Create a new user
   const user = await User.create({
     avatar,
@@ -81,6 +84,13 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     address,
     createdAt: utcDateTime.toDate(), // Store the UTC Date object after adjustment
     agentID,
+    subscription: {
+      basic: {
+        isActive: true, // Activate the subscription
+        startDate: subscriptionStartDate,
+        endDate: subscriptionEndDate,
+      },
+    },
   });
 
   //  Creating Token and saving in cookie
@@ -95,6 +105,46 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     secure: true,
     sameSite: "None",
   };
+
+  // Format subscription start and end dates
+  const formattedStartDate = moment(subscriptionStartDate).format(
+    "MMMM D, YYYY"
+  );
+  const formattedEndDate = moment(subscriptionEndDate).format("MMMM D, YYYY");
+
+  // Send success email to the user
+  const emailOptions = {
+    email: user.email,
+    subject: "Welcome to Ashopiy - Free Subscription Activated",
+    message: `Hi ${user.shopOwnerName},\n\nWe are pleased to inform you that your registration was successful, and you have received a free subscription from ${formattedStartDate} to ${formattedEndDate}.\n\nEnjoy exploring our platform and make the most of your subscription.\n\nBest regards,\nThe Ashopiy Team`,
+    htmlMessage: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+      <h2 style="color: #4CAF50;">Welcome to Ashopiy!</h2>
+      <p>Dear ${user.shopOwnerName},</p>
+      <p>We are delighted to inform you that your registration was successful. As a valued member, you have received a <strong>free subscription</strong> with the following details:</p>
+      <table style="width: 100%; margin-top: 20px; border-collapse: collapse; text-align: left;">
+        <tr>
+          <th style="border-bottom: 1px solid #ddd; padding: 8px;">Subscription Plan</th>
+          <td style="border-bottom: 1px solid #ddd; padding: 8px;">Basic Plan (Free Trial)</td>
+        </tr>
+         <tr>
+          <th style="border-bottom: 1px solid #ddd; padding: 8px;">Subscription Start Date</th>
+          <td style="border-bottom: 1px solid #ddd; padding: 8px;">${formattedStartDate}</td>
+        </tr>
+        <tr>
+          <th style="border-bottom: 1px solid #ddd; padding: 8px;">Subscription End Date</th>
+          <td style="border-bottom: 1px solid #ddd; padding: 8px;">${formattedEndDate}</td>
+        </tr>
+      </table>
+      <p style="margin-top: 20px;">Make the most of your subscription and explore all the features we have to offer.</p>
+      <p>If you have any questions or need support, feel free to reach out to our team at <a href="mailto:info.ashopiy@gmail.com">info.ashopiy@gmail.com</a>.</p>
+      <p style="margin-top: 20px;">Thank you for joining Ashopiy!</p>
+      <p style="margin-top: 20px;">Best regards,<br><strong>The Ashopiy Team</strong></p>
+    </div>
+  `,
+  };
+
+  await sendEmail(emailOptions);
 
   res.status(201).cookie("token", token, options).json({
     success: true,
@@ -134,7 +184,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     ),
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: "None",
   };
 
   res.status(201).cookie("token", token, options).json({
@@ -495,16 +545,15 @@ exports.getSingleUser = catchAsyncError(async (req, res, next) => {
   const fullDayIncome = await FullDayIncome.find({ user: userId });
   const investmentDocument = await investmentModel.find({ user: userId });
 
+  // Format the output string
+  const DataNumbers =
+    `Daily Income: ${dailyIncome.length}\n || ` +
+    `Full Day Income: ${fullDayIncome.length}\n || ` +
+    `Investment: ${investmentDocument.length}`;
+
   const dailyData = storage(dailyIncome);
   const fullDayData = storage(fullDayIncome);
   const investData = storage(investmentDocument);
-
-  console.log(
-    "all data storeage",
-    `${dailyData.toFixed(2)}, ${fullDayData.toFixed(2)}, ${investData.toFixed(
-      2
-    )}`
-  );
 
   if (!user) {
     return next(
@@ -517,6 +566,7 @@ exports.getSingleUser = catchAsyncError(async (req, res, next) => {
     dailyData: dailyData.toFixed(2),
     fullDayData: fullDayData.toFixed(2),
     investData: investData.toFixed(2),
+    DataNumbers,
   });
 });
 
@@ -579,6 +629,15 @@ exports.contactUsEmailRecieve = catchAsyncError(async (req, res, next) => {
 exports.addMerchantID = catchAsyncError(async (req, res, next) => {
   const { merchantID } = req.body;
   const email = req.user.email;
+
+  // Check if merchantID already exists in any other user's record
+  const existingMerchant = await User.findOne({ merchantID });
+  if (existingMerchant) {
+    return res.status(400).json({
+      success: false,
+      message: "Merchant ID already exists. Please use a unique one.",
+    });
+  }
 
   // Find the user by email and update the merchantID field
   const user = await User.findOneAndUpdate(

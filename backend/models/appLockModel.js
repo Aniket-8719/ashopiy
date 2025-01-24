@@ -21,6 +21,7 @@ const appLockSchema = new mongoose.Schema({
       Investments: false,
       UdharBook: false,
       History: false,
+      Profile: false,
     },
   },
 });

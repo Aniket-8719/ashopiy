@@ -27,6 +27,7 @@ const LockFeature = () => {
     Investments: false,
     UdharBook: false,
     History: false,
+    Profile: false,
   });
   const [setPassword, setSetPassword] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -85,6 +86,7 @@ const LockFeature = () => {
         Investments: lockedFeatures["Investments"] || false,
         UdharBook: lockedFeatures["UdharBook"] || false,
         History: lockedFeatures["History"] || false,
+        Profile: lockedFeatures["Profile"] || false,
       });
     }
   }, [LockList]);
@@ -97,7 +99,7 @@ const LockFeature = () => {
     if (isLock) {
       toast.success("Feature Lock Successfully");
       dispatch({ type: LOCK_FEATURE_RESET });
-      navigate("/profile");
+      navigate("/");
     }
   }, [error, isLock]);
 

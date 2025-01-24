@@ -107,6 +107,7 @@ function App() {
         <Route path="/history" element={<AllData />} />
         <Route path="/investment" element={<Investment />} />
         <Route path="/shopping-list" element={<ShoppingList />} />
+        <Route path="/lock-feature" element={<LockFeature />} />
 
         {/* protected routes */}
         <Route
@@ -117,14 +118,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/lock-feature"
           element={
             <ProtectedRoute requiredRole="user">
              <LockFeature />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/me/update"
           element={

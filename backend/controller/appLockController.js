@@ -57,6 +57,7 @@ exports.updateLockSettings = catchAsyncError(async (req, res, next) => {
       "Investments",
       "UdharBook",
       "History",
+      "Profile"
     ];
 
     // Mark all features as false

@@ -247,6 +247,7 @@ export const getUserDetails = (id) => async (dispatch) => {
       dailyData: data.dailyData,
       fullDayData: data.fullDayData,
       investData: data.investData,
+      DataNumbers: data.DataNumbers || "",
     }, });
   } catch (error) {
     dispatch({ type: USER_DETAILS_FAIL, payload: error.response.data.message });

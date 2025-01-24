@@ -9,6 +9,10 @@ import Loader from "../Layouts/Loader";
 import { HiDownload } from "react-icons/hi";
 import SubscriptionDaysLeft from "../Payment/SubscriptionDaysLeft";
 import { MdEdit } from "react-icons/md";
+import { clearErrors, lockList, unLockFeature } from "../../actions/appLockAction";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -173,129 +177,246 @@ const downloadExcel = useCallback(() => {
 }, [loading, FullData, isDownloadTriggered, downloadExcel]); // Watch isDownloadTriggered state
 
 
+// Lock/Unlock
+  // Lock List
+  const { LockList } = useSelector((state) => state.lockUnlockList);
+
+  const {
+    loading: unLockPasswordLoading,
+    isUnlock,
+    error: unLockError,
+  } = useSelector((state) => state.unLockFeature);
+
+  // The feature to check
+  const checkLockFeature = "Profile"; // You can dynamically change this value as needed
+
+  // State to manage password pop-up visibility and input
+  const [isLocked, setIsLocked] = useState(false);
+  const [password, setPassword] = useState("");
+
+  // Assuming LockList is always a single document, as per your description
+  const lockedFeatures = LockList[0]?.lockedFeatures || {};
+
+  // Check if the selected feature is locked
+  const isFeatureLocked = lockedFeatures[checkLockFeature];
+
+  const handleUnlockClick = () => {
+    setIsLocked(true);
+  };
+
+  const handlePasswordSubmit = () => {
+    // e.preventDefault();
+    const addData = {
+      featureName: checkLockFeature,
+      setPassword: password,
+    };
+    // Add your logic here to verify the password
+    dispatch(unLockFeature(addData));
+    setIsLocked(false); // After successful verification, you can unlock the screen
+  };
+
+  useEffect(() => {
+    dispatch(lockList());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (unLockError) {
+      toast.error(unLockError);
+      dispatch(clearErrors());
+    }
+    if (isUnlock) {
+      toast.success("Profile Unlock");
+      dispatch({ type: UNLOCK_FEATURE_RESET });
+      dispatch(lockList());
+    }
+    // Fetch history data only when the feature is unlocked
+    // if (!isFeatureLocked ) {
+     
+    //   dispatch(getMonthlyHistory(parseInt(month, 10), parseInt(year, 10)));
+    // }
+  }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
+
+  const [showPassword, setShowPassword] = useState(false);
+  // Toggle function for showing/hiding Set Password
+const handleTogglePassword = () => setShowPassword((prev) => !prev);
+
+
+
   return (
     <>
       <MetaData title={"PROFILE"} /> 
-      <section className="mt-14 md:mt-10  md:ml-72 ">
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="w-full rounded-lg">
-            <div className="text-center">
-              {/* User Profile Photo */}
-              <div className="mb-4">
-                <img
-                  src={user?.avatar?.url || defaultUserImg}
-                  alt="User Profile"
-                  className="w-32 h-32 rounded-full mx-auto object-cover"
-                />
+      <section className="mt-14 md:mt-20  md:ml-72">
+        <>
+          <div className="">
+            {isFeatureLocked ? (
+              <div className="flex flex-col items-center justify-center mt-20">
+                <p className="text-xl mb-4">{checkLockFeature} is locked.</p>
+                <button
+                  onClick={handleUnlockClick}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                >
+                  Unlock Feature
+                </button>
+                {isLocked && (
+                  <div className="flex justify-center items-center mt-4">
+                     <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter password"
+                        required
+                        className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
+                      />
+                      {/* Eye icon for toggling password visibility */}
+                      <span
+                        className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
+                        onClick={handleTogglePassword} // Toggle for old password
+                      >
+                        {showPassword ? (
+                          <FaEye className="text-gray-500 text-xl" />
+                        ) : (
+                          <FaEyeSlash className="text-gray-500 text-xl" />
+                        )}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handlePasswordSubmit}
+                      disabled={unLockPasswordLoading}
+                      className="flex justify-center items-center ml-2 mt-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-sm focus:outline-none  focus:border-green-500"
+                    >
+                      {unLockPasswordLoading ? <Loader/> : "Submit"}
+                    </button>
+                  </div>
+                )}
               </div>
-              {/* User Info */}
-              <h2 className="text-2xl font-semibold text-gray-800">
-                {user?.shopOwnerName}
-              </h2>
-              <p className="text-gray-600">
-                {user?.shopName} (
-                {user?.shopType === "Other"
-                  ? user?.customShopType
-                  : user?.shopType}
-                )
-              </p>
-            </div>
-
-            <div className="mt-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <p className="text-gray-600 text-sm">Email</p>
-                  <p className="text-gray-800 font-semibold">{user?.email}</p>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <p className="text-gray-600 text-sm">Mobile No.</p>
-                  <p className="text-gray-800 font-semibold">
-                    {user?.mobileNo}
+            ) : (
+              // <p>Dikh rha h </p>
+              // Feature is Unlcok
+              <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+              <div className="w-full rounded-lg">
+                <div className="text-center">
+                  {/* User Profile Photo */}
+                  <div className="mb-4">
+                    <img
+                      src={user?.avatar?.url || defaultUserImg}
+                      alt="User Profile"
+                      className="w-32 h-32 rounded-full mx-auto object-cover"
+                    />
+                  </div>
+                  {/* User Info */}
+                  <h2 className="text-2xl font-semibold text-gray-800">
+                    {user?.shopOwnerName}
+                  </h2>
+                  <p className="text-gray-600">
+                    {user?.shopName} (
+                    {user?.shopType === "Other"
+                      ? user?.customShopType
+                      : user?.shopType}
+                    )
                   </p>
                 </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <p className="text-gray-600 text-sm">Whatsapp No.</p>
-                  <p className="text-gray-800 font-semibold">
-                    {user?.whatsappNo}
-                  </p>
+    
+                <div className="mt-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    <div className="bg-gray-50 p-4 rounded-lg shadow">
+                      <p className="text-gray-600 text-sm">Email</p>
+                      <p className="text-gray-800 font-semibold">{user?.email}</p>
+                    </div>
+    
+                    <div className="bg-gray-50 p-4 rounded-lg shadow">
+                      <p className="text-gray-600 text-sm">Mobile No.</p>
+                      <p className="text-gray-800 font-semibold">
+                        {user?.mobileNo}
+                      </p>
+                    </div>
+    
+                    <div className="bg-gray-50 p-4 rounded-lg shadow">
+                      <p className="text-gray-600 text-sm">Whatsapp No.</p>
+                      <p className="text-gray-800 font-semibold">
+                        {user?.whatsappNo}
+                      </p>
+                    </div>
+    
+                    <div className="bg-gray-50 p-4 rounded-lg shadow">
+                     
+                      <p className="text-gray-600 text-sm">GST No.</p>
+                      <p className="text-gray-800 font-semibold">{user?.gstNo}</p>
+                    </div>
+                   
+    
+                    <div className="bg-gray-50 p-4 rounded-lg shadow">
+                    <div className="flex gap-2 items-center">
+                     <p className="text-gray-600 text-sm">MerchantID </p>
+                     <Link to="/user/merchantID" className="p-1 rounded-full bg-blue-500 text-white items-center flex justify-center"><MdEdit/></Link>
+                     </div>
+                     <p className="text-gray-800 font-semibold">{user?.merchantID}</p>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-lg shadow">
+                      <p className="text-gray-600 text-sm">Address</p>
+                      <p className="text-gray-800 font-semibold">
+                        {user?.address}, {user?.landmark}, {user?.area},{" "}
+                        {user?.city}, {user?.state} - {user?.pincode}, {user?.country}
+                      </p>
+                    </div>
+    
+                    {/* <div className="bg-gray-50 p-4 rounded-lg shadow">
+                      <p className="text-gray-600 text-sm">Country</p>
+                      <p className="text-gray-800 font-semibold">{user?.country}</p>
+                    </div> */}
+                  </div>
                 </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                 
-                  <p className="text-gray-600 text-sm">GST No.</p>
-                  <p className="text-gray-800 font-semibold">{user?.gstNo}</p>
-                </div>
-               
-
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                <div className="flex gap-2 items-center">
-                 <p className="text-gray-600 text-sm">MerchantID </p>
-                 <Link to="/user/merchantID" className="p-1 rounded-full bg-blue-500 text-white items-center flex justify-center"><MdEdit/></Link>
+              <div className="flex flex-col md:flex-row  md:gap-8 items-center w-full">
+              <div >
+              <SubscriptionDaysLeft/>
+              </div>
+                {/* Action Buttons */}
+                <div className="mt-8 flex flex-col justify-between gap-4 w-full  p-4">
+    
+                 <div className="flex flex-col md:flex-row gap-4 w-full">
+                
+                 <Link
+                    to="/me/update"
+                    className="flex justify-center text-sm items-center w-full  bg-blue-600 text-white  px-4 py-2 md:px-6 rounded-md hover:bg-blue-700 focus:outline-none"
+                  >
+                    Edit Profile
+                  </Link>
+    
+                  <Link
+                    to="/password/update"
+                    className="flex justify-center text-sm items-center w-full  bg-yellow-500 text-white px-4 py-2 md:px-6 rounded-md hover:bg-yellow-600 focus:outline-none"
+                  >
+                    Change Password
+                  </Link>
                  </div>
-                 <p className="text-gray-800 font-semibold">{user?.merchantID}</p>
+    
+                 <div className="flex flex-col md:flex-row gap-4 w-full">
+                 {/* <Link
+                    to="/lock-feature"
+                    className="flex justify-center text-sm items-center w-full  bg-purple-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-purple-700 focus:outline-none"
+                  >
+                    App Lock 
+                  </Link> */}
+    
+                  <button
+                   onClick={handleSubmit}
+                   disabled={loading}
+                   className="flex justify-center text-sm items-center w-full gap-2 bg-green-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-green-700 focus:outline-none">
+                  {loading ? <Loader/> : "  Download Complete Data"} <div className="text-lg"><HiDownload/></div>
+                  </button>
+    
+                 </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <p className="text-gray-600 text-sm">Address</p>
-                  <p className="text-gray-800 font-semibold">
-                    {user?.address}, {user?.landmark}, {user?.area},{" "}
-                    {user?.city}, {user?.state} - {user?.pincode}, {user?.country}
-                  </p>
-                </div>
-
-                {/* <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <p className="text-gray-600 text-sm">Country</p>
-                  <p className="text-gray-800 font-semibold">{user?.country}</p>
-                </div> */}
+            
+              </div>
               </div>
             </div>
-          <div className="flex flex-col md:flex-row  md:gap-8 items-center w-full">
-          <div >
-          <SubscriptionDaysLeft/>
+            )}
           </div>
-            {/* Action Buttons */}
-            <div className="mt-8 flex flex-col justify-between gap-4 w-full  p-4">
-
-             <div className="flex flex-col md:flex-row gap-4 w-full">
-            
-             <Link
-                to="/me/update"
-                className="flex justify-center text-sm items-center w-full  bg-blue-600 text-white  px-4 py-2 md:px-6 rounded-md hover:bg-blue-700 focus:outline-none"
-              >
-                Edit Profile
-              </Link>
-
-              <Link
-                to="/password/update"
-                className="flex justify-center text-sm items-center w-full  bg-yellow-500 text-white px-4 py-2 md:px-6 rounded-md hover:bg-yellow-600 focus:outline-none"
-              >
-                Change Password
-              </Link>
-             </div>
-
-             <div className="flex flex-col md:flex-row gap-4 w-full">
-             <Link
-                to="/lock-feature"
-                className="flex justify-center text-sm items-center w-full  bg-purple-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-purple-700 focus:outline-none"
-              >
-                App Lock 
-              </Link>
-
-              <button
-               onClick={handleSubmit}
-               disabled={loading}
-               className="flex justify-center text-sm items-center w-full gap-2 bg-green-600 text-white px-4 py-2 md:px-6 rounded-md hover:bg-green-700 focus:outline-none">
-              {loading ? <Loader/> : "  Download Complete Data"} <div className="text-lg"><HiDownload/></div>
-              </button>
-
-             </div>
-            </div>
-        
-          </div>
-          </div>
-        </div>
+        </>
       </section>
+     
+       
     </>
   );
 };

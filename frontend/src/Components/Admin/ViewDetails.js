@@ -17,7 +17,7 @@ const ViewDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, error, user, dailyData, fullDayData, investData } = useSelector((state) => state.singleUser);
+  const { loading, error, user, dailyData, fullDayData, investData,DataNumbers } = useSelector((state) => state.singleUser);
 
   const deleteUserHandler = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
@@ -122,7 +122,7 @@ const ViewDetails = () => {
               <SubcriptionDaysOfSingleUser user={user}/>
               </div>
               <div className="w-full">
-              <StorageUsage dailyData={dailyData} fullDayData={fullDayData} investData={investData} />
+              <StorageUsage dailyData={dailyData} fullDayData={fullDayData} investData={investData} DataNumbers={DataNumbers}/>
               </div>
               </div>
               {/* Action Buttons */}

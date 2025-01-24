@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import video1 from "./WhatsApp Video 2025-01-12 at 21.51.22_f3c00a51.mp4";
 import { BsPlayCircleFill } from "react-icons/bs";
+import Earning from "./Files/Earning.mp4"
+import Charts from "./Files/Charts.mp4"
+import Invesment from "./Files/Investment.mp4"
+import Udhar_Book from "./Files/Udhar Book.mp4"
+import History from "./Files/History.mp4"
+import Registeration from "./Files/Registeration.mp4"
 
 const videos = [
   {
     id: 1,
     title: "Register",
     description: "How to register when you are new.",
-    url: "#",
+    url: Registeration,
   },
   {
     id: 2,
@@ -32,31 +37,31 @@ const videos = [
     id: 5,
     title: "Earning",
     description: "How to login, Forgot Password, Reset Password",
-    url: "#",
+    url: Earning,
   },
   {
     id: 6,
     title: "Charts",
     description: "How to Download Per day, monthly & yearly data",
-    url: "#",
+    url: Charts,
   },
   {
     id: 7,
     title: "Investment",
     description: "How to add, update & delete investment",
-    url: "#",
+    url: Invesment,
   },
   {
     id: 8,
     title: "Udhaar Book",
     description: "How to add, update and delete udhaar",
-    url: "#",
+    url: Udhar_Book,
   },
   {
     id: 9,
     title: "History",
     description: "How to see your total cash, online cash, Return customers, Return amount, Total active days",
-    url: "#",
+    url: History,
   },
   {
     id: 10,
@@ -89,7 +94,7 @@ const VideoPlayer = () => {
                     </h2>
                   </div>
                   <div className="mr-4">
-                    <BsPlayCircleFill size={20} />
+                    <BsPlayCircleFill className={`${video.url === "#" ? "text-black" : "text-blue-500"}`} size={20} />
                   </div>
                 </div>
                 <p className="text-gray-700 mb-4">{video.description}</p>

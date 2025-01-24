@@ -149,7 +149,7 @@ import {
   };
   
   // User Details
-  export const userDetailsReducer = (state = { user: {},dailyData:[], fullDayData:[], investData:[] }, action) => {
+  export const userDetailsReducer = (state = { user: {},dailyData:[], fullDayData:[], investData:[],DataNumbers:"" }, action) => {
     switch (action.type) {
       case USER_DETAILS_REQUEST:
         return {
@@ -164,6 +164,7 @@ import {
           dailyData: action.payload.dailyData,
           fullDayData: action.payload.fullDayData,
           investData: action.payload.investData,
+          DataNumbers: action.payload.DataNumbers,
         };
   
       case USER_DETAILS_FAIL:

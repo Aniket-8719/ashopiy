@@ -1,5 +1,5 @@
 import React from "react";
-import video1 from "./WhatsApp Video 2025-01-12 at 21.51.22_f3c00a51.mp4";
+
 
 const AutoPlayVideo = () => {
   return (
@@ -11,7 +11,7 @@ const AutoPlayVideo = () => {
         muted 
         playsInline
       >
-        <source src={video1} type="video/mp4" />
+        <source src="#" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>

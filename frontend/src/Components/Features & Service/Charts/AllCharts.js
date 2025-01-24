@@ -77,7 +77,7 @@ const handleTogglePassword = () => setShowPassword((prev) => !prev);
           <div className="">
             {isFeatureLocked ? (
               <div className="flex flex-col items-center justify-center mt-20">
-                <p className="text-xl mb-4">This feature is locked.</p>
+                <p className="text-xl mb-4">{checkLockFeature} is locked.</p>
                 <button
                   onClick={handleUnlockClick}
                   className="px-4 py-2 bg-blue-500 text-white rounded-md"

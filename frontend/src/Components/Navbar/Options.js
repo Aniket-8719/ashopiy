@@ -4,6 +4,7 @@ import { LuLogOut } from "react-icons/lu";
 import { useDispatch, useSelector } from "react-redux";
 import { clearError, logout } from "../../actions/userAction";
 import { toast } from "react-toastify";
+import { FaLock } from "react-icons/fa6";
 
 const Options = () => {
   const { user, isAuthenticated, error } = useSelector((state) => state.user);
@@ -24,6 +25,17 @@ const Options = () => {
       navigate("/login");
     }
   }, [dispatch, error, isAuthenticated, navigate]);
+
+  const { LockList } = useSelector((state) => state.lockUnlockList);
+  // Assuming LockList is always a single document
+  const lockedFeatures = LockList[0]?.lockedFeatures || {};
+
+  const isProfileLocked = lockedFeatures["Profile"];
+
+    // Function to render lock icon based on the locked status of a feature
+    const renderLockIcon = (isLocked) => {
+      return isLocked && <FaLock className="text-gray-500" />;
+    };
   return (
     <>
       <div className="flex">
@@ -40,10 +52,11 @@ const Options = () => {
             </Link>
           )}
           <Link
-            className="hover:text-blue-600 w-full   border-black py-1.5"
+            className=" flex  justify-center items-center gap-2 hover:text-blue-600 w-full   border-black py-1.5"
             to={"/profile"}
           >
-            Profile
+            <h1>Profile</h1>
+            <div className="mr-4">{renderLockIcon(isProfileLocked)}</div>
           </Link>
           <Link
             className="hover:text-blue-600 w-full   border-black py-1.5"
@@ -53,7 +66,7 @@ const Options = () => {
           </Link>
           <button
             onClick={logoutUser}
-            className="flex justify-center items-center  py-1.5  border-black text-red-500 gap-2"
+            className="flex justify-center items-center -ml-2 py-1.5  border-black text-red-500 gap-2"
           >
             <LuLogOut />
             <p>Logout</p>

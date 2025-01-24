@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
     default: null,
-    unique: true, // Ensure merchantID is unique
+    sparse: true,
   },
   gstNo: {
     type: String,

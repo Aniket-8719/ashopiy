@@ -2,6 +2,7 @@ const express = require("express");
 const { registerUser, loginUser, logout, forgotPassword, resetPassword, getUserDetails, updatePassword, updateProfile, getAllUser, getSingleUser, updateUserRole, getAllAdmins, deleteUser, contactUsEmailRecieve, addMerchantID } = require("../controller/userController");
 const router = express.Router();
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
+const { checkFeatureLock } = require("../middleware/lock");
 
 // Import the rate limiters
 const { registrationLimiter, loginLimiter, contactUsmessage } = require("../middleware/rateLimiter");
@@ -13,9 +14,9 @@ router.route("/password/forgot").post(forgotPassword);
 router.route("/password/reset/:token").put(resetPassword);
 router.route("/logout").get(logout);
 
-router.route("/me").get(isAuthenticatedUser,getUserDetails);
+router.route("/me").get(isAuthenticatedUser, checkFeatureLock("Profile"), getUserDetails);
 router.route("/password/update").put(isAuthenticatedUser,updatePassword);
-router.route("/me/update").put(isAuthenticatedUser,updateProfile);
+router.route("/me/update").put(isAuthenticatedUser, checkFeatureLock("Profile"),updateProfile);
 router.route("/user/add-merchant-id").put(isAuthenticatedUser, addMerchantID);
 
 router.route("/admin/allAdmins").get(isAuthenticatedUser, authorizedRoles("admin"), getAllAdmins);
