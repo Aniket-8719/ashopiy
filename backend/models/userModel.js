@@ -70,7 +70,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
     default: null,
-    sparse: true,
   },
   gstNo: {
     type: String,

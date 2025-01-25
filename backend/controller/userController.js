@@ -62,7 +62,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   const utcDateTime = indiaDateTime.clone().add(5, "hours").add(30, "minutes");
 
   const subscriptionStartDate = utcDateTime.toDate();
-  const subscriptionEndDate = new Date("2025-02-27T23:59:59.999Z"); // End of January 27, 2025
+  const subscriptionEndDate = new Date("2025-02-26T23:59:59.999Z"); // End of January 27, 2025
 
   // Create a new user
   const user = await User.create({
@@ -630,13 +630,16 @@ exports.addMerchantID = catchAsyncError(async (req, res, next) => {
   const { merchantID } = req.body;
   const email = req.user.email;
 
-  // Check if merchantID already exists in any other user's record
-  const existingMerchant = await User.findOne({ merchantID });
-  if (existingMerchant) {
-    return res.status(400).json({
-      success: false,
-      message: "Merchant ID already exists. Please use a unique one.",
-    });
+   // If merchantID is provided, check if it exists in another user's record
+   if (merchantID) {
+    const existingMerchant = await User.findOne({ merchantID });
+
+    if (existingMerchant && existingMerchant.email !== email) {
+      return res.status(400).json({
+        success: false,
+        message: "Merchant ID already exists. Please use a unique one.",
+      });
+    }
   }
 
   // Find the user by email and update the merchantID field
@@ -656,3 +659,4 @@ exports.addMerchantID = catchAsyncError(async (req, res, next) => {
     merchantID: user.merchantID,
   });
 });
+
