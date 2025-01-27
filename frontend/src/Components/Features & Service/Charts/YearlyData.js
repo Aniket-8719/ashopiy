@@ -121,7 +121,7 @@ const downloadExcel = () => {
     <>
       <div className=" flex justify-start items-center mt-16 mb-8 md:mb-8 mx-2 md:mx-8">
         <div className="flex justify-center items-center md:mx-0">
-          <h1 className=" text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold mb-4 text-gray-700 p-4">
             Yearly Data
           </h1>
         </div>

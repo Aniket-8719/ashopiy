@@ -106,7 +106,7 @@ const LockFeature = () => {
   return (
     <section className="md:ml-72">
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-6">Lock Features</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-700">Lock Features</h1>
         <form
           className="bg-white shadow-md rounded-lg p-6 space-y-4 w-full max-w-lg"
           onSubmit={handleSubmit}

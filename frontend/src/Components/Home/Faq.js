@@ -35,7 +35,7 @@ const Faq = () => {
   <section className='mt-16'>
   <div className="p-6">
       <div className="max-w-7xl w-full mx-auto bg-white rounded-lg ">
-        <h1 className="text-3xl font-bold mb-6 text-center">Frequently Asked Questions</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-700">Frequently Asked Questions</h1>
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div key={index} className="border-b border-gray-200">

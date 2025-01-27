@@ -150,7 +150,7 @@ const ShoppingList = () => {
     <>
       <section className="mt-14 md:mt-20  md:ml-72">
         <div className="p-2 md:p-4 max-w-7xl">
-          <h1 className="text-3xl font-bold mb-6 text-center">Shopping List</h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-gray-700">Shopping List</h1>
 
           {/* Add/Edit Item Form */}
           <form

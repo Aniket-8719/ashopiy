@@ -14,7 +14,7 @@ const Home = () => {
           <div className="flex flex-col gap-8 mt-16 md:mt-0 md:gap-0 md:flex-row items-center justify-between px-2 md:px-12 py-8 md:py-2 bg-gray-50 rounded-md ">
             {/* Text Section */}
             <div className="text-left w-full md:max-w-[70%] lg:max-w-[60%] px-2">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight md:leading-snug">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-700 leading-tight md:leading-snug">
                 <span className=" text-amber-600">
                   ashopiy
                 </span>{" "}
@@ -92,33 +92,67 @@ const Home = () => {
         {/* What We Provide Now */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6 md:px-12 text-center">
-            <h2 className="text-3xl font-bold mb-8">What We Provide</h2>
+            <h2 className="text-3xl font-bold mb-8 text-gray-700">What We Provide</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold mb-4">
-                  Real-Time Inventory Management
+                  Real-Time Earning Management
                 </h3>
                 <p className="text-gray-700">
-                  Easily track stock levels, monitor sales trends, and manage
-                  your shop’s inventory from one place.
+                Effortlessly monitor revenue performance, track investments, and manage your shop's 
+                financial activities, including earnings and expenditures, all from a centralized platform.
                 </p>
               </div>
               <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold mb-4">
                   Sales & Analytics Dashboard
                 </h3>
-                <p className="text-gray-700">
-                  Understand your sales performance with in-depth reports and
-                  insights that help you make data-driven decisions.
+                <p className="text-gray-700"> 
+                Access various charts to track daily, monthly, and yearly sales trends. Download data in Excel format for easy analysis.
+
+Visualize your shop’s financial health with dedicated investment and earnings line charts, helping you quickly 
+identify whether your shop is operating at a profit or loss. Manage your business smarter with powerful, actionable insights.
                 </p>
               </div>
               <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold mb-4">
-                  Customer Relationship Tools
+                Customer Tracking Made Easy
                 </h3>
                 <p className="text-gray-700">
-                  Engage with your customers, track repeat visits, and manage
-                  your relationships better with built-in tools.
+                Monitor the number of customers visiting your shop daily and monthly. 
+                Enhance engagement, track repeat visits, and build stronger 
+                relationships with integrated management tools.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4">
+                Udhar Management
+                </h3>
+                <p className="text-gray-700">
+                Easily manage credit transactions for your shop. Track outstanding balances, 
+                set reminders for repayments, and maintain accurate records to streamline your 
+                udhar (credit) operations efficiently.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4">
+                Smart Shopping List
+                </h3>
+                <p className="text-gray-700">
+                Create and organize your shopping list with different units like kilograms (kg), grams (g), liters (l), milliliters (ml), and units. 
+                Download your list in various formats such as Excel or PDF. 
+                Forget the hassle of pen and paper—carry your list on your phone and easily share it with others in just a few clicks.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4">
+                Advanced Lock System
+                </h3>
+                <p className="text-gray-700">
+                Empower shop owners with full control over features and access. 
+                Lock all functionalities and selectively unlock only the features you want your employees to use. 
+                No need for extra accounts—simply log in to your employee’s device with your ID, and they will only have access to the unlocked features. 
+                Locked features remain inaccessible until you decide to unlock them, ensuring maximum security and control.
                 </p>
               </div>
             </div>
@@ -128,7 +162,7 @@ const Home = () => {
         {/* What We Will Provide in the Future */}
         <section className="py-16 bg-gray-100">
           <div className="container mx-auto px-6 md:px-12 text-center">
-            <h2 className="text-3xl font-bold mb-8">Future Features</h2>
+            <h2 className="text-3xl font-bold mb-8 text-gray-700">Future Features</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold mb-4">
@@ -147,6 +181,24 @@ const Home = () => {
                 <p className="text-gray-700">
                   Manage multiple shops from a single dashboard, providing a
                   comprehensive view of performance across locations.
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4">
+                Attendance System
+                </h3>
+                <p className="text-gray-700">
+                Implement a streamlined attendance management system to track employee attendance efficiently. 
+                Easily mark attendance (Present, Absent, Leave, or Other) and maintain accurate records to improve workforce management.
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-4">
+                Billing System
+                </h3>
+                <p className="text-gray-700">
+                Introduce a user-friendly billing solution to generate invoices quickly and accurately. 
+                Simplify the checkout process, track transactions, and manage sales records, enhancing overall customer satisfaction and business operations.
                 </p>
               </div>
             </div>

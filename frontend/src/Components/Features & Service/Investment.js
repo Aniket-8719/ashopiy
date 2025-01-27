@@ -727,7 +727,7 @@ const Investment = () => {
                     <Link to={"/investment-chart"} >
                      <div className="flex justify-center items-center gap-1.5">
                       <div className="text-blue-500">
-                        see line chart
+                      See Performance
                       </div>
                      <LiaExternalLinkAltSolid className="text-blue-500"/>
                      </div>

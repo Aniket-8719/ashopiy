@@ -42,11 +42,10 @@ const InvestmentChart = () => {
         <ResponsiveContainer
           width="100%"
           height={400}
-          className="md:w-3/4 lg:w-1/2"
         >
           <LineChart
             data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 60 }} // Further increased bottom margin
+            margin={{ top: 0, right: 30, left: 20, bottom: 60 }} // Further increased bottom margin
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis

@@ -113,7 +113,7 @@ const DayCharts = () => {
     <>
       <div className="flex justify-between items-start mb-8 md:mb-16 mx-2 md:mx-8 mt-24">
         <div className="flex flex-col">
-          <h1 className=" text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className=" text-xl font-bold text-gray-700">
             Per Day Data
           </h1>
           <p className="mt-2 text-xs md:text-md text-left font-bold text-yellow-600">{`${indianDate} Income Updated Soon...`}</p>

@@ -108,7 +108,7 @@ const MonthlyCharts = () => {
     <>
       <div className="flex justify-between items-center  mb-8 md:mb-8 mr-2 md:mx-8 ">
         <div className="flex justify-center items-center mx-2 md:mx-0">
-          <h1 className=" text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold mb-4 text-gray-700 p-4">
             Monthly Data
           </h1>
         </div>
