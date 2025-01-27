@@ -46,7 +46,7 @@ const holidaysData = {
     "27/10/2025": "Chhath Puja",
     "05/11/2025": "Guru Nanak Jayanti",
     "25/12/2025": "Christmas Day",
-    "31/12/2025": "New Year's Eve",
+    "31/12/2025": "New Year Eve",
 
     // Holiday list 2026
     "01/01/2026": "New Year's Day",

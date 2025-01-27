@@ -137,18 +137,21 @@ const MonthlyCharts = () => {
             top: 5,
             right: 30,
             left: 20,
-            bottom: 5,
+            bottom: 30,
           }}
           barSize={20}
         >
           <XAxis
             dataKey="month"
+            angle={-45}
+            textAnchor="end"
+            tick={{ fontSize: 12 }}
             scale="point"
             padding={{ left: 10, right: 10 }}
           />
           <YAxis />
           <Tooltip />
-          <Legend />
+          <Legend verticalAlign="top" height={36}/>
           <CartesianGrid strokeDasharray="3 3" />
           <Bar
             dataKey="totalIncome"

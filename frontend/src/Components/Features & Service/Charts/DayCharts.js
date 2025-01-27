@@ -139,16 +139,20 @@ const DayCharts = () => {
             top: 5,
             right: 30,
             left: 20,
-            bottom: 5,
+            bottom: 30,
           }}
           barSize={20}
-        >
+        > 
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis dataKey="date"
+              angle={-45}
+              textAnchor="end"
+              tick={{ fontSize: 12 }} // Keep the font size small
+               />
           <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
           <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
           <Tooltip />
-          <Legend />
+          <Legend verticalAlign="top" height={36}/>
           <Bar
             yAxisId="left"
             dataKey="totalIncome"
@@ -167,19 +171,24 @@ const DayCharts = () => {
         <BarChart
           data={data.perDayIncome} // Ensure this is the correct path to your data
           margin={{
-            top: 5,
+            top: 20,
             right: 30,
             left: 20,
-            bottom: 5,
+            bottom: 30,
           }}
           barSize={20}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis dataKey="date"
+              angle={-45}
+              textAnchor="end"
+             
+              tick={{ fontSize: 12 }} // Keep the font size small
+               />
           <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
           <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
           <Tooltip />
-          <Legend />
+          <Legend verticalAlign="top" height={36}/>
           <Bar
             yAxisId="left"
             dataKey="totalCustomers"

@@ -146,7 +146,7 @@ const downloadExcel = () => {
           />
           <YAxis />
           <Tooltip />
-          <Legend />
+         <Legend verticalAlign="top" height={36}/>
           <CartesianGrid strokeDasharray="3 3" />
           <Bar
             dataKey="totalIncome"

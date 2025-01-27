@@ -43,6 +43,7 @@ import ShippingPolicy from "./Components/Home/ShippingPolicy";
 import VideoPlayer from "./Components/Video/VideoPlayer";
 import ShoppingList from "./Components/Features & Service/ShoppingList";
 import UpdateMerchantIDForm from "./Components/Users/UpdateMerchantIDForm";
+import InvestmentChart from "./Components/Features & Service/InvestmentChart";
 
 function App() {
   const dispatch = useDispatch();
@@ -192,6 +193,7 @@ function App() {
         <Route exact path="/paymentsuccess" element={<PaymentSuccess/>} />
         <Route exact path="/paymentHistory" element={<PaymentHistory/>} />
         <Route exact path="/video" element={<VideoPlayer/>} />
+        <Route exact path="/investment-chart" element={<InvestmentChart/>} />
         <Route exact path="*" element={<NotFound/>} />
       </Routes>
     </>

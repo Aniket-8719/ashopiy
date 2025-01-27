@@ -22,7 +22,8 @@ import { HiDownload } from "react-icons/hi";
 import LineSkelton from "../Skelton/LineSkelton";
 import { lockList, unLockFeature } from "../../actions/appLockAction";
 import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LiaExternalLinkAltSolid } from "react-icons/lia";
 
 const Investment = () => {
   const columns = [
@@ -722,7 +723,15 @@ const Investment = () => {
 
                 {/* Download investment */}
                 {investments?.length > 0 && (
-                  <div className="mt-4 flex gap-4 justify-end mr-4">
+                  <div className=" mt-4 flex gap-4 justify-end items-center mr-4 mb-8">
+                    <Link to={"/investment-chart"} >
+                     <div className="flex justify-center items-center gap-1.5">
+                      <div className="text-blue-500">
+                        see line chart
+                      </div>
+                     <LiaExternalLinkAltSolid className="text-blue-500"/>
+                     </div>
+                    </Link>
                     <button
                       onClick={downloadExcel}
                       className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

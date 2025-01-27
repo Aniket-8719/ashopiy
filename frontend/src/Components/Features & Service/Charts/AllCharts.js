@@ -74,7 +74,7 @@ const handleTogglePassword = () => setShowPassword((prev) => !prev);
       <MetaData title={"CHARTS"} />
       <section className="mt-14 md:mt-20  md:ml-72">
         <>
-          <div className="">
+          <div>
             {isFeatureLocked ? (
               <div className="flex flex-col items-center justify-center mt-20">
                 <p className="text-xl mb-4">{checkLockFeature} is locked.</p>
@@ -122,7 +122,9 @@ const handleTogglePassword = () => setShowPassword((prev) => !prev);
               // Feature is Unlcok
               <div className="h-screen">
                 <DayCharts />
+                <div className="mb-8 p-4">
                 <PiChart />
+                </div>
                 <MonthlyCharts />
                 <YearlyData />
               </div>
