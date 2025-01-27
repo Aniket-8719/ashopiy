@@ -14,15 +14,15 @@ const Home = () => {
           <div className="flex flex-col gap-8 mt-16 md:mt-0 md:gap-0 md:flex-row items-center justify-between px-2 md:px-12 py-8 md:py-2 bg-gray-50 rounded-md ">
             {/* Text Section */}
             <div className="text-left w-full md:max-w-[70%] lg:max-w-[60%] px-2">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-700 leading-tight md:leading-snug">
-                <span className=" text-amber-600">
+              <h1 className="text-2xl md:text-5xl font-extrabold text-gray-700 leading-tight md:leading-snug">
+                <span className=" text-amber-600 relative -top-1.5 font-literata">
                   ashopiy
                 </span>{" "}
                 के साथ अब अपनी दैनिक आय का हिसाब रखना हुआ और भी आसान.
               </h1>
               <p className="text-gray-600 text-lg md:text-xl mt-4">
-                Our platform is designed to simplify how you manage your
-                inventory, track sales, and grow your business.
+              Our platform simplifies managing your shop’s performance with the Sales & Analytics Dashboard, including 
+              sales trends, investment, and earnings charts. Manage credit transactions effortlessly with Udhar Management. 
               </p>
               {/* <div className="flex justify-start items-center gap-8">
             <Link to={"/pricing"}>

@@ -79,7 +79,7 @@ const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
           <div>
             <Link
               to={"/"}
-              className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600"
+              className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600 font-literata"
             >
               ashopiy
             </Link>
