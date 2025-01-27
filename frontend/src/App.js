@@ -32,7 +32,6 @@ import PaymentSummary from "./Components/Payment/PaymentSummary";
 import PrivacyPolicy from "./Components/Home/PrivacyPolicy";
 import TermsConditions from "./Components/Home/TermsConditions";
 import ContactUs from "./Components/Home/ContactUs";
-import FAQ from "./Components/Home/Faq";
 import LockFeature from "./Components/Users/LockFeature";
 import { lockList } from "./actions/appLockAction";
 import PaymentSuccess from "./Components/Payment/PaymentSuccess";
@@ -189,7 +188,6 @@ function App() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/cancel-refuds" element={<CancellationAndRefunds />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
-        <Route path="/faq" element={<FAQ />} />
         <Route exact path="/paymentsuccess" element={<PaymentSuccess/>} />
         <Route exact path="/paymentHistory" element={<PaymentHistory/>} />
         <Route exact path="/video" element={<VideoPlayer/>} />

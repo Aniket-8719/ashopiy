@@ -11,6 +11,7 @@ import Loader from "../Layouts/Loader";
 import defaultUserImg from "../assests/default-user-profile-img.png";
 import SubcriptionDaysOfSingleUser from "./SubcriptionDaysOfSingleUser";
 import StorageUsage from "./StorageUsage";
+import moment from "moment-timezone";
 
 const ViewDetails = () => {
   const { id } = useParams();
@@ -36,6 +37,8 @@ const ViewDetails = () => {
     }
   }, [dispatch, id, user, error]);
 
+  const joiningDate = moment(user?.createdAt).format('DD/MM/YYYY');
+
   return (
     <>
       {loading ? (
@@ -57,7 +60,9 @@ const ViewDetails = () => {
                 </div>
                 {/* User Info */}
                 <h2 className="text-2xl font-semibold text-gray-800">
-                  {user?.shopOwnerName}
+                  {user?.shopOwnerName} 
+                  <span className="text-[8px] md:text-sm ml-0.5">({" "}{joiningDate})</span>
+                  {/* <p className="text-[8px] md:text-sm">Joining:<span>{" "}{joiningDate}</span></p> */}
                 </h2>
                 <p className="text-gray-600">
                   {user?.shopName} (

@@ -10,7 +10,7 @@ const Faq = () => {
   const faqs = [
     {
       question: 'What is the purpose of this platform?',
-      answer: 'Our platform is designed to help shopkeepers and small business owners manage their inventory, track earnings, and improve their overall business operations.',
+      answer: 'Our platform is designed to help shopkeepers and small, medium & large business owners manage their Investments, track earnings, and improve their overall business operations.',
     },
     {
       question: 'How do I sign up for a plan?',
@@ -22,11 +22,11 @@ const Faq = () => {
     },
     {
       question: 'Is there a free trial available?',
-      answer: 'No, we do not offer a free trial for new users. However, we provide budget-friendly pricing to ensure that our platform is accessible to shopkeepers of all sizes, whether large or small.',
+      answer: 'Currently, we are offering free access to our platform until February 27th as a special benefit for new users. While we do not typically provide a free trial, our platform is designed with budget-friendly pricing to ensure accessibility for shopkeepers of all sizes, whether managing a small business or a larger operation.',
     },
     {
       question: 'How can I contact support?',
-      answer: 'You can contact our support team by emailing info.ashopiy@gmail.com or using the live chat feature on our whatsApp No. We are here to help 24/7.',
+      answer: 'You can contact our support team by emailing info.ashopiy@gmail.com or using the live chat feature on our whatsApp No. We are here to help 24/.',
     },
   ];
 
