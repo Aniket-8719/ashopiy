@@ -15,7 +15,7 @@ const Home = () => {
             {/* Text Section */}
             <div className="text-left w-full md:max-w-[70%] lg:max-w-[60%] px-2">
               <h1 className="text-3xl md:text-5xl font-extrabold text-gray-700 leading-tight md:leading-snug">
-                <span className=" text-amber-600 relative -top-1.5 font-literata">
+                <span className=" text-amber-600 relative -top-[7px] font-literata">
                   ashopiy
                 </span>{" "}
                 के साथ अब अपनी दैनिक आय का हिसाब रखना हुआ और भी आसान.
