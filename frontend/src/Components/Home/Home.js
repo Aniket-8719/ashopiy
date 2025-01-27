@@ -14,7 +14,7 @@ const Home = () => {
           <div className="flex flex-col gap-8 mt-16 md:mt-0 md:gap-0 md:flex-row items-center justify-between px-2 md:px-12 py-8 md:py-2 bg-gray-50 rounded-md ">
             {/* Text Section */}
             <div className="text-left w-full md:max-w-[70%] lg:max-w-[60%] px-2">
-              <h1 className="text-2xl md:text-5xl font-extrabold text-gray-700 leading-tight md:leading-snug">
+              <h1 className="text-3xl md:text-5xl font-extrabold text-gray-700 leading-tight md:leading-snug">
                 <span className=" text-amber-600 relative -top-1.5 font-literata">
                   ashopiy
                 </span>{" "}
