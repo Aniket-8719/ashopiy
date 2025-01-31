@@ -18,6 +18,8 @@ const Pricing = () => {
         "Excel support",
         "Cloud backups",
         "User-friendly dashboard",
+        "Feature lock system",
+        "Create an advanced shopping list",
       ],
     },
     {
@@ -36,6 +38,8 @@ const Pricing = () => {
         "Excel support",
         "Cloud backups",
         "User-friendly dashboard",
+         "Feature lock system",
+        "Create an advanced shopping list",
         "Better Team Support",
         "Advanced analytics",
       ],
@@ -70,7 +74,7 @@ const Pricing = () => {
               {/* <p className="text-sm text-gray-900">{plan.specialOffer}</p> */}
             </div>
             <div className="flex flex-col md:flex-row gap-8">
-              {/* Pricing Card */}
+              {/* Month Pricing Card */}
               <div className="max-w-md mx-auto bg-white text-gray-800 w-full shadow-2xl rounded-lg overflow-hidden">
                 {/* Plan Header */}
                 <div className="bg-blue-600 text-center py-6">
@@ -124,7 +128,7 @@ const Pricing = () => {
                 </div>
               </div>
 
-              {/* Pricing Card */}
+              {/* Yearly Pricing Card */}
               <div className="max-w-md mx-auto bg-white text-gray-800 w-full shadow-2xl rounded-lg overflow-hidden">
                 {/* Plan Header */}
                 <div className="bg-blue-600 text-center py-6">
