@@ -60,7 +60,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     if (!inputDateIST.isValid()) {
       return res.status(400).json({ message: "Invalid date format." });
     }
-    console.log(inputDateIST);
+    // console.log(inputDateIST);
 
     // Calculate the end of the day in IST and then convert to UTC
     const endDateUTC = inputDateIST
@@ -70,7 +70,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       .add(30, "minutes") // Convert to UTC
       .toDate(); // Convert to JavaScript Date object
 
-    console.log("End Date UTC: ", endDateUTC);
+    // console.log("End Date UTC: ", endDateUTC);
 
     // Get the earliest income record for the user
     const firstIncome = await DailyIncome.findOne({
@@ -86,7 +86,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     }
 
     let currentDateUTC = moment(firstIncome.date).toDate();
-    console.log("currentDateUTC: ", currentDateUTC);
+    // console.log("currentDateUTC: ", currentDateUTC);
 
     // Calculate dayStartUTC
     let dayStartUTC = moment.utc(currentDateUTC).startOf("day").toDate(); // Start of the day in UTC
@@ -97,9 +97,9 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     const results = [];
 
     while (currentDateUTC <= endDateUTC) {
-      console.log("while loop: ");
-      console.log("dayStart: ", dayStartUTC);
-      console.log("dayEnd: ", dayEndUTC);
+      // console.log("while loop: ");
+      // console.log("dayStart: ", dayStartUTC);
+      // console.log("dayEnd: ", dayEndUTC);
 
       // Prepare the query based on the merchantID or user._id
       const query = {
@@ -180,11 +180,11 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       // Move to the next day
       currentDateUTC = dayStartUTC;
-      if (currentDateUTC > endDateUTC) {
-        console.log("condition mil gai ab toot jaiga");
-        console.log("currentDateUTC", currentDateUTC);
-        console.log("endDateUTC", endDateUTC);
-      }
+      // if (currentDateUTC > endDateUTC) {
+      //   console.log("condition mil gai ab toot jaiga");
+      //   console.log("currentDateUTC", currentDateUTC);
+      //   console.log("endDateUTC", endDateUTC);
+      // }
     }
 
     res.status(200).json({
@@ -586,8 +586,8 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
           .utc()
           .toDate();
 
-  console.log("startDate: ", startDate);
-  console.log("endDate: ", endDate);
+  // console.log("startDate: ", startDate);
+  // console.log("endDate: ", endDate);
   // Aggregate income data with proper timezone handling
   const fullDayIncome = await FullDayIncome.aggregate([
     {

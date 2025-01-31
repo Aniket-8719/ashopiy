@@ -12,6 +12,7 @@ import {
   DELETE_INVESTMENT_REQUEST,
   DELETE_INVESTMENT_SUCCESS,
   DELETE_INVESTMENT_FAIL,
+  CLEAR_ERRORS,
 } from "../constants/investmentConstants";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -95,4 +96,8 @@ export const deleteInvestment = (id) => async (dispatch) => {
       payload: error.response.data.message,
     });
   }
+};
+
+export const clearErrors = () => (dispatch) => {
+  dispatch({ type: CLEAR_ERRORS });
 };

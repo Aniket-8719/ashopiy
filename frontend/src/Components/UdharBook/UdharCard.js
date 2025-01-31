@@ -1,5 +1,5 @@
 import React from "react";
-import { MdDelete, MdModeEdit, MdOutlineFolderSpecial } from "react-icons/md";
+import { MdModeEdit } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
 import { useDispatch } from "react-redux";
 import { deleteUdhar } from "../../actions/udharAction";

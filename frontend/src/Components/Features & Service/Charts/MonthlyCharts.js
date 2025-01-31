@@ -10,15 +10,14 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { clearErrors, getMonthlyData } from "../../../actions/earningAction";
+import { getMonthlyData } from "../../../actions/earningAction";
 import Loader from "../../Layouts/Loader";
-import { toast } from "react-toastify";
 import ExcelJS from "exceljs";
 import { HiDownload } from "react-icons/hi";
 
 const MonthlyCharts = () => {
   const dispatch = useDispatch();
-  const { data, error, loading } = useSelector((state) => state.monthly);
+  const { data, loading } = useSelector((state) => state.monthly);
   const startYear = 1900;
   const endYear = new Date().getFullYear();
   const years = Array.from(
@@ -134,9 +133,9 @@ const MonthlyCharts = () => {
           height={300}
           data={data.monthlyIncome}
           margin={{
-            top: 5,
+            top: 0,
             right: 30,
-            left: 20,
+            left: 10,
             bottom: 30,
           }}
           barSize={20}

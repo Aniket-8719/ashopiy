@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import DailyEarning from "./Components/Features & Service/DailyEarning";
+import DailyEarning from "./Components/Features & Service/Earning/DailyEarning";
 import Home from "./Components/Home/Home";
 import Navbar from "./Components/Navbar/Navbar";
 import AllCharts from "./Components/Features & Service/Charts/AllCharts";
 import AllData from "./Components/Features & Service/AllData";
-import Investment from "./Components/Features & Service/Investment";
+import Investment from "./Components/Features & Service/Investment/Investment";
 import { useDispatch, useSelector } from "react-redux";
 import { addFullDayEarning } from "./actions/earningAction";
 import moment from "moment-timezone";
@@ -42,7 +42,8 @@ import ShippingPolicy from "./Components/Home/ShippingPolicy";
 import VideoPlayer from "./Components/Video/VideoPlayer";
 import ShoppingList from "./Components/Features & Service/ShoppingList";
 import UpdateMerchantIDForm from "./Components/Users/UpdateMerchantIDForm";
-import InvestmentChart from "./Components/Features & Service/InvestmentChart";
+import InvestmentChart from "./Components/Features & Service/Investment/InvestmentChart";
+import IncomeChart from "./Components/Features & Service/Earning/IncomeChart";
 
 function App() {
   const dispatch = useDispatch();
@@ -103,6 +104,7 @@ function App() {
         <Route path="password/forgot" element={<ForgotPassword />} />
         <Route path="/password/reset/:token" element={<ResetPassword />} />
         <Route path="/earning" element={<DailyEarning />} />
+        <Route path="/earning-chart" element={<IncomeChart />} />
         <Route path="/charts" element={<AllCharts />} />
         <Route path="/history" element={<AllData />} />
         <Route path="/investment" element={<Investment />} />

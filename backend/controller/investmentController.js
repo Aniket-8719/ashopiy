@@ -222,3 +222,58 @@ exports.deleteSingleInvestment = catchAsyncError(async (req, res, next) => {
     message: "Investment delete successfully",
   });
 });
+
+// Yearly Income Aggregation (Indian Time)
+exports.getYearlyInvestments = catchAsyncError(async (req, res, next) => {
+  // Aggregate yearly income while adjusting for timezone (IST) from FullDayIncome
+
+
+  const yearlyIncome = await FullDayIncome.aggregate([
+    {
+      $match: {
+        user: req.user._id, // Filter by the logged-in user's ID
+      },
+    },
+    {
+      $group: {
+        _id: { $year: { date: "$date", timezone: "Asia/Kolkata" } }, // Group by year in IST
+        totalIncome: { $sum: "$totalIncome" }, // Sum income for the entire year
+      },
+    },
+    { $sort: { _id: 1 } }, // Sort by year
+  ]);
+
+  const yearlyInvestments = await investmentModel.aggregate([
+    {
+      $match: {
+        user: req.user._id, // Filter by the logged-in user's ID
+      },
+    },
+    {
+      $group: {
+        _id: { $year: { date: "$date", timezone: "Asia/Kolkata" } }, // Group by year in IST
+        totalInvestment: { $sum: "$investmentIncome" }, // Sum income for the entire year
+      },
+    },
+    { $sort: { _id: 1 } }, // Sort by year
+  ]);
+
+   // Format the result to make it more readable
+   const formattedYearlyIncome = yearlyIncome.map((item) => ({
+    year: item._id, // The year from the grouped result
+    totalIncome: item.totalIncome, // The total income for that year
+  }));
+
+  // Format the result to make it more readable
+  const formattedYearlyInvestments = yearlyInvestments.map((item) => ({
+    year: item._id, // The year from the grouped result
+    totalInvestment: item.totalInvestment, // The total income for that year
+  }));
+
+  // Return the response
+  res.status(200).json({
+    success: true,
+    yearlyIncome: formattedYearlyIncome,
+    yearlyInvestments: formattedYearlyInvestments,
+  });
+});

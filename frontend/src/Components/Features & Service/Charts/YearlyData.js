@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useDispatch, useSelector } from "react-redux";
-import { clearErrors, getYearlyData } from "../../../actions/earningAction";
+import {  getYearlyData } from "../../../actions/earningAction";
 import Loader from "../../Layouts/Loader";
 import { toast } from "react-toastify";
 import ExcelJS from "exceljs";
@@ -18,7 +18,7 @@ import { HiDownload } from "react-icons/hi";
 
 const YearlyData = () => {
   const dispatch = useDispatch();
-  const { data, error, loading } = useSelector((state) => state.yearly);
+  const { data, loading } = useSelector((state) => state.yearly);
 
   useEffect(() => {
     dispatch(getYearlyData());
@@ -132,9 +132,9 @@ const downloadExcel = () => {
           height={300}
           data={data.yearlyIncome}
           margin={{
-            top: 5,
+            top: 0,
             right: 30,
-            left: 20,
+            left: 10,
             bottom: 5,
           }}
           barSize={20}

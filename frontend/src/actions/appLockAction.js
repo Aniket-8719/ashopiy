@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
     LOCK_FEATURE_REQUEST,
-    LOCK_FEATURE_SUCCESS,
+    LOCK_FEATURE_SUCCESS, 
     LOCK_FEATURE_FAIL,
 
     GET_LOCK_LIST_REQUEST,
@@ -11,7 +11,6 @@ import {
     UNLOCK_FEATURE_REQUEST,
     UNLOCK_FEATURE_SUCCESS,
     UNLOCK_FEATURE_FAIL,
-    UNLOCK_FEATURE_RESET,
     
     CLEAR_ERRORS,
   } from "../constants/appLockConstant";

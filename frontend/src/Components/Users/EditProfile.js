@@ -68,7 +68,7 @@ useEffect(() => {
       setAvatarPreview(user?.avatar?.url || defaultUserImg);
     }
   }
-}, [user,defaultUserImg]);
+}, [user]);
 
 
   const [states, setStates] = useState([]);

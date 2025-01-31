@@ -8,24 +8,24 @@ import {
   deleteTodayIncome,
   getTodayEarning,
   updateTodayIncome,
-} from "../../actions/earningAction";
-import MetaData from "../Layouts/MetaData";
-import Loader from "../Layouts/Loader";
+} from "../../../actions/earningAction";
+import MetaData from "../../Layouts/MetaData";
+import Loader from "../../Layouts/Loader";
 import { toast } from "react-toastify";
 import {
   ADD_TODAY_EARNING_RESET,
   DELETE_TODAY_EARNING_RESET,
   UPDATE_TODAY_EARNING_RESET,
-} from "../../constants/earningConstants";
+} from "../../../constants/earningConstants";
 import moment from "moment-timezone";
-import getHolidayName from "../../Holiday Library/holidays";
+import getHolidayName from "../../../Holiday Library/holidays";
 import ExcelJS from "exceljs";
 import { HiDownload } from "react-icons/hi";
-import LineSkelton from "../Skelton/LineSkelton";
-import { lockList, unLockFeature } from "../../actions/appLockAction";
-import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
-import { useNavigate } from "react-router-dom";
-import QRCodeGenerator from "./QRCodeGenerator";
+import LineSkelton from "../../Skelton/LineSkelton";
+import { lockList, unLockFeature } from "../../../actions/appLockAction";
+import { UNLOCK_FEATURE_RESET } from "../../../constants/appLockConstant";
+import { Link, useNavigate } from "react-router-dom";
+import { LiaExternalLinkAltSolid } from "react-icons/lia";
 
 const DailyEarning = () => {
   const columns = [
@@ -626,7 +626,13 @@ const DailyEarning = () => {
                 </table>
               </div>
               {todayData?.todayIncome?.length > 0 && (
-                <div className="flex mt-4 space-x-4 justify-end mx-4 md:mx-8 pb-4">
+                <div className="flex mt-4 space-x-4 justify-end items-center mx-4 md:mx-8 pb-4">
+                  <Link to={"/earning-chart"}>
+                    <div className="flex justify-center items-center gap-1.5">
+                      <div className="text-blue-500">See Performance</div>
+                      <LiaExternalLinkAltSolid className="text-blue-500" />
+                    </div>
+                  </Link>
                   <button
                     onClick={downloadExcel}
                     className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   clearErrors,
   lockFeature,
-  lockList,
 } from "../../actions/appLockAction"; // Import your Redux action
 import { toast } from "react-toastify";
 import { LOCK_FEATURE_RESET } from "../../constants/appLockConstant";
@@ -17,9 +16,6 @@ const LockFeature = () => {
   const navigate = useNavigate();
   const { loading, isLock, error } = useSelector((state) => state.lockFeature);
   const { LockList } = useSelector((state) => state.lockUnlockList);
-
-  // Assuming LockList is always a single document
-  const lockedFeatures = LockList[0]?.lockedFeatures || {};
 
   const [features, setFeatures] = useState({
     Earning: false,
@@ -80,6 +76,7 @@ const LockFeature = () => {
   // Update the features state when LockList changes
   useEffect(() => {
     if (LockList?.length > 0) {
+      const lockedFeatures = LockList[0]?.lockedFeatures || {};
       setFeatures({
         Earning: lockedFeatures["Earning"] || false,
         Charts: lockedFeatures["Charts"] || false,
@@ -89,7 +86,8 @@ const LockFeature = () => {
         Profile: lockedFeatures["Profile"] || false,
       });
     }
-  }, [LockList]);
+  }, [LockList]); // Removed memoizedLockedFeatures from dependencies
+  
 
   useEffect(() => {
     if (error) {
@@ -101,7 +99,7 @@ const LockFeature = () => {
       dispatch({ type: LOCK_FEATURE_RESET });
       navigate("/");
     }
-  }, [error, isLock]);
+  }, [dispatch, error, isLock,navigate]);
 
   return (
     <section className="md:ml-72">

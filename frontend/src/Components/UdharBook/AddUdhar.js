@@ -1,15 +1,10 @@
 import React, {useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addUdhar } from "../../actions/udharAction";
 
 
 const AddUdhar = () => {
   const dispatch = useDispatch();
-
-  // currentUdhar
-  const { isAdded } = useSelector(
-    (state) => state.currentUdhar
-  );
 
   const [formData, setFormData] = useState({
     customerName: "",

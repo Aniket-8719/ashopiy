@@ -1,11 +1,8 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 
 const SearchUdharPerson = ({searchQuery, setSearchQuery, handleSearch}) => {
-  // const [searchQuery, setSearchQuery] = useState("");
- 
-const dispatch = useDispatch();
+
   const handleChange = (e) => {
     setSearchQuery(e.target.value);
   };

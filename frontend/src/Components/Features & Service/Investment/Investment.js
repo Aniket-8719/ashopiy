@@ -2,26 +2,26 @@ import React, { useEffect, useRef, useState } from "react";
 import { MdDelete, MdModeEdit, MdOutlineFolderSpecial } from "react-icons/md";
 import { FaEye, FaEyeSlash, FaIndianRupeeSign } from "react-icons/fa6";
 import { useSelector, useDispatch } from "react-redux";
-import { clearErrors } from "../../actions/earningAction";
-import MetaData from "../Layouts/MetaData";
-import Loader from "../Layouts/Loader";
+import { clearErrors } from "../../../actions/earningAction";
+import MetaData from "../../Layouts/MetaData";
+import Loader from "../../Layouts/Loader";
 import { toast } from "react-toastify";
 import {
   addInvestment,
   deleteInvestment,
   getInvestment,
   updateInvestment,
-} from "../../actions/investmentAction";
+} from "../../../actions/investmentAction";
 import {
   ADD_INVESTMENT_RESET,
   DELETE_INVESTMENT_RESET,
   UPDATE_INVESTMENT_RESET,
-} from "../../constants/investmentConstants";
+} from "../../../constants/investmentConstants";
 import ExcelJS from "exceljs";
 import { HiDownload } from "react-icons/hi";
-import LineSkelton from "../Skelton/LineSkelton";
-import { lockList, unLockFeature } from "../../actions/appLockAction";
-import { UNLOCK_FEATURE_RESET } from "../../constants/appLockConstant";
+import LineSkelton from "../../Skelton/LineSkelton";
+import { lockList, unLockFeature } from "../../../actions/appLockAction";
+import { UNLOCK_FEATURE_RESET } from "../../../constants/appLockConstant";
 import { Link, useNavigate } from "react-router-dom";
 import { LiaExternalLinkAltSolid } from "react-icons/lia";
 
@@ -242,26 +242,42 @@ const Investment = () => {
         };
       });
 
-      // Add the data rows
-      investments.forEach((dataKey, index) => {
-        worksheet.addRow([
-          index + 1,
-          dataKey.investment.date || "N/A",
-          dataKey.investment.day || "N/A",
-          dataKey.investment.time || "N/A",
-          dataKey.investment.typeOfInvestment || "Normal",
-          `${new Intl.NumberFormat("en-IN").format(
-            dataKey.investment.investmentIncome || 0
-          )}`,
-          `${new Intl.NumberFormat("en-IN").format(
-            dataKey.totalEarnings || 0
-          )}`,
-          `${new Intl.NumberFormat("en-IN").format(
-            (dataKey.totalEarnings || 0) -
-              (dataKey.investment.investmentIncome || 0)
-          )}`,
-        ]);
-      });
+  
+    // Add the data rows
+investments.forEach((dataKey, index) => {
+  const profitLoss = (dataKey.totalEarnings || 0) - (dataKey.investment.investmentIncome || 0);
+  const isNegative = profitLoss < 0;
+
+  const profitLossFormatted = isNegative
+    ? `-${new Intl.NumberFormat("en-IN").format(Math.abs(profitLoss))}`
+    : `${new Intl.NumberFormat("en-IN").format(profitLoss)}`;
+
+  const row = worksheet.addRow([
+    index + 1,
+    dataKey.investment.date || "N/A",
+    dataKey.investment.day || "N/A",
+    dataKey.investment.time || "N/A",
+    dataKey.investment.typeOfInvestment || "Normal",
+    `${new Intl.NumberFormat("en-IN").format(dataKey.investment.investmentIncome || 0)}`,
+    `${new Intl.NumberFormat("en-IN").format(dataKey.totalEarnings || 0)}`,
+    profitLossFormatted,
+  ]);
+
+  // Center align all data in the row
+  row.eachCell((cell) => {
+    cell.alignment = {
+      horizontal: "center",
+      vertical: "middle",
+      wrapText: true,
+    };
+  });
+
+  // Apply red color if profit/loss is negative
+  if (isNegative) {
+    row.getCell(8).font = { color: { argb: "FF0000" } }; // Red color for loss
+  }
+});
+
 
       // Center align all the data rows
       worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
@@ -381,7 +397,7 @@ const Investment = () => {
   }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
 
   const [showPassword, setShowPassword] = useState(false);
-    // Toggle function for showing/hiding Set Password
+  // Toggle function for showing/hiding Set Password
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
   return (
@@ -723,14 +739,12 @@ const Investment = () => {
 
                 {/* Download investment */}
                 {investments?.length > 0 && (
-                  <div className=" mt-4 flex gap-4 justify-end items-center mr-4 mb-8">
-                    <Link to={"/investment-chart"} >
-                     <div className="flex justify-center items-center gap-1.5">
-                      <div className="text-blue-500">
-                      See Performance
+                  <div className=" mt-4 flex gap-4 justify-end items-center mr-4 pb-4">
+                    <Link to={"/investment-chart"}>
+                      <div className="flex justify-center items-center gap-1.5">
+                        <div className="text-blue-500">See Performance</div>
+                        <LiaExternalLinkAltSolid className="text-blue-500" />
                       </div>
-                     <LiaExternalLinkAltSolid className="text-blue-500"/>
-                     </div>
                     </Link>
                     <button
                       onClick={downloadExcel}

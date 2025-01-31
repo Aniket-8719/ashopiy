@@ -127,75 +127,69 @@ const DayCharts = () => {
           onChange={(e) => setSelectedMonthYear(e.target.value)}
         />
       </div>
-      <ResponsiveContainer
-        width="100%"
-        height={300}
-        className="md:w-3/4 lg:w-1/2 "
-        ref={chartRef}
-      >
+        <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                width={500}
+                height={300}
+                data={data.perDayIncome}
+                margin={{
+                  top: 0,
+                  right: 30,
+                  left: 10,
+                  bottom: 30,
+                }}
+                barSize={20}
+              >
+                <XAxis
+                  dataKey="date"
+                  angle={-45}
+                  textAnchor="end"
+                  tick={{ fontSize: 12 }}
+                  // scale="point"
+                  padding={{ left: 10, right: 10 }}
+                />
+                <YAxis />
+                <Tooltip />
+                <Legend verticalAlign="top" height={36}/>
+                <CartesianGrid strokeDasharray="3 3" />
+                <Bar
+                  dataKey="totalIncome"
+                  fill="#8884d8"
+                  background={{ fill: "#eee" }}
+                />
+                {/* <Bar dataKey="pv" fill="#82ca9d" activeBar={<Rectangle fill="gold" stroke="purple" />} /> */}
+              </BarChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={300} ref={chartRef}>
         <BarChart
-          data={data.perDayIncome} // Ensure this is the correct path to your data
+          width={500}
+          height={300}
+          data={data.perDayIncome}
           margin={{
-            top: 5,
+            top: 0,
             right: 30,
-            left: 20,
-            bottom: 30,
-          }}
-          barSize={20}
-        > 
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date"
-              angle={-45}
-              textAnchor="end"
-              tick={{ fontSize: 12 }} // Keep the font size small
-               />
-          <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-          <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-          <Tooltip />
-          <Legend verticalAlign="top" height={36}/>
-          <Bar
-            yAxisId="left"
-            dataKey="totalIncome"
-            fill="#8884d8"
-            background={{ fill: "#eee" }}
-          />
-          {/* <Bar yAxisId="right" dataKey="totalCustomers" fill="#82ca9d" background={{ fill: "#eee" }} /> */}
-        </BarChart>
-      </ResponsiveContainer>
-      <ResponsiveContainer
-        width="100%"
-        height={300}
-        className="sm:w-full md:w-3/4 lg:w-1/2 "
-        ref={chartRef}
-      >
-        <BarChart
-          data={data.perDayIncome} // Ensure this is the correct path to your data
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
+            left: 10,
             bottom: 30,
           }}
           barSize={20}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date"
-              angle={-45}
-              textAnchor="end"
-             
-              tick={{ fontSize: 12 }} // Keep the font size small
-               />
-          <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-          <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+          <XAxis
+            dataKey="date"
+            angle={-45}
+            textAnchor="end"
+            tick={{ fontSize: 12 }}
+            padding={{ left: 10, right: 10 }}
+          />
+          <YAxis />
           <Tooltip />
           <Legend verticalAlign="top" height={36}/>
+          <CartesianGrid strokeDasharray="3 3" />
           <Bar
-            yAxisId="left"
-            dataKey="totalCustomers"
-            fill="#82ca9d"
-            background={{ fill: "#eee" }}
+           dataKey="totalCustomers"
+           fill="#82ca9d"
+           background={{ fill: "#eee" }}
           />
-          {/* <Bar yAxisId="right" dataKey="totalCustomers" fill="#82ca9d" background={{ fill: "#eee" }} /> */}
+          {/* <Bar dataKey="pv" fill="#82ca9d" activeBar={<Rectangle fill="gold" stroke="purple" />} /> */}
         </BarChart>
       </ResponsiveContainer>
 
