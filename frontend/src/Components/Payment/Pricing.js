@@ -6,7 +6,7 @@ const Pricing = () => {
     {
       name: "Basic",
       description: "The best solution for small or medium businesses",
-      price: 100,
+      price: 150,
       features: [
         "Manage daily Incomes",
         "Access to detailed sales reports with charts",
@@ -24,7 +24,7 @@ const Pricing = () => {
       name: "Premium",
       description:
         "The best solution for large businesses with advanced features",
-      price: 1100, // Example price for premium plan
+      price: 1700, // Example price for premium plan
       features: [
         "Manage daily Incomes",
         "Access to detailed sales reports with charts",
