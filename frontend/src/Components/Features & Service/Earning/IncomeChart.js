@@ -141,7 +141,7 @@ const IncomeChart = () => {
           </div>
         ) : (
           <div className="w-full h-64">
-            <h2 className="text-lg font-semibold text-center mb-2">
+            <h2 className="text-xl font-bold mb-4 text-gray-700 p-4 text-center">
               Today's Income
             </h2>
             <ResponsiveContainer width="100%" height={300}>
