@@ -30,11 +30,7 @@ const IncomeChart = () => {
 
   useEffect(() => {
     dispatch(getTodayEarning(day, month, year));
-    if(error){
-      toast.error(error);
-      dispatch( clearErrors());
-    }
-  }, [dispatch,error,day, month, year,]);
+  }, [dispatch, day, month, year,]);
   // Ensure todayData.todayIncome is an array of objects
   const data = todayData?.todayIncome?.map((item) => ({ 
     time: item.time,

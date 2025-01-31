@@ -242,42 +242,46 @@ const Investment = () => {
         };
       });
 
-  
-    // Add the data rows
-investments.forEach((dataKey, index) => {
-  const profitLoss = (dataKey.totalEarnings || 0) - (dataKey.investment.investmentIncome || 0);
-  const isNegative = profitLoss < 0;
+      // Add the data rows
+      investments.forEach((dataKey, index) => {
+        const profitLoss =
+          (dataKey.totalEarnings || 0) -
+          (dataKey.investment.investmentIncome || 0);
+        const isNegative = profitLoss < 0;
 
-  const profitLossFormatted = isNegative
-    ? `-${new Intl.NumberFormat("en-IN").format(Math.abs(profitLoss))}`
-    : `${new Intl.NumberFormat("en-IN").format(profitLoss)}`;
+        const profitLossFormatted = isNegative
+          ? `-${new Intl.NumberFormat("en-IN").format(Math.abs(profitLoss))}`
+          : `${new Intl.NumberFormat("en-IN").format(profitLoss)}`;
 
-  const row = worksheet.addRow([
-    index + 1,
-    dataKey.investment.date || "N/A",
-    dataKey.investment.day || "N/A",
-    dataKey.investment.time || "N/A",
-    dataKey.investment.typeOfInvestment || "Normal",
-    `${new Intl.NumberFormat("en-IN").format(dataKey.investment.investmentIncome || 0)}`,
-    `${new Intl.NumberFormat("en-IN").format(dataKey.totalEarnings || 0)}`,
-    profitLossFormatted,
-  ]);
+        const row = worksheet.addRow([
+          index + 1,
+          dataKey.investment.date || "N/A",
+          dataKey.investment.day || "N/A",
+          dataKey.investment.time || "N/A",
+          dataKey.investment.typeOfInvestment || "Normal",
+          `${new Intl.NumberFormat("en-IN").format(
+            dataKey.investment.investmentIncome || 0
+          )}`,
+          `${new Intl.NumberFormat("en-IN").format(
+            dataKey.totalEarnings || 0
+          )}`,
+          profitLossFormatted,
+        ]);
 
-  // Center align all data in the row
-  row.eachCell((cell) => {
-    cell.alignment = {
-      horizontal: "center",
-      vertical: "middle",
-      wrapText: true,
-    };
-  });
+        // Center align all data in the row
+        row.eachCell((cell) => {
+          cell.alignment = {
+            horizontal: "center",
+            vertical: "middle",
+            wrapText: true,
+          };
+        });
 
-  // Apply red color if profit/loss is negative
-  if (isNegative) {
-    row.getCell(8).font = { color: { argb: "FF0000" } }; // Red color for loss
-  }
-});
-
+        // Apply red color if profit/loss is negative
+        if (isNegative) {
+          row.getCell(8).font = { color: { argb: "FF0000" } }; // Red color for loss
+        }
+      });
 
       // Center align all the data rows
       worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {

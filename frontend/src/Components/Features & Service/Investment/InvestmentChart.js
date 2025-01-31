@@ -11,6 +11,7 @@ import { lockList, unLockFeature } from "../../../actions/appLockAction";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { HiDownload } from "react-icons/hi";
 import ExcelJS from "exceljs";
+import { useNavigate } from "react-router-dom";
 
 const InvestmentChart = () => {
   const { investments, error, loading } = useSelector(
@@ -23,6 +24,19 @@ const InvestmentChart = () => {
   }, [dispatch]);
 
   const [data, setData] = useState({ yearlyIncome: [], yearlyInvestments: [] });
+ const navigate = useNavigate();
+  useEffect(()=>{
+    if (error) {
+         toast.error(error);
+         if (
+           error ===
+           "You do not have an active subscription. Please subscribe to access this resource."
+         ) {
+           navigate("/pricing");
+         }
+        //  dispatch(clearErrors());
+       }
+  },[error,navigate]);
 
   // Fetch the API data
   useEffect(() => {
@@ -53,13 +67,11 @@ const InvestmentChart = () => {
       }
     };
 
-    fetchData();
-
-    if (error) {
-      toast.error(error);
-      dispatch(clearErrors()); // Ensure errors are cleared in Redux state
+    if(!error){
+      fetchData();
     }
-  }, [dispatch, error]);
+  }, [dispatch,error]);
+
 
   // Prepare the chart data
   const chartData =
