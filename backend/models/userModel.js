@@ -102,6 +102,7 @@ const userSchema = new mongoose.Schema({
   //   type: String,
   //   required: [true, "area is required"],
   // },
+
   landmark: {
     type: String,
     trim: true,
@@ -148,6 +149,7 @@ const userSchema = new mongoose.Schema({
     },
   },
 });
+
 
 // Prevent changes to subscription data during registration or update
 userSchema.pre("save", function (next) {
