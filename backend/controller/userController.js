@@ -201,7 +201,7 @@ exports.googleLogin = catchAsyncError(async (req, res, next) => {
       ),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      sameSite: "None",
     };
 
     return res.status(200).cookie("token", authToken, cookieOptions).json({
@@ -302,7 +302,7 @@ exports.googleRegister = catchAsyncError(async (req, res, next) => {
       ),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      sameSite: "None",
     };
 
     // After creating user, send trial email for shopkeepers
