@@ -103,6 +103,7 @@ export const register = (userData) => async (dispatch) => {
 
 // Google Login action
 export const googleLogin = (token) => async (dispatch) => {
+  console.log("Google Login Token:", token); // Debugging line
   try {
     dispatch({ type: GOOGLE_LOGIN_REQUEST });
 

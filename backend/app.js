@@ -30,6 +30,11 @@ app.use(
 
 // Security middleware
 app.use(helmet());
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false, // disables COOP globally
+  })
+);
 
 // JSON parsing middleware
 app.use(express.json()); 

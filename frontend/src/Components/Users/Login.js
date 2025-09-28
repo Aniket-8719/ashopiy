@@ -26,7 +26,7 @@ const Login = () => {
   // Google login success - only for existing users
   const handleSuccess = async (credentialResponse) => {
     try {
-      await dispatch(googleLogin(credentialResponse.credential));
+      dispatch(googleLogin(credentialResponse.credential));
     } catch (err) {
       console.error("Google login error:", err);
     }
