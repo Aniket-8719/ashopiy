@@ -184,14 +184,25 @@ exports.googleLogin = catchAsyncError(async (req, res, next) => {
       );
     }
 
-    // Update user if needed
+    let updated = false;
+
     if (!user.googleId) {
       user.googleId = googleId;
+      updated = true;
     }
+
     if (!user.loginMethods.includes("google")) {
       user.loginMethods.push("google");
+      updated = true;
     }
-    await user.save();
+
+    // Fix for old users without Name
+    if (!user.Name && payload.name) {
+      user.Name = payload.name;
+      updated = true;
+    }
+
+    if (updated) await user.save();
 
     const authToken = user.getJWTToken();
 
