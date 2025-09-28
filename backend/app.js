@@ -60,7 +60,7 @@ const udharRoute = require("./routes/udharBookRoute");
 const appRoute = require("./routes/appLockRoute");
 const subcription = require("./routes/subcriptionRoute");
 const onlinePayment = require("./routes/OnlinePaymentRoute");
-const ProductCategory  = require("./routes/productCategoryRoute");
+const ProductCategory  = require("./routes/ProductcategoryRoute");
 const startCronJobs = require("./scheduler");
 
 // Registering routes
