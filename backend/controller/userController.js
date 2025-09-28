@@ -1067,46 +1067,43 @@ const sendTrialEmail = async (
 
             <!-- Trial Card -->
             <div style="background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 30px 0;">
-              <div style="text-align: center; margin-bottom: 20px;">
-                <div style="background-color: #a855f7; color: #ffffff; width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 24px;">
-                  ⭐
-                </div>
-              </div>
               <h3 style="color: #6366f1; text-align: center; margin: 0 0 20px 0; font-size: 20px;">Your Free Trial is Active</h3>
               
               <div style="background-color: #ffffff; border-radius: 8px; padding: 20px; border: 1px solid #e2e8f0;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;">
                   <span style="color: #64748b; font-weight: 600;">Plan:</span>
-                  <span style="color: #6366f1; font-weight: 600;">Basic Plan (1 Week Trial)</span>
+                  <span style="color: #6366f1; font-weight: 600; margin-left: 4px">Basic Plan (1 Week Trial)</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;">
                   <span style="color: #64748b; font-weight: 600;">Start Date:</span>
-                  <span style="color: #059669; font-weight: 600;">${formattedStartDate}</span>
+                  <span style="color: #059669; font-weight: 600; margin-left: 4px">${formattedStartDate}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                   <span style="color: #64748b; font-weight: 600;">End Date:</span>
-                  <span style="color: #dc2626; font-weight: 600;">${formattedEndDate}</span>
+                  <span style="color: #dc2626; font-weight: 600; margin-left: 4px">${formattedEndDate}</span>
                 </div>
               </div>
             </div>
 
-<!-- Features -->
-<div style="margin: 30px 0;">
-  <h3 style="color: #6366f1; margin: 0 0 15px 0; font-size: 18px;">
-    During your trial, you can:
-  </h3>
-  <ul style="color: #6b7280; margin: 0; padding-left: 20px;">
-    <li style="margin-bottom: 8px;">Try all the features of the platform</li>
-    <li style="margin-bottom: 8px;">Create and set up your shop profile</li>
-    <li style="margin-bottom: 8px;">Add product prices and check your earnings</li>
-    <li>See simple reports and analytics</li>
-  </ul>
-</div>
+            <!-- Features -->
+            <div style="margin: 30px 0;">
+              <h3 style="color: #6366f1; margin: 0 0 15px 0; font-size: 18px;">
+                During your trial, you can:
+              </h3>
+              <ul style="color: #6b7280; margin: 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">Try all the features of the platform</li>
+                <li style="margin-bottom: 8px;">Create and set up your shop profile</li>
+                <li style="margin-bottom: 8px;">Add product prices and check your earnings</li>
+                <li>See simple reports and analytics</li>
+              </ul>
+            </div>
 
 
             <!-- CTA Button -->
             <div style="text-align: center; margin: 35px 0;">
-              <a href="#" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; transition: all 0.3s;">
+              <a href="${
+                process.env.FRONTEND_URL
+              }" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; transition: all 0.3s;">
                 Start Exploring Now
               </a>
             </div>
