@@ -4,6 +4,15 @@ const moment = require("moment-timezone");
 
 // Create Udhar Record
 exports.createUdhar = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const { customerName, phoneNumber, address, description, udharAmount } =
     req.body;
 
@@ -36,7 +45,7 @@ exports.createUdhar = catchAsyncError(async (req, res, next) => {
       udharAmount: Number(udharAmount),
       date: utcDateTime.toDate(),
       time: indiaDateTime.format("HH:mm:ss"),
-      user: req.user._id,
+      user: userId,
     });
 
     res.status(201).json({
@@ -45,9 +54,11 @@ exports.createUdhar = catchAsyncError(async (req, res, next) => {
       udhar,
     });
   } catch (error) {
-     // Handle Mongoose validation errors manually
-     if (error.name === "ValidationError") {
-      const message = Object.values(error.errors).map((val) => val.message).join(", ");
+    // Handle Mongoose validation errors manually
+    if (error.name === "ValidationError") {
+      const message = Object.values(error.errors)
+        .map((val) => val.message)
+        .join(", ");
       return res.status(400).json({ message });
     }
 
@@ -58,10 +69,19 @@ exports.createUdhar = catchAsyncError(async (req, res, next) => {
 
 // Get All Udhar Records
 exports.getAllUdhar = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const { search } = req.query;
 
   // Create a dynamic query object
-  const query = { user: req.user._id }; // Filter by authenticated user's ID
+  const query = { user: userId }; // Filter by authenticated user's ID
 
   // Handle search functionality
   if (search) {
@@ -86,6 +106,15 @@ exports.getAllUdhar = catchAsyncError(async (req, res, next) => {
 
 // Get Single Udhar Record by ID
 exports.getSingleUdhar = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const udhar = await UdharBook.findById(req.params.id);
 
   if (!udhar) {
@@ -93,6 +122,11 @@ exports.getSingleUdhar = catchAsyncError(async (req, res, next) => {
       success: false,
       message: "Udhar record not found",
     });
+  }
+  if (udhar.user.toString() !== userId.toString()) {
+    return res
+      .status(403)
+      .json({ message: "You don't have the right to access it." });
   }
 
   res.status(200).json({
@@ -104,6 +138,15 @@ exports.getSingleUdhar = catchAsyncError(async (req, res, next) => {
 
 // Update Udhar Record
 exports.updateUdhar = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   let udhar = await UdharBook.findById(req.params.id);
 
   if (!udhar) {
@@ -112,7 +155,11 @@ exports.updateUdhar = catchAsyncError(async (req, res, next) => {
       message: "Udhar record not found",
     });
   }
-
+  if (udhar.user.toString() !== userId.toString()) {
+    return res
+      .status(403)
+      .json({ message: "You don't have the right to access it." });
+  }
   const { customerName, phoneNumber, description, address, udharAmount } =
     req.body;
 
@@ -137,6 +184,15 @@ exports.updateUdhar = catchAsyncError(async (req, res, next) => {
 
 // Delete Udhar Record
 exports.deleteUdhar = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const udhar = await UdharBook.findById(req.params.id);
 
   if (!udhar) {
@@ -146,6 +202,12 @@ exports.deleteUdhar = catchAsyncError(async (req, res, next) => {
     });
   }
 
+  if (udhar.user.toString() !== userId.toString()) {
+    return res
+      .status(403)
+      .json({ message: "You don't have the right to access it." });
+  }
+
   await udhar.deleteOne();
 
   res.status(200).json({
@@ -153,7 +215,6 @@ exports.deleteUdhar = catchAsyncError(async (req, res, next) => {
     message: "Udhar record deleted successfully",
   });
 });
-
 
 // const QRCode = require("qrcode");
 
@@ -166,7 +227,7 @@ exports.deleteUdhar = catchAsyncError(async (req, res, next) => {
 
 //   const uniqueOrderId = `TXN${Date.now()}`;  // Unique ID to track payments
 
-//   const upiURL = `upi://pay?pa=${upiId}&pn=AshopiyShopkeeper&mc=0000&tid=${uniqueOrderId}&tr=${uniqueOrderId}&tn=Purchase&am=${amount}&cu=INR`;
+//   const upiURL = `upi://pay?pa=${upiId}&pn=ashopiyShopkeeper&mc=0000&tid=${uniqueOrderId}&tr=${uniqueOrderId}&tn=Purchase&am=${amount}&cu=INR`;
 
 //   try {
 //     const qrCodeImage = await QRCode.toDataURL(upiURL);
@@ -175,9 +236,3 @@ exports.deleteUdhar = catchAsyncError(async (req, res, next) => {
 //     res.status(500).json({ error: "Failed to generate QR code" });
 //   }
 // });
-
-
-
-
-
-

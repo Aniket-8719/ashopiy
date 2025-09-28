@@ -105,71 +105,68 @@ const MonthlyCharts = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center  mb-8 md:mb-8 mr-2 md:mx-8 ">
-        <div className="flex justify-center items-center mx-2 md:mx-0">
-          <h1 className="text-xl font-bold mb-4 text-gray-700 p-4">
-            Monthly Data
-          </h1>
+      {/* Monthly Charts Section */}
+      <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <h2 className="text-lg lg:text-xl font-semibold text-neutral-800">
+            Monthly Performance
+          </h2>
+          <div className="mt-4 md:mt-0">
+            <select
+              id="year"
+              className="px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors cursor-pointer"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="flex items-center justify-center text-xl border border-black  outline-none rounded-sm focus-within:border-blue-500 ">
-          <select
-            id="year"
-            className="border-none outline-none focus:outline-none focus:ring-0 bg-white px-4 py-1 cursor-pointer"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={data.monthlyIncome}
+            margin={{ top: 0, right: 30, left: 10, bottom: 30 }}
+            barSize={20}
           >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+            <XAxis
+              dataKey="month"
+              angle={-45}
+              textAnchor="end"
+              tick={{ fontSize: 12 }}
+              padding={{ left: 10, right: 10 }}
+            />
+            <YAxis />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "white",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+              }}
+            />
+            <Legend verticalAlign="top" height={36} />
+            <CartesianGrid strokeDasharray="3 3" />
+            <Bar
+              dataKey="totalIncome"
+              fill="#6366f1"
+              background={{ fill: "#f3f4f6" }}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={downloadExcel}
+            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            Download Excel
+            <HiDownload className="ml-2" />
+          </button>
         </div>
-      </div>
-      <ResponsiveContainer width="100%" height="50%">
-        <BarChart
-          width={500}
-          height={300}
-          data={data.monthlyIncome}
-          margin={{
-            top: 0,
-            right: 30,
-            left: 10,
-            bottom: 30,
-          }}
-          barSize={20}
-        >
-          <XAxis
-            dataKey="month"
-            angle={-45}
-            textAnchor="end"
-            tick={{ fontSize: 12 }}
-            scale="point"
-            padding={{ left: 10, right: 10 }}
-          />
-          <YAxis />
-          <Tooltip />
-          <Legend verticalAlign="top" height={36}/>
-          <CartesianGrid strokeDasharray="3 3" />
-          <Bar
-            dataKey="totalIncome"
-            fill="#8884d8"
-            background={{ fill: "#eee" }}
-          />
-          {/* <Bar dataKey="pv" fill="#82ca9d" activeBar={<Rectangle fill="gold" stroke="purple" />} /> */}
-        </BarChart>
-      </ResponsiveContainer>
-      <div className="flex mt-4 space-x-4 justify-end mx-4 md:mx-8 ">
-        <button
-          onClick={downloadExcel}
-          className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Download Excel
-          <span className="font-bold text-md ml-2">
-            <HiDownload />
-          </span>
-        </button>
       </div>
     </>
   );

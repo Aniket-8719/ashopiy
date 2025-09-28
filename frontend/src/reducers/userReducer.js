@@ -1,327 +1,383 @@
 import {
-    LOGIN_REQUEST,
-    LOGIN_SUCCESS,
-    LOGIN_FAIL,
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAIL,
+  REGISTER_USER_REQUEST,
+  REGISTER_USER_SUCCESS,
+  REGISTER_USER_FAIL,
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAIL,
+  LOGOUT_USER_SUCCESS,
+  LOGOUT_USER_FAIL,
+  UPDATE_PROFILE_REQUEST,
+  UPDATE_PROFILE_SUCCESS,
+  UPDATE_PROFILE_FAIL,
+  UPDATE_PROFILE_RESET,
+  UPDATE_PASSWORD_REQUEST,
+  UPDATE_PASSWORD_SUCCESS,
+  UPDATE_PASSWORD_FAIL,
+  UPDATE_PASSWORD_RESET,
+  FORGOT_PASSWORD_REQUEST,
+  FORGOT_PASSWORD_SUCCESS,
+  FORGOT_PASSWORD_FAIL,
+  RESET_PASSWORD_REQUEST,
+  RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_FAIL,
+  ALL_USERS_REQUEST,
+  ALL_USERS_SUCCESS,
+  ALL_USERS_FAIL,
+  DELETE_USER_REQUEST,
+  DELETE_USER_SUCCESS,
+  DELETE_USER_FAIL,
+  DELETE_USER_RESET,
+  UPDATE_USER_REQUEST,
+  UPDATE_USER_SUCCESS,
+  UPDATE_USER_FAIL,
+  UPDATE_USER_RESET,
+  USER_DETAILS_REQUEST,
+  USER_DETAILS_SUCCESS,
+  USER_DETAILS_FAIL,
+  CONTACTUS_REQUEST,
+  CONTACTUS_SUCCESS,
+  CONTACTUS_FAIL,
+  CONTACTUS_RESET,
+  CLEAR_ERRORS,
 
-    REGISTER_USER_REQUEST,
-    REGISTER_USER_SUCCESS,
-    REGISTER_USER_FAIL,
+  COMPLETE_PROFILE_FAIL,
+  COMPLETE_PROFILE_SUCCESS,
+  COMPLETE_PROFILE_REQUEST,
+  COMPLETE_PROFILE_RESET,
+  GOOGLE_LOGIN_FAIL,
+  GOOGLE_REGISTER_FAIL,
+  GOOGLE_LOGIN_SUCCESS,
+  GOOGLE_REGISTER_SUCCESS,
+  GOOGLE_LOGIN_REQUEST,
+  GOOGLE_REGISTER_REQUEST,
+} from "../constants/userConstants";
 
-    LOAD_USER_REQUEST,
-    LOAD_USER_SUCCESS,
-    LOAD_USER_FAIL,
+//  Login or Register
+export const userReducer = (state = { user: {} }, action) => {
+  switch (action.type) {
+    case LOGIN_REQUEST:
+    case REGISTER_USER_REQUEST:
+    case LOAD_USER_REQUEST:
+      return {
+        loading: true,
+        isAuthenticated: false,
+      };
+    case LOGIN_SUCCESS:
+    case REGISTER_USER_SUCCESS:
+    case LOAD_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        isAuthenticated: true,
+        user: action.payload.user,
+        lockedFeatures: action.payload.lockedFeatures,
+      };
+    case LOGOUT_USER_SUCCESS:
+      return {
+        loading: false,
+        user: null,
+        isAuthenticated: false,
+      };
+    case LOGIN_FAIL:
+    case REGISTER_USER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        isAuthenticated: false,
+        user: null,
+        error: action.payload,
+      };
+    case LOAD_USER_FAIL:
+      return {
+        loading: false,
+        isAuthenticated: false,
+        user: null,
+        error: action.payload,
+      };
+    case LOGOUT_USER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case GOOGLE_LOGIN_REQUEST:
+    case GOOGLE_REGISTER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        isAuthenticated: false,
+      };
+    case GOOGLE_LOGIN_SUCCESS:
+    case GOOGLE_REGISTER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        isAuthenticated: true,
+        user: action.payload.user,
+      };
+    case GOOGLE_LOGIN_FAIL:
+    case GOOGLE_REGISTER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        isAuthenticated: false,
+        user: null,
+        error: action.payload,
+      };
 
-    LOGOUT_USER_SUCCESS,
-    LOGOUT_USER_FAIL,
+    case COMPLETE_PROFILE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case COMPLETE_PROFILE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        user: action.payload,
+        profileCompleted: true,
+      };
+    case COMPLETE_PROFILE_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+     case COMPLETE_PROFILE_RESET:
+      return {
+        ...state,
+        profileCompleted: false,
+        error: null,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
 
-    UPDATE_PROFILE_REQUEST,
-    UPDATE_PROFILE_SUCCESS,
-    UPDATE_PROFILE_FAIL,
-    UPDATE_PROFILE_RESET,
+// All Users
+export const allUsersReducer = (state = { users: [] }, action) => {
+  switch (action.type) {
+    case ALL_USERS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case ALL_USERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        users: action.payload,
+      };
 
-    UPDATE_PASSWORD_REQUEST,
-    UPDATE_PASSWORD_SUCCESS,
-    UPDATE_PASSWORD_FAIL,
-    UPDATE_PASSWORD_RESET,
+    case ALL_USERS_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
-    FORGOT_PASSWORD_REQUEST,
-    FORGOT_PASSWORD_SUCCESS,
-    FORGOT_PASSWORD_FAIL,
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
 
-    RESET_PASSWORD_REQUEST,
-    RESET_PASSWORD_SUCCESS,
-    RESET_PASSWORD_FAIL,
+    default:
+      return state;
+  }
+};
 
-    ALL_USERS_REQUEST,
-    ALL_USERS_SUCCESS,
-    ALL_USERS_FAIL,
+// User Details
+export const userDetailsReducer = (
+  state = {
+    user: {},
+    dailyData: [],
+    fullDayData: [],
+    investData: [],
+    DataNumbers: "",
+  },
+  action
+) => {
+  switch (action.type) {
+    case USER_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case USER_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        user: action.payload.user,
+        dailyData: action.payload.dailyData,
+        fullDayData: action.payload.fullDayData,
+        investData: action.payload.investData,
+        DataNumbers: action.payload.DataNumbers,
+      };
 
-    DELETE_USER_REQUEST,
-    DELETE_USER_SUCCESS,
-    DELETE_USER_FAIL,
-    DELETE_USER_RESET,
+    case USER_DETAILS_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
-    UPDATE_USER_REQUEST,
-    UPDATE_USER_SUCCESS,
-    UPDATE_USER_FAIL,
-    UPDATE_USER_RESET,
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
 
-    USER_DETAILS_REQUEST,
-    USER_DETAILS_SUCCESS,
-    USER_DETAILS_FAIL,
-    
-    CONTACTUS_REQUEST,
-    CONTACTUS_SUCCESS,
-    CONTACTUS_FAIL,
-    CONTACTUS_RESET,
-    
-    CLEAR_ERRORS,
-  } from "../constants/userConstants";
-  
-  //  Login or Register 
-  export const userReducer = (state = { user: {} }, action) => {
-    switch (action.type) {
-      case LOGIN_REQUEST:
-      case REGISTER_USER_REQUEST:
-      case LOAD_USER_REQUEST:
-        return {
-          loading: true,
-          isAuthenticated: false,
-        };
-      case LOGIN_SUCCESS:
-      case REGISTER_USER_SUCCESS:
-      case LOAD_USER_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          isAuthenticated: true,
-          user: action.payload,
-        };
-      case LOGOUT_USER_SUCCESS:
-        return {
-          loading: false,
-          user: null,
-          isAuthenticated: false,
-        };
-      case LOGIN_FAIL:
-      case REGISTER_USER_FAIL:
-        return {
-          ...state,
-          loading: false,
-          isAuthenticated: false,
-          user: null,
-          error: action.payload,
-        };
-      case LOAD_USER_FAIL:
-        return {
-          loading: false,
-          isAuthenticated: false,
-          user: null,
-          error: action.payload,
-        };
-      case LOGOUT_USER_FAIL:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-      case CLEAR_ERRORS:
-        return {
-          ...state,
-          error: null,
-        };
-      default:
-        return state;
-    }
-  };
-  
-  // All Users
-  export const allUsersReducer = (state = { users: [] }, action) => {
-    switch (action.type) {
-      case ALL_USERS_REQUEST:
-        return {
-          ...state,
-          loading: true,
-        };
-      case ALL_USERS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          users: action.payload,
-        };
-  
-      case ALL_USERS_FAIL:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-  
-      case CLEAR_ERRORS:
-        return {
-          ...state,
-          error: null,
-        };
-  
-      default:
-        return state; 
-    }
-  };
-  
-  // User Details
-  export const userDetailsReducer = (state = { user: {},dailyData:[], fullDayData:[], investData:[],DataNumbers:"" }, action) => {
-    switch (action.type) {
-      case USER_DETAILS_REQUEST:
-        return {
-          ...state,
-          loading: true,
-        };
-      case USER_DETAILS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          user: action.payload.user,
-          dailyData: action.payload.dailyData,
-          fullDayData: action.payload.fullDayData,
-          investData: action.payload.investData,
-          DataNumbers: action.payload.DataNumbers,
-        };
-  
-      case USER_DETAILS_FAIL:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-  
-      case CLEAR_ERRORS:
-        return {
-          ...state,
-          error: null,
-        };
-  
-      default:
-        return state;
-    }
-  };
-  
-  // user Profile for (updated or deleted)
-  export const profileReducer = (state = {}, action) => {
-    switch (action.type) {
-      case UPDATE_PROFILE_REQUEST:
-      case UPDATE_PASSWORD_REQUEST:
-      case UPDATE_USER_REQUEST:
-      case DELETE_USER_REQUEST:
-        return {
-          ...state,
-          loading: true,
-        };
-      case UPDATE_PROFILE_SUCCESS:
-      case UPDATE_PASSWORD_SUCCESS:
-      case UPDATE_USER_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          isUpdated: action.payload,
-        };
-  
-      case DELETE_USER_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          isDeleted: action.payload.success,
-          message: action.payload.message,
-        };
-  
-      case UPDATE_PROFILE_FAIL:
-      case UPDATE_PASSWORD_FAIL:
-      case UPDATE_USER_FAIL:
-      case DELETE_USER_FAIL:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-  
-      case UPDATE_PROFILE_RESET:
-      case UPDATE_PASSWORD_RESET:
-      case UPDATE_USER_RESET:
-        return {
-          ...state,
-          isUpdated: false,
-        };
-  
-      case DELETE_USER_RESET:
-        return {
-          ...state,
-          isDeleted: false,
-        };
-  
-      case CLEAR_ERRORS:
-        return {
-          ...state,
-          error: null,
-        };
-  
-      default:
-        return state;
-    }
-  };
-  
-  // forgot password reducer
-  export const forgotPasswordReducer = (state = {}, action) => {
-    switch (action.type) {
-      case FORGOT_PASSWORD_REQUEST:
-      case RESET_PASSWORD_REQUEST:
-        return {
-          ...state,
-          loading: true,
-          error: null,
-        };
-      case FORGOT_PASSWORD_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          message: action.payload,
-        };
-  
-      case RESET_PASSWORD_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          success: action.payload,
-        };
-        
-      case FORGOT_PASSWORD_FAIL:
-      case RESET_PASSWORD_FAIL:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-  
-      case CLEAR_ERRORS:
-        return {
-          ...state,
-          error: null,
-        };
-      default:
-        return state;
-    }
-  };
+    default:
+      return state;
+  }
+};
 
-  // Contact Us page
-  export const contactusRducer = (state = {}, action) => {
-    switch (action.type) {
-      case CONTACTUS_REQUEST:
-        return {
-          ...state,
-          loading: true,
-        };
-      case CONTACTUS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          isEmailSent: true,
-        };
-      case CONTACTUS_FAIL:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-      case CONTACTUS_RESET:
-        return {
-          ...state,
-          isEmailSent: false,
-        };
-      case CLEAR_ERRORS:
-        return {
-          ...state,
-          error: null,
-        };
-      default:
-        return state;
-    }
-  };
-  
+// user Profile for (updated or deleted)
+export const profileReducer = (state = {}, action) => {
+  switch (action.type) {
+    case UPDATE_PROFILE_REQUEST:
+    case UPDATE_PASSWORD_REQUEST:
+    case UPDATE_USER_REQUEST:
+    case DELETE_USER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case UPDATE_PROFILE_SUCCESS:
+    case UPDATE_PASSWORD_SUCCESS:
+    case UPDATE_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        isUpdated: action.payload,
+      };
+
+    case DELETE_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        isDeleted: action.payload.success,
+        message: action.payload.message,
+      };
+
+    case UPDATE_PROFILE_FAIL:
+    case UPDATE_PASSWORD_FAIL:
+    case UPDATE_USER_FAIL:
+    case DELETE_USER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case UPDATE_PROFILE_RESET:
+    case UPDATE_PASSWORD_RESET:
+    case UPDATE_USER_RESET:
+      return {
+        ...state,
+        isUpdated: false,
+      };
+
+    case DELETE_USER_RESET:
+      return {
+        ...state,
+        isDeleted: false,
+      };
+
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+// forgot password reducer
+export const forgotPasswordReducer = (state = {}, action) => {
+  switch (action.type) {
+    case FORGOT_PASSWORD_REQUEST:
+    case RESET_PASSWORD_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FORGOT_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        message: action.payload,
+      };
+
+    case RESET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action.payload,
+      };
+
+    case FORGOT_PASSWORD_FAIL:
+    case RESET_PASSWORD_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
+
+// Contact Us page
+export const contactusRducer = (state = {}, action) => {
+  switch (action.type) {
+    case CONTACTUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case CONTACTUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        isEmailSent: true,
+      };
+    case CONTACTUS_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case CONTACTUS_RESET:
+      return {
+        ...state,
+        isEmailSent: false,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};

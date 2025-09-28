@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { LuLogOut } from "react-icons/lu";
+import { IoSettingsOutline } from "react-icons/io5";
+import { HiOutlineViewGrid } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { clearError, logout } from "../../actions/userAction";
 import { toast } from "react-toastify";
-import { FaLock } from "react-icons/fa6";
 
 const Options = () => {
   const { user, isAuthenticated, error } = useSelector((state) => state.user);
@@ -12,8 +13,9 @@ const Options = () => {
   const navigate = useNavigate();
 
   const logoutUser = () => {
-    dispatch(logout()); // Trigger logout action
-    toast.success("Logged out successfully"); // Show success message
+    dispatch(logout()); 
+    toast.success("Logged out successfully"); 
+    navigate("/login"); 
   };
 
   useEffect(() => {
@@ -26,53 +28,47 @@ const Options = () => {
     }
   }, [dispatch, error, isAuthenticated, navigate]);
 
-  const { LockList } = useSelector((state) => state.lockUnlockList);
-  // Assuming LockList is always a single document
-  const lockedFeatures = LockList[0]?.lockedFeatures || {};
-
-  const isProfileLocked = lockedFeatures["Profile"];
-
-    // Function to render lock icon based on the locked status of a feature
-    const renderLockIcon = (isLocked) => {
-      return isLocked && <FaLock className="text-gray-500" />;
-    };
   return (
     <>
-      <div className="flex">
-        <div
-          className="flex flex-col justify-center items-center gap-2 text-slate-900 shadow-lg rounded-md border-slate-300 border-[0.5px] pr-16 py-2 pt-2 px-8 md:pr-20
-        text-sm bg-white"
+      <div className="py-2 bg-white rounded-lg shadow-lg border border-neutral-200 min-w-[180px]">
+      {user && user?.role === "admin" && (
+        <Link
+          to={"/admin/allUsers"}
+          className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors"
         >
-          {user && user?.role === "admin" && (
-            <Link
-              to={"/admin/allUsers"}
-              className="hover:text-blue-600 w-full   border-black py-1.5"
-            >
-              Dashboard
-            </Link>
-          )}
-          <Link
-            className=" flex  justify-center items-center gap-2 hover:text-blue-600 w-full   border-black py-1.5"
-            to={"/profile"}
-          >
-            <h1>Profile</h1>
-            <div className="mr-4">{renderLockIcon(isProfileLocked)}</div>
-          </Link>
-          <Link
-            className="hover:text-blue-600 w-full   border-black py-1.5"
-            to={"/paymentHistory"}
-          >
-            Payment History
-          </Link>
-          <button
-            onClick={logoutUser}
-            className="flex justify-center items-center -ml-2 py-1.5  border-black text-red-500 gap-2"
-          >
-            <LuLogOut />
-            <p>Logout</p>
-          </button>
-        </div>
-      </div>
+          <HiOutlineViewGrid className="text-lg" />
+          <span className="text-sm font-medium">Dashboard</span>
+        </Link>
+      )}
+      
+      <Link
+        to={"/profile"}
+        className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors"
+      >
+        <IoSettingsOutline className="text-lg" />
+        <span className="text-sm font-medium">Settings</span>
+      </Link>
+      
+      <Link
+        to={"/paymentHistory"}
+        className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+        </svg>
+        <span className="text-sm font-medium">Payment History</span>
+      </Link>
+      
+      <div className="border-t border-neutral-200 my-1"></div>
+      
+      <button
+        onClick={logoutUser}
+        className="flex items-center text-red-500 gap-3 w-full px-4 py-2 text-error hover:bg-neutral-50 transition-colors"
+      >
+        <LuLogOut className="text-lg" />
+        <span className="text-sm font-medium">Logout</span>
+      </button>
+    </div>
     </>
   );
 };

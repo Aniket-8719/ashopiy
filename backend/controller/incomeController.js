@@ -3,16 +3,27 @@ const catchAsyncError = require("../middleware/catchAsyncError");
 const DailyIncome = require("../models/dailyRevenue");
 const FullDayIncome = require("../models/fullDayRevenue");
 const moment = require("moment-timezone");
+const User = require("../models/userModel");
 
 // Add daily income controller
 exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
-  const { dailyIncome, earningType, latestSpecialDay } = req.body;
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
+  const { dailyIncome, earningType, latestSpecialDay, productCategory } =
+    req.body;
 
-  // Check if dailyIncome is valid and can be converted to a number
-  if (!dailyIncome || isNaN(Number(dailyIncome))) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid daily income" });
+  // Validate dailyIncome
+  if (!dailyIncome || isNaN(Number(dailyIncome)) || Number(dailyIncome) <= 0) {
+    return res.status(400).json({
+      message: "Please provide a valid daily income greater than 0",
+    });
   }
 
   // Get the current date and time in the Asia/Kolkata timezone
@@ -29,7 +40,8 @@ exports.addDailyIncome = catchAsyncError(async (req, res, next) => {
     date: utcDateTime.toDate(), // Store the UTC Date object after adjustment
     earningType: earningType || "Cash",
     latestSpecialDay: latestSpecialDay || "Normal",
-    user: req.user._id,
+    productCategory: productCategory,
+    user: userId,
   });
 
   // Save the entry to the database
@@ -50,6 +62,18 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Unauthorized: User not found." });
     }
+
+    let userId = req.user._id;
+    if (req.user.role === "worker") {
+      if (!req.user.workerDetails?.ownerAccountId) {
+        return res
+          .status(401)
+          .json({ message: "You are not recognized by any owner." });
+      }
+      userId = req.user.workerDetails.ownerAccountId;
+    }
+    const merchantDoc = await User.findById(userId).select("merchantID");
+    const merchantID = merchantDoc?.merchantID;
 
     if (!date) {
       return res.status(400).json({ message: "Invalid or missing date." });
@@ -75,8 +99,8 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     // Get the earliest income record for the user
     const firstIncome = await DailyIncome.findOne({
       $or: [
-        { user: req.user._id },
-        { merchantID: req.user.merchantID }, // Replace with dynamic merchant ID as needed
+        { user: userId },
+        { merchantID: merchantID }, // Replace with dynamic merchant ID as needed
       ],
     }).sort({
       date: 1,
@@ -97,10 +121,6 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
     const results = [];
 
     while (currentDateUTC <= endDateUTC) {
-      // console.log("while loop: ");
-      // console.log("dayStart: ", dayStartUTC);
-      // console.log("dayEnd: ", dayEndUTC);
-
       // Prepare the query based on the merchantID or user._id
       const query = {
         date: { $gte: dayStartUTC, $lte: dayEndUTC },
@@ -108,12 +128,12 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
       };
 
       // If merchantID exists, prioritize it
-      if (req.user.merchantID) {
-        query.$or.push({ merchantID: req.user.merchantID });
+      if (merchantID) {
+        query.$or.push({ merchantID: merchantID });
       }
 
       // Always include the user._id in the query to fall back if needed
-      query.$or.push({ user: req.user._id });
+      query.$or.push({ user: userId });
 
       // Fetch all incomes within the UTC day range
       const dayIncomes = await DailyIncome.find(query).sort({ time: 1 });
@@ -131,9 +151,25 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
               : sum,
           0
         );
-        const totalReturnAmount = dayIncomes
-          .filter((inc) => inc.dailyIncome < 0)
-          .reduce((sum, inc) => sum + Math.abs(inc.dailyIncome), 0);
+
+        const categoryIncomeMap = {};
+
+        dayIncomes.forEach((inc) => {
+          if (inc.productCategory) {
+            const category = inc.productCategory;
+            if (!categoryIncomeMap[category]) {
+              categoryIncomeMap[category] = 0;
+            }
+            categoryIncomeMap[category] += inc.dailyIncome || 0;
+          }
+        });
+
+        const categoryWiseIncome = Object.entries(categoryIncomeMap).map(
+          ([productCategory, categoryTotalIncome]) => ({
+            productCategory,
+            categoryTotalIncome, // Avoid naming conflict with main totalIncome
+          })
+        );
 
         // Create and save the FullDayIncome document
         const fullDayIncome = new FullDayIncome({
@@ -149,10 +185,9 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
           totalIncome,
           totalOnlineAmount,
           totalCustomers: dayIncomes.length,
-          totalReturnAmount,
-          totalReturnCustomers: dayIncomes.filter((inc) => inc.dailyIncome < 0)
-            .length,
-          user: req.user._id,
+          categoryWiseIncome:
+            categoryWiseIncome.length > 0 ? categoryWiseIncome : undefined,
+          user: userId,
         });
 
         await fullDayIncome.save();
@@ -163,7 +198,7 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
 
       if (incomeIds.length > 0) {
         await DailyIncome.deleteMany({
-          $or: [{ user: req.user._id }, { merchantID: req.user.merchantID }],
+          $or: [{ user: userId }, { merchantID: merchantID }],
           _id: { $in: incomeIds },
         });
       }
@@ -200,8 +235,26 @@ exports.addFullDayIncome = catchAsyncError(async (req, res, next) => {
   }
 });
 
+exports.dummyFunction = catchAsyncError(async (req, res, next) => {
+  console.log("Dummy function called", "date:", new Date());
+  res.status(200).json({
+    success: true,
+  });
+});
+
 // Today Income 24 Hours (Indian Time) (DailyIncome)
 exports.todayIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
+  const merchantDoc = await User.findById(userId).select("merchantID");
+  const merchantID = merchantDoc?.merchantID;
   const { year, month, date } = req.query;
 
   if (!year || !month || month < 1 || month > 12) {
@@ -237,12 +290,12 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
   };
 
   // If merchantID exists, prioritize it
-  if (req.user.merchantID) {
-    query.$or.push({ merchantID: req.user.merchantID });
+  if (merchantID) {
+    query.$or.push({ merchantID: merchantID });
   }
 
   // Always include the user._id in the query as a fallback
-  query.$or.push({ user: req.user._id });
+  query.$or.push({ user: userId });
 
   // Fetch all incomes within the date range
   const todayIncomeData = await DailyIncome.find(query);
@@ -252,6 +305,7 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
     time: moment(item.time, "HH:mm").format("hh:mm A"), // Indian time
     earningType: item.earningType || "Cash",
     objectId: item._id,
+    productCategory: item.productCategory,
   }));
 
   const totalCustomerCount = todayIncomeData.length;
@@ -290,6 +344,15 @@ exports.todayIncome = catchAsyncError(async (req, res, next) => {
 
 // Edit Today Income (DailyIncome)
 exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const income = await DailyIncome.findById(req.params.id);
 
   if (!income) {
@@ -299,8 +362,16 @@ exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
     });
   }
 
+  // ✅ ownership check
+  if (income.user.toString() !== userId.toString()) {
+    return next(
+      new ErrorHandler("You don't have the right to update it.", 403)
+    );
+  }
+
   income.dailyIncome = req.body.dailyIncome;
   income.earningType = req.body.earningType;
+  income.productCategory = req.body.productCategory || income.productCategory;
 
   // Save the updated income
   await income.save();
@@ -313,6 +384,16 @@ exports.updateTodayIncome = catchAsyncError(async (req, res, next) => {
 
 // Delete Today Income (DailyIncome)
 exports.deleteTodayIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
+
   const income = await DailyIncome.findById(req.params.id);
 
   if (!income) {
@@ -320,6 +401,13 @@ exports.deleteTodayIncome = catchAsyncError(async (req, res, next) => {
       success: false,
       message: "Income not found",
     });
+  }
+
+  // ✅ ownership check
+  if (income.user.toString() !== userId.toString()) {
+    return next(
+      new ErrorHandler("You don't have the right to delete it.", 403)
+    );
   }
 
   await income.deleteOne();
@@ -332,6 +420,15 @@ exports.deleteTodayIncome = catchAsyncError(async (req, res, next) => {
 
 // per day month data (Indian Time)
 exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const { year, month } = req.query;
 
   const queryYear = parseInt(year, 10);
@@ -366,7 +463,7 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
   const fullDayIncome = await FullDayIncome.aggregate([
     {
       $match: {
-        user: req.user._id,
+        user: userId,
         date: { $gte: startDate, $lte: endDate },
       },
     },
@@ -403,8 +500,6 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
         totalIncome: 1,
         totalCustomers: 1,
         totalOnlineAmount: 1,
-        totalReturnCustomers: 1,
-        totalReturnAmount: 1,
         latestSpecialDay: 1,
         time: 1,
       },
@@ -436,8 +531,6 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
       totalIncome: foundDay ? foundDay.totalIncome : 0,
       totalCustomers: foundDay ? foundDay.totalCustomers : 0,
       totalOnlineAmount: foundDay ? foundDay.totalOnlineAmount : 0,
-      totalReturnCustomers: foundDay ? foundDay.totalReturnCustomers : 0,
-      totalReturnAmount: foundDay ? foundDay.totalReturnAmount : 0,
       latestSpecialDay: foundDay ? foundDay.latestSpecialDay : null,
       time: foundDay ? foundDay.time : [],
     };
@@ -451,6 +544,15 @@ exports.perMonthIncome = catchAsyncError(async (req, res, next) => {
 
 // Monthly Income Aggregation (Indian Time)
 exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const { year } = req.query;
 
   // Validate the year
@@ -467,7 +569,7 @@ exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
   const monthlyIncome = await FullDayIncome.aggregate([
     {
       $match: {
-        user: req.user._id,
+        user: userId,
         date: {
           $gte: new Date(`${yearInt}-01-01`),
           $lt: new Date(`${yearInt + 1}-01-01`),
@@ -508,11 +610,20 @@ exports.getMonthlyIncome = catchAsyncError(async (req, res, next) => {
 
 // Yearly Income Aggregation (Indian Time)
 exports.getYearlyIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   // Aggregate yearly income while adjusting for timezone (IST) from FullDayIncome
   const yearlyIncome = await FullDayIncome.aggregate([
     {
       $match: {
-        user: req.user._id, // Filter by the logged-in user's ID
+        user: userId, // Filter by the logged-in user's ID
       },
     },
     {
@@ -539,6 +650,15 @@ exports.getYearlyIncome = catchAsyncError(async (req, res, next) => {
 
 // Fulldayincome for entire Month data (Indian Time)
 exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const { year, month } = req.query;
 
   const queryYear = parseInt(year, 10);
@@ -586,13 +706,11 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
           .utc()
           .toDate();
 
-  // console.log("startDate: ", startDate);
-  // console.log("endDate: ", endDate);
   // Aggregate income data with proper timezone handling
   const fullDayIncome = await FullDayIncome.aggregate([
     {
       $match: {
-        user: req.user._id,
+        user: userId,
         date: { $gte: startDate, $lte: endDate },
       },
     },
@@ -633,8 +751,6 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
         totalIncome: 1,
         totalCustomers: 1,
         totalOnlineAmount: 1,
-        totalReturnCustomers: 1,
-        totalReturnAmount: 1,
       },
     },
     { $sort: { "_id.day": 1 } },
@@ -661,8 +777,6 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
       totalIncome: foundDay ? foundDay.totalIncome : 0,
       totalCustomers: foundDay ? foundDay.totalCustomers : 0,
       totalOnlineAmount: foundDay ? foundDay.totalOnlineAmount : 0,
-      totalReturnCustomers: foundDay ? foundDay.totalReturnCustomers : 0,
-      totalReturnAmount: foundDay ? foundDay.totalReturnAmount : 0,
       latestSpecialDay: foundDay ? foundDay.latestSpecialDay : null,
       time: foundDay ? foundDay.time : [],
     };
@@ -676,7 +790,16 @@ exports.monthlyHistory = catchAsyncError(async (req, res, next) => {
 
 // Get Complete Income from the starting (All History)
 exports.getCompleteData = catchAsyncError(async (req, res, next) => {
-  const fullDayIncome = await FullDayIncome.find({ user: req.user._id });
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
+  const fullDayIncome = await FullDayIncome.find({ user: userId });
 
   res.status(200).json({
     success: true,

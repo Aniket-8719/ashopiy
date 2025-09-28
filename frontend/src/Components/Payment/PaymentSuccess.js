@@ -12,7 +12,7 @@ const PaymentSuccess = () => {
     }
   },[navigate,referenceId]);
   return (
-    <section className="md:ml-72">
+    <section className="lg:ml-72">
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
           {/* Success Icon */}

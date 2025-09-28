@@ -1,175 +1,75 @@
 import React, { useEffect } from "react";
+import { termsConditionsData } from './data/pages_data';
 
 const TermsConditions = () => {
   useEffect(() => {
-    window.scrollTo(0, 0);  // Scroll to the top
+    window.scrollTo(0, 0);
   }, []);
 
   return (
-    <>
-      <section className="mt-16  md:ml-72 ">
-        <div className=" p-6">
-          <div className="max-w-4xl mx-auto bg-white rounded-lg ">
-            <h1 className="text-3xl font-bold mb-4 text-center">
-              Terms & Conditions
+    <section className="mt-20 lg:ml-72 px-4 lg:px-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl border border-neutral-200 p-6 lg:p-8 shadow-sm">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl lg:text-3xl font-semibold text-neutral-800 mb-2">
+              {termsConditionsData.title}
             </h1>
-            <p className="text-gray-600 mb-6 text-center">
-              Effective Date: 21st December 2024
+            <p className="text-neutral-600 text-sm">
+              Effective Date: {termsConditionsData.effectiveDate}
             </p>
+          </div>
 
-            <div className="space-y-6 text-gray-700">
-              {/* Introduction */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">1. Introduction</h2>
-                <p>
-                  These Terms & Conditions govern your use of our website and
-                  services. By accessing or using our services, you agree to
-                  comply with these terms. Please read them carefully.
-                </p>
-              </section>
-
-              {/* Use of the Website */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  2. Use of the Website
+          {/* Content */}
+          <div className="space-y-8">
+            {termsConditionsData.sections.map((section, index) => (
+              <section key={index} className="border-b border-neutral-100 pb-6 last:border-b-0 last:pb-0">
+                <h2 className="text-xl lg:text-2xl font-semibold text-neutral-800 mb-4 flex items-center">
+                  <div className="w-6 h-6 bg-primary-100 rounded-lg mr-1 flex items-center justify-center">
+                    <span className="text-primary-600 font-semibold text-xl">{index + 1}.</span>
+                  </div>
+                  {section.title}
                 </h2>
-                <p>
-                  You agree to use the website only for lawful purposes. You
-                  must not use our services in any way that breaches any
-                  applicable law or regulation or causes harm to others.
-                </p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>
-                    Do not misuse the services by interfering with their normal
-                    operation.
-                  </li>
-                  <li>
-                    You may not attempt to gain unauthorized access to our
-                    systems.
-                  </li>
-                  <li>
-                    Do not use the website to transmit any malware or harmful
-                    software.
-                  </li>
-                </ul>
+                
+                <div className="text-neutral-700 leading-relaxed ml-9">
+                  <p className="mb-4">{section.content}</p>
+                  
+                  {section.additionalContent && (
+                    <p className="mb-4">{section.additionalContent}</p>
+                  )}
+                  
+                  {section.list && (
+                    <ul className="space-y-3 ml-4">
+                      {section.list.map((item, itemIndex) => (
+                        <li key={itemIndex} className="flex items-start">
+                          <div className="w-2 h-2 bg-primary-300 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                          <span>{item.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </section>
+            ))}
+          </div>
 
-              {/* Account Registration */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  3. Account Registration
-                </h2>
-                <p>
-                  If you create an account with us, you must provide accurate
-                  and complete information. You are responsible for maintaining
-                  the confidentiality of your account credentials.
+          {/* Legal Notice */}
+          <div className="mt-8 p-4 bg-warning-50 rounded-lg border border-warning-100">
+            <div className="flex items-start">
+              <svg className="w-5 h-5 text-warning-600 mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <div>
+                <p className="text-warning-800 font-semibold text-sm mb-1">Legal Notice</p>
+                <p className="text-warning-700 text-sm">
+                  By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.
                 </p>
-                <p>
-                  You agree to notify us immediately if there is any
-                  unauthorized use of your account.
-                </p>
-              </section>
-
-              {/* Payments and Refunds */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  4. Payments and Refunds
-                </h2>
-                <p>
-                  All payments made through our website are processed securely.
-                  Fees, charges, and any applicable taxes will be displayed
-                  before you complete a purchase.
-                </p>
-                <p>
-                  Refunds may be provided in accordance with our refund policy,
-                  which is detailed separately.
-                </p>
-              </section>
-
-              {/* Intellectual Property */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  5. Intellectual Property
-                </h2>
-                <p>
-                  All content on our website, including text, graphics, logos,
-                  and software, is the property of our company. You are not
-                  allowed to copy, modify, or distribute any part of our website
-                  without permission.
-                </p>
-              </section>
-
-              {/* Limitation of Liability */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  6. Limitation of Liability
-                </h2>
-                <p>
-                  We are not responsible for any damages that arise from your
-                  use of our website, including loss of data, profits, or
-                  business. Our liability is limited to the extent permitted by
-                  law.
-                </p>
-              </section>
-
-              {/* Termination of Service */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  7. Termination of Service
-                </h2>
-                <p>
-                  We reserve the right to terminate or suspend your access to
-                  our website at any time if you breach these Terms & Conditions
-                  or engage in unlawful activities.
-                </p>
-              </section>
-
-              {/* Changes to the Terms */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  8. Changes to the Terms
-                </h2>
-                <p>
-                  We may update these Terms & Conditions from time to time. We
-                  will notify you of significant changes by posting an update on
-                  our website. Continued use of the website after changes are
-                  made constitutes your acceptance of the new terms.
-                </p>
-              </section>
-
-              {/* Governing Law */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">
-                  9. Governing Law
-                </h2>
-                <p>
-                  These Terms & Conditions are governed by and construed in
-                  accordance with the laws of India. Any disputes
-                  relating to these terms will be subject to the jurisdiction of
-                  the courts in Gharuan.
-                </p>
-              </section>
-
-              {/* Contact Us */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-2">10. Contact Us</h2>
-                <p>
-                  If you have any questions about these Terms & Conditions,
-                  please contact us at{" "}
-                  <a
-                    href="mailto:info.ashopiy@gmail.com"
-                    className="text-blue-600 hover:underline"
-                  >
-                    info.ashopiy@gmail.com
-                  </a>
-                  .
-                </p>
-              </section>
+              </div>
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 

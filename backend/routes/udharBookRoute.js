@@ -10,14 +10,15 @@ const {
   QRCodeGen,
 } = require("../controller/udharBookController");
 const { checkSubscriptionStatus } = require("../middleware/subscribe");
+const { checkFeatureLock } = require("../middleware/lock");
 
-router.route("/createUdhar").post(isAuthenticatedUser, checkSubscriptionStatus, createUdhar);
+router.route("/createUdhar").post(isAuthenticatedUser, checkSubscriptionStatus,checkFeatureLock("UdharBook"), createUdhar);
 // router.route("/generate-qr").post(QRCodeGen);
-router.route("/allUdhars").get(isAuthenticatedUser, getAllUdhar);
+router.route("/allUdhars").get(isAuthenticatedUser, checkFeatureLock("UdharBook"), getAllUdhar);
 router
   .route("/udhar/:id")
-  .get(isAuthenticatedUser, getSingleUdhar)
-  .delete(isAuthenticatedUser, checkSubscriptionStatus, deleteUdhar)
-  .put(isAuthenticatedUser, checkSubscriptionStatus, updateUdhar);
+  .get(isAuthenticatedUser, checkFeatureLock("UdharBook"), getSingleUdhar)
+  .delete(isAuthenticatedUser, checkSubscriptionStatus, checkFeatureLock("UdharBook"), deleteUdhar)
+  .put(isAuthenticatedUser, checkSubscriptionStatus, checkFeatureLock("UdharBook"), updateUdhar);
 
 module.exports = router;

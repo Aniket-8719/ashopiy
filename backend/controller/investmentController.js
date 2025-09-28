@@ -6,24 +6,38 @@ const moment = require("moment-timezone");
 
 // Add daily income controller
 exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const { investmentIncomeByUser, typeOfInvestmentByUser, customDate } =
     req.body;
 
   // Check if dailyIncome is valid
-  if (!investmentIncomeByUser || isNaN(investmentIncomeByUser) || investmentIncomeByUser<=0) {
+  if (
+    !investmentIncomeByUser ||
+    isNaN(investmentIncomeByUser) ||
+    investmentIncomeByUser <= 0
+  ) {
     return res
       .status(400)
       .json({ message: "Please provide a valid Investment Income" });
   }
-  
 
   // Use the custom date if provided, otherwise use the current date and time in Asia/Kolkata timezone
   let indiaDate;
-   // Handle custom date or fallback to current date/time
-   if (customDate) {
+  // Handle custom date or fallback to current date/time
+  if (customDate) {
     indiaDate = moment(customDate, "YYYY-MM-DD", true).tz("Asia/Kolkata");
     if (!indiaDate.isValid()) {
-      return res.status(400).json({ message: "Please provide a valid custom date" });
+      return res
+        .status(400)
+        .json({ message: "Please provide a valid custom date" });
     }
   } else {
     indiaDate = moment().tz("Asia/Kolkata");
@@ -51,7 +65,7 @@ exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
     day: dayOfWeek,
     date: formattedDate,
     typeOfInvestment: typeOfInvestmentByUser || "Cash",
-    user: req.user._id,
+    user: userId,
   });
 
   // Save the entry to the database
@@ -66,7 +80,18 @@ exports.addInvestmentIncome = catchAsyncError(async (req, res, next) => {
 
 // Get Investment Income with calculated earnings from FullDayIncome
 exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
-  const investments = await investmentModel.find({ user: req.user._id }).sort({ date: 1 }); // Sort by date ascending
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
+  const investments = await investmentModel
+    .find({ user: userId })
+    .sort({ date: 1 }); // Sort by date ascending
   const result = [];
 
   for (let i = 0; i < investments.length; i++) {
@@ -74,20 +99,25 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
     const startDate = new Date(investment.date); // Convert to Date object
 
     // Subtract 5 hours and 30 minutes
-    const adjustedStartDate = new Date(startDate.getTime() - (5 * 60 + 30) * 60 * 1000);
-  
-    // Determine the end date: use the next investment's date or the current date
-    const endDate = investments[i + 1] ? new Date(investments[i + 1].date) : new Date();
+    const adjustedStartDate = new Date(
+      startDate.getTime() - (5 * 60 + 30) * 60 * 1000
+    );
 
-     // Subtract 5 hours and 30 minutes
-    const adjustedEndDate = new Date(endDate.getTime() - (5 * 60 + 30) * 60 * 1000);
-  
+    // Determine the end date: use the next investment's date or the current date
+    const endDate = investments[i + 1]
+      ? new Date(investments[i + 1].date)
+      : new Date();
+
+    // Subtract 5 hours and 30 minutes
+    const adjustedEndDate = new Date(
+      endDate.getTime() - (5 * 60 + 30) * 60 * 1000
+    );
 
     // Calculate earnings from `FullDayIncome` between startDate and endDate
     const earnings = await FullDayIncome.aggregate([
       {
-        $match: { 
-          user: req.user._id,
+        $match: {
+          user: userId,
           date: {
             $gte: adjustedStartDate,
             $lt: adjustedEndDate,
@@ -147,6 +177,15 @@ exports.getInvestmentIncome = catchAsyncError(async (req, res, next) => {
 
 // Edit Single Investment
 exports.updateInvestment = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const invest = await investmentModel.findById(req.params.id);
 
   if (!invest) {
@@ -156,11 +195,25 @@ exports.updateInvestment = catchAsyncError(async (req, res, next) => {
     });
   }
 
-  const { investmentIncomeByUser, typeOfInvestmentByUser, customDate } = req.body;
+  // ✅ ownership check
+  if (invest.user.toString() !== userId.toString()) {
+    return next(
+      new ErrorHandler("You don't have the right to update it.", 403)
+    );
+  }
+
+  const { investmentIncomeByUser, typeOfInvestmentByUser, customDate } =
+    req.body;
 
   // Validate investmentIncomeByUser
-  if (!investmentIncomeByUser || isNaN(investmentIncomeByUser) || investmentIncomeByUser <= 0) {
-    return res.status(400).json({ message: "Please provide a valid Investment Income" });
+  if (
+    !investmentIncomeByUser ||
+    isNaN(investmentIncomeByUser) ||
+    investmentIncomeByUser <= 0
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Please provide a valid Investment Income" });
   }
 
   let indiaDate;
@@ -168,14 +221,16 @@ exports.updateInvestment = catchAsyncError(async (req, res, next) => {
   if (customDate) {
     indiaDate = moment(customDate, "YYYY-MM-DD", true).tz("Asia/Kolkata");
     if (!indiaDate.isValid()) {
-      return res.status(400).json({ message: "Please provide a valid custom date" });
+      return res
+        .status(400)
+        .json({ message: "Please provide a valid custom date" });
     }
   } else {
     indiaDate = moment().tz("Asia/Kolkata");
   }
 
   // Get the current time in the Asia/Kolkata timezone
-  const currentTimingOFindia = moment.tz("Asia/Kolkata"); 
+  const currentTimingOFindia = moment.tz("Asia/Kolkata");
 
   // Adjust to UTC by adding 5 hours and 30 minutes
   const utcDateTime = indiaDate.clone().add(5, "hours").add(30, "minutes");
@@ -196,8 +251,8 @@ exports.updateInvestment = catchAsyncError(async (req, res, next) => {
   invest.date = formattedDate;
   invest.day = dayOfWeek;
 
-    // Save the updated income
-    await invest.save();
+  // Save the updated income
+  await invest.save();
 
   res.status(200).json({
     success: true,
@@ -207,6 +262,15 @@ exports.updateInvestment = catchAsyncError(async (req, res, next) => {
 
 // Delete Single Investment
 exports.deleteSingleInvestment = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
   const investment = await investmentModel.findById(req.params.id);
 
   if (!investment) {
@@ -215,6 +279,13 @@ exports.deleteSingleInvestment = catchAsyncError(async (req, res, next) => {
       message: "Investment not found",
     });
   }
+  // ✅ ownership check
+  if (investment.user.toString() !== userId.toString()) {
+    return next(
+      new ErrorHandler("You don't have the right to delete it.", 403)
+    );
+  }
+
   await investment.deleteOne();
 
   res.status(200).json({
@@ -225,13 +296,21 @@ exports.deleteSingleInvestment = catchAsyncError(async (req, res, next) => {
 
 // Yearly Income Aggregation (Indian Time)
 exports.getYearlyInvestments = catchAsyncError(async (req, res, next) => {
+  let userId = req.user._id;
+  if (req.user.role === "worker") {
+    if (!req.user.workerDetails?.ownerAccountId) {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
+    userId = req.user.workerDetails.ownerAccountId;
+  }
+
   // Aggregate yearly income while adjusting for timezone (IST) from FullDayIncome
-
-
   const yearlyIncome = await FullDayIncome.aggregate([
     {
       $match: {
-        user: req.user._id, // Filter by the logged-in user's ID
+        user: userId, // Filter by the logged-in user's ID
       },
     },
     {
@@ -246,7 +325,7 @@ exports.getYearlyInvestments = catchAsyncError(async (req, res, next) => {
   const yearlyInvestments = await investmentModel.aggregate([
     {
       $match: {
-        user: req.user._id, // Filter by the logged-in user's ID
+        user: userId, // Filter by the logged-in user's ID
       },
     },
     {
@@ -258,8 +337,8 @@ exports.getYearlyInvestments = catchAsyncError(async (req, res, next) => {
     { $sort: { _id: 1 } }, // Sort by year
   ]);
 
-   // Format the result to make it more readable
-   const formattedYearlyIncome = yearlyIncome.map((item) => ({
+  // Format the result to make it more readable
+  const formattedYearlyIncome = yearlyIncome.map((item) => ({
     year: item._id, // The year from the grouped result
     totalIncome: item.totalIncome, // The total income for that year
   }));

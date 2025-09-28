@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   GET_TODAY_EARNING_REQUEST,
   GET_TODAY_EARNING_SUCCESS,
@@ -32,6 +31,7 @@ import {
   GET_COMPLETE_DATA_FAIL,
   CLEAR_ERRORS,
 } from "../constants/earningConstants";
+import api from "../utils/axiosInstance";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -47,7 +47,7 @@ export const addTodayEarning = (addData) => async (dispatch) => {
     };
 
     // Making the POST request to add income
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/newIncome`,
       addData,
       config
@@ -82,15 +82,12 @@ export const addFullDayEarning = (addData) => async (dispatch) => {
       withCredentials: true, // Ensure credentials like cookies are sent
     };
 
-    console.log("it is saving.......");
-    // Making the POST request to add income
-    const { data } = await axios.post(
+ 
+    const { data } = await api.post(
       `${API_URL}/api/v2/addFullDayIncome`,
       addData,
       config
     );
-    console.log(addData);
-    console.log("data is saved.......");
 
     // Dispatch success action with response data
     dispatch({
@@ -114,7 +111,7 @@ export const addFullDayEarning = (addData) => async (dispatch) => {
 export const getTodayEarning = (date, month, year) => async (dispatch) => {
   try {
     dispatch({ type: GET_TODAY_EARNING_REQUEST });
-    const { data } = await axios.get(
+    const { data } = await api.get(
       `${API_URL}/api/v2/todayIncome?date=${date}&month=${month}&year=${year}`,
       {
         withCredentials: true, // Include this option to send cookies with the request
@@ -140,7 +137,7 @@ export const updateTodayIncome = (id, productData) => async (dispatch) => {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     };
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `${API_URL}/api/v2/todayIncome/${id}`,
       productData,
       config
@@ -159,7 +156,7 @@ export const updateTodayIncome = (id, productData) => async (dispatch) => {
 export const deleteTodayIncome = (id) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_TODAY_EARNING_REQUEST });
-    const { data } = await axios.delete(`${API_URL}/api/v2/todayIncome/${id}`, {
+    const { data } = await api.delete(`${API_URL}/api/v2/todayIncome/${id}`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
     dispatch({ type: DELETE_TODAY_EARNING_SUCCESS, payload: data });
@@ -175,7 +172,7 @@ export const deleteTodayIncome = (id) => async (dispatch) => {
 export const getPerDayData = (month, year) => async (dispatch) => {
   try {
     dispatch({ type: DAY_EARNING_REQUEST });
-    const { data } = await axios.get(
+    const { data } = await api.get(
       `${API_URL}/api/v2/perMonthIncome?&month=${month}&year=${year}`,
       {
         withCredentials: true, // Include this option to send cookies with the request
@@ -197,7 +194,7 @@ export const getPerDayData = (month, year) => async (dispatch) => {
 export const getMonthlyData = (year) => async (dispatch) => {
   try {
     dispatch({ type: MONTHLY_EARNING_REQUEST });
-    const { data } = await axios.get(
+    const { data } = await api.get(
       `${API_URL}/api/v2/getMonthlyIncome?year=${year}`,
       {
         withCredentials: true, // Include this option to send cookies with the request
@@ -219,7 +216,7 @@ export const getMonthlyData = (year) => async (dispatch) => {
 export const getYearlyData = () => async (dispatch) => {
   try {
     dispatch({ type: YEARLY_EARNING_REQUEST });
-    const { data } = await axios.get(`${API_URL}/api/v2/getYearlyIncome`, {
+    const { data } = await api.get(`${API_URL}/api/v2/getYearlyIncome`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
     dispatch({
@@ -238,7 +235,7 @@ export const getYearlyData = () => async (dispatch) => {
 export const getMonthlyHistory = (month, year) => async (dispatch) => {
   try {
     dispatch({ type: GET_MONTHLY_HISTORY_REQUEST });
-    const { data } = await axios.get(
+    const { data } = await api.get(
       `${API_URL}/api/v2/monthlyHistory?&month=${month}&year=${year}`,
       {
         withCredentials: true, // Include this option to send cookies with the request
@@ -260,7 +257,7 @@ export const getMonthlyHistory = (month, year) => async (dispatch) => {
 export const getCompleteData = () => async (dispatch) => {
   try {
     dispatch({ type: GET_COMPLETE_DATA_REQUEST });
-    const { data } = await axios.get(
+    const { data } = await api.get(
       `${API_URL}/api/v2/completeData`,
       {
         withCredentials: true, // Include this option to send cookies with the request

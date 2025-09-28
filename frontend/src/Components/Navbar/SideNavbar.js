@@ -1,239 +1,141 @@
-import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-// import { BsArrowRightSquareFill, BsArrowLeftSquareFill } from "react-icons/bs";
-// import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-// import { MdDashboard } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
 import { SiHomeassistantcommunitystore } from "react-icons/si";
 import { IoMdPricetags } from "react-icons/io";
-// import { CiReceipt } from "react-icons/ci";
-// import { GiTakeMyMoney } from "react-icons/gi";
-// import { TbTransactionRupee } from "react-icons/tb";
-// import { GrMoney } from "react-icons/gr";
 import { IoStatsChartSharp } from "react-icons/io5";
-import { FaChartPie, FaLock } from "react-icons/fa6";
+import { FaChartPie } from "react-icons/fa6";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
-import { MdOutlineMenuBook } from "react-icons/md";
-import { lockList } from "../../actions/appLockAction";
-import { useDispatch, useSelector } from "react-redux";
+import { MdOutlineMenuBook, MdCategory } from "react-icons/md";
+import { useSelector } from "react-redux";
 import OneLineDaysLeft from "../Payment/OneLineDaysLeft";
 import { RiFileList3Fill } from "react-icons/ri";
 import { SiAuthentik } from "react-icons/si";
-// import { useSelector } from "react-redux";
+import { hasAccess } from "../../utils/checkAccess";
 
-const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
-  // const {user,isAuthenticated} = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-  // Lock/Unlock
-  // Lock List
-  const { LockList } = useSelector((state) => state.lockUnlockList);
-
-  const {
-    // loading: unLockPasswordLoading,
-    isUnlock,
-    // error: unLockError,
-  } = useSelector((state) => state.unLockFeature);
-
-  // The feature to check
-  // const checkLockEarning = "Earning"; // You can dynamically change this value as needed
-  // const checkLockCharts = "Charts";
-  // const checkLockInvestments = "Investments";
-  // const checkLockUdharBook = "UdharBook";
-  // const checkLockHistory = "UdharBook";
-
-  // State to manage password pop-up visibility and input
-  // const [isLocked, setIsLocked] = useState(false);
-  // const [password, setPassword] = useState("");
-
-  // Assuming LockList is always a single document
-  const lockedFeatures = LockList[0]?.lockedFeatures || {};
-
-  // Check the locked status for each feature
-  const isEarningLocked = lockedFeatures["Earning"];
-  const isChartsLocked = lockedFeatures["Charts"];
-  const isInvestmentsLocked = lockedFeatures["Investments"];
-  const isUdharBookLocked = lockedFeatures["UdharBook"];
-  const isHistoryLocked = lockedFeatures["History"];
-
-  useEffect(() => {
-    if (isUnlock) {
-      // Fetch the updated LockList after unlocking a feature
-      dispatch(lockList());
-    }
-  }, [isUnlock, dispatch]);
-
-  // Function to render lock icon based on the locked status of a feature
-  const renderLockIcon = (isLocked) => {
-    return isLocked && <FaLock className="text-gray-500" />;
-  };
+const SideNavbar = ({ mobileToggle, setMobileToggle }) => {
+  const { user, lockedFeatures } = useSelector((state) => state.user);
 
   return (
     <>
       <div
-        className={`bg-white border-r border-r-slate-200 md:border-r-slate-300 w-64 md:w-72 h-screen flex flex-col fixed top-0 pt-4 z-50 md:left-0  animation duration-500 ${
+        className={`bg-white border-r border-neutral-200 w-64  md:w-72 h-screen flex flex-col fixed top-0 pt-4 z-50 lg:left-0 transition-all duration-300 ${
           mobileToggle ? "-left-80" : "left-0"
         }`}
       >
-        <div className="flex items-center justify-between mx-4">
+        <div className="flex items-center justify-between mx-4 mb-6">
           <div>
             <Link
               to={"/"}
-              className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600 font-literata"
+              className="text-2xl  font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent"
             >
               ashopiy
             </Link>
           </div>
-          <div onClick={() => setMobileToggle(true)} className=" md:hidden">
-            <IoMdClose className="text-2xl text-slate-600" />
+          <div 
+            onClick={() => setMobileToggle(true)} 
+            className="lg:hidden p-1 rounded hover:bg-neutral-100 transition-colors"
+          >
+            <IoMdClose className="text-xl text-neutral-600" />
           </div>
         </div>
 
-        <div className="flex flex-col  mt-12 gap-4 overflow-y-auto md:scrollbar-hide hover:scrollbar-show">
+        <div className="flex flex-col mt-4 gap-1 overflow-y-auto px-2">
           <Link
             to={"/"}
-            className="flex items-center gap-4  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
           >
-            <div>
-              <SiHomeassistantcommunitystore className="text-xl" />
-            </div>
-            <div>
-              <h1 className="text-xl">Home</h1>
-            </div>
+            <SiHomeassistantcommunitystore className="text-xl text-neutral-600" />
+            <span className="text-base font-medium">Home</span>
           </Link>
 
-          {
-            <>
-              <Link
-                to={"/earning"}
-                className="flex justify-between items-center  p-2  pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <IoStatsChartSharp className="text-xl" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Earning</h1>
-                  </div>
-                </div>
-                <div className="mr-4">{renderLockIcon(isEarningLocked)}</div>
-              </Link>
+          {hasAccess(user, "Earning", lockedFeatures) && (
+            <Link
+              to={"/earning"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <IoStatsChartSharp className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Earning</span>
+            </Link>
+          )}
 
-              <Link
-                to={"/charts"}
-                className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 "
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <FaChartPie className="text-xl hover:text-blue-500" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Charts</h1>
-                  </div>
-                </div>
-                <div className="mr-4">{renderLockIcon(isChartsLocked)}</div>
-              </Link>
+          {hasAccess(user, "Charts", lockedFeatures) && (
+            <Link
+              to={"/charts"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <FaChartPie className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Charts</span>
+            </Link>
+          )}
 
-              <Link
-                to={"/investment"}
-                className="flex justify-between items-center p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <FaMoneyBillTrendUp className="text-xl" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Investment</h1>
-                  </div>
-                </div>
-                <div className="mr-4">
-                  {renderLockIcon(isInvestmentsLocked)}
-                </div>
-              </Link>
+          {hasAccess(user, "Investments", lockedFeatures) && (
+            <Link
+              to={"/investment"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <FaMoneyBillTrendUp className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Investment</span>
+            </Link>
+          )}
 
-              <Link
-                to={"/uDhaarBook"}
-                className="flex justify-between items-center p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <MdOutlineMenuBook className="text-2xl" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Udhaar Book</h1>
-                  </div>
-                </div>
-                <div className="mr-4">{renderLockIcon(isUdharBookLocked)}</div>
-              </Link>
+          {hasAccess(user, "UdharBook", lockedFeatures) && (
+            <Link
+              to={"/uDhaarBook"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <MdOutlineMenuBook className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Udhaar Book</span>
+            </Link>
+          )}
 
-              <Link
-                to={"/history"}
-                className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <FaMoneyBillTransfer className="text-xl" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">History</h1>
-                  </div>
-                </div>
-                <div className="mr-4">{renderLockIcon(isHistoryLocked)}</div>
-              </Link>
+          {hasAccess(user, "CreateProductCategory", lockedFeatures) && (
+            <Link
+              to={"/categories"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <MdCategory className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Create Category</span>
+            </Link>
+          )}
 
-              <Link
-                to={"/lock-feature"}
-                className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <SiAuthentik className="text-xl" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Lock System</h1>
-                  </div>
-                </div>
-                {/* <div className="mr-4">{renderLockIcon(isHistoryLocked)}</div> */}
-              </Link>
-              <Link
-                to={"/shopping-list"}
-                className="flex justify-between items-center p-2 pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600"
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <RiFileList3Fill className="text-xl" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Shopping List</h1>
-                  </div>
-                </div>
-              </Link>
+          {hasAccess(user, "History", lockedFeatures) && (
+            <Link
+              to={"/history"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <FaMoneyBillTransfer className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">History</span>
+            </Link>
+          )}
 
-              {/* <Link to={"/staffMangement"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
-        <div><MdManageAccounts className="text-2xl"/></div>
-        <div><h1 className="text-xl">Staff Mangement</h1></div>
-        </Link>
-        <Link to={"/billing"} className="flex items-center gap-4  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 opacity-50">
-        <div><IoReceiptSharp className="text-xl"/></div>
-        <div><h1 className="text-xl">Billing</h1></div>
-        </Link> */}
-            </>
-          }
+          {hasAccess(user, "Lock", lockedFeatures) && (
+            <Link
+              to={"/lock"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+            >
+              <SiAuthentik className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Lock System</span>
+            </Link>
+          )}
+
+          <Link
+            to={"/shopping-list"}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
+          >
+            <RiFileList3Fill className="text-xl text-neutral-600" />
+            <span className="text-base font-medium">Shopping List</span>
+          </Link>
+
           <Link
             to={"/pricing"}
-            className="flex items-center justify-between  p-2   pl-4 md:pl-8 hover:bg-blue-50 md:hover:bg-blue-200  hover:text-blue-600 "
+            className="flex items-center justify-between p-3 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors"
           >
-            <div className="flex items-center gap-4 ">
-              <div>
-                <IoMdPricetags className="text-xl" />
-              </div>
-              <div>
-                <h1 className="text-xl">Pricing</h1>
-              </div>
+            <div className="flex items-center gap-3">
+              <IoMdPricetags className="text-xl text-neutral-600" />
+              <span className="text-base font-medium">Pricing</span>
             </div>
-            <div className="mr-2">
-              <OneLineDaysLeft />
-            </div>
+            <OneLineDaysLeft />
           </Link>
         </div>
       </div>
@@ -241,4 +143,4 @@ const AdminDropdown = ({ mobileToggle, setMobileToggle }) => {
   );
 };
 
-export default AdminDropdown;
+export default SideNavbar;

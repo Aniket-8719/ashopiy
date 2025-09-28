@@ -60,6 +60,7 @@ const udharRoute = require("./routes/udharBookRoute");
 const appRoute = require("./routes/appLockRoute");
 const subcription = require("./routes/subcriptionRoute");
 const onlinePayment = require("./routes/OnlinePaymentRoute");
+const ProductCategory  = require("./routes/productCategoryRoute");
 const startCronJobs = require("./scheduler");
 
 // Registering routes
@@ -70,6 +71,7 @@ app.use("/api/v2", udharRoute);
 app.use("/api/v2", appRoute);
 app.use("/api/v2", subcription);
 app.use("/api/v2", onlinePayment);
+app.use("/api/v2", ProductCategory);
 
 app.get("/api/v2/getKey", (req,res)=>{
   res.status(200).json({key:process.env.RAZORPAY_API_KEY})

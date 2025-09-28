@@ -6,9 +6,9 @@ const { checkFeatureLock } = require("../middleware/lock");
 const router = express.Router();
 
 
-router.route("/newInvestment").post(isAuthenticatedUser, checkSubscriptionStatus, addInvestmentIncome);
+router.route("/newInvestment").post(isAuthenticatedUser, checkSubscriptionStatus, checkFeatureLock("Investments"), addInvestmentIncome);
 router.route("/allInvestment").get(isAuthenticatedUser, checkFeatureLock("Investments"),  getInvestmentIncome);
-router.route("/allInvestment/:id").delete(isAuthenticatedUser,  deleteSingleInvestment).put(isAuthenticatedUser, updateInvestment);
+router.route("/allInvestment/:id").delete(isAuthenticatedUser, checkFeatureLock("Investments"),  deleteSingleInvestment).put(isAuthenticatedUser, checkFeatureLock("Investments"), updateInvestment);
 router.route("/yearlyInvestments").get(isAuthenticatedUser, checkFeatureLock("Investments"),  getYearlyInvestments);
 
 module.exports = router;

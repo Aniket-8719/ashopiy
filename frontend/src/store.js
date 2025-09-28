@@ -1,18 +1,53 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
-import {thunk} from "redux-thunk"; 
+import { thunk } from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
-import { addEarningReducer, completeDataReducer, deleteORUpdateEarningReducer, earningReducer, monthlyHistoryReducer, monthlyReducer, perDayReducer, yearlyReducer } from "./reducers/earningReducer";
-import { addInvestmentReducer, deleteORUpdateInvestmentReducer, getInvestmentReducer } from "./reducers/investmentReducer";
-import { allUsersReducer, contactusRducer, forgotPasswordReducer, profileReducer, userDetailsReducer, userReducer } from "./reducers/userReducer";
-import {addUdharReducer, deleteORUpdateUdharReducer, getSingleUdharReducer, getUdharReducer} from "./reducers/udharReducer";
-import { lockFeatureReducer, lockListReducer, unLockFeatureReducer } from "./reducers/featureLockReducer";
+import {
+  addEarningReducer,
+  completeDataReducer,
+  deleteORUpdateEarningReducer,
+  earningReducer,
+  monthlyHistoryReducer,
+  monthlyReducer,
+  perDayReducer,
+  yearlyReducer,
+} from "./reducers/earningReducer";
+import {
+  addInvestmentReducer,
+  deleteORUpdateInvestmentReducer,
+  getInvestmentReducer,
+} from "./reducers/investmentReducer";
+import {
+  allUsersReducer,
+  contactusRducer,
+  forgotPasswordReducer,
+  profileReducer,
+  userDetailsReducer,
+  userReducer,
+} from "./reducers/userReducer";
+import {
+  addUdharReducer,
+  deleteORUpdateUdharReducer,
+  getSingleUdharReducer,
+  getUdharReducer,
+} from "./reducers/udharReducer";
+import {
+  appLockOperationsReducer,
+  createAppLockReducer,
+  getAllAppLocksReducer,
+} from "./reducers/featureLockReducer";
+import {
+  addProductReducer,
+  deleteProductReducer,
+  getAllProductsReducer,
+  updateProductReducer,
+} from "./reducers/productReducers";
 
 // Combine reducers
 const rootReducer = combineReducers({
   user: userReducer,
   profileUpdateDelete: profileReducer,
   forgotPassword: forgotPasswordReducer,
-  todayEarnings: earningReducer, 
+  todayEarnings: earningReducer,
   currentEarning: addEarningReducer,
   deleteUpdateEarning: deleteORUpdateEarningReducer,
   perDay: perDayReducer,
@@ -25,15 +60,24 @@ const rootReducer = combineReducers({
   allUdharInfo: getUdharReducer,
   singleUdhar: getSingleUdharReducer,
   deleteORUpdateUdhar: deleteORUpdateUdharReducer,
-  monthlyHistory:monthlyHistoryReducer,
+  monthlyHistory: monthlyHistoryReducer,
   completeData: completeDataReducer,
   contactUsMessage: contactusRducer,
-  lockFeature: lockFeatureReducer,
-  unLockFeature: unLockFeatureReducer,
-  lockUnlockList: lockListReducer,
+
+  appLocks: getAllAppLocksReducer,
+  createAppLock: createAppLockReducer,
+  appLockOperations: appLockOperationsReducer,
+
+
   // admin
-  allUser:allUsersReducer,
-  singleUser:userDetailsReducer,
+  allUser: allUsersReducer,
+  singleUser: userDetailsReducer,
+
+  // Product categories
+  addProduct: addProductReducer,
+  allProducts: getAllProductsReducer,
+  updateProduct: updateProductReducer,
+  deleteProduct: deleteProductReducer,
 });
 
 // Initial state
@@ -46,7 +90,8 @@ let initialState = {}; // You can add default values here if needed
 const store = createStore(
   rootReducer,
   initialState,
-  (process.env.REACT_APP_NODE_ENV === 'development' && window.__REDUX_DEVTOOLS_EXTENSION__)
+  process.env.REACT_APP_NODE_ENV === "development" &&
+    window.__REDUX_DEVTOOLS_EXTENSION__
     ? composeWithDevTools(applyMiddleware(thunk)) // If DevTools is available
     : applyMiddleware(thunk) // Fallback for environments without DevTools
 );

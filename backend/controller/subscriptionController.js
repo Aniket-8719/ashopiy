@@ -19,6 +19,10 @@ const instance = new Razorpay({
 exports.createRazorpayOrder = catchAsyncError(async (req, res, next) => {
   const { planName } = req.body; // Get planName from request body
   const userId = req.user._id;
+  const checkRole = req.user;
+  if (checkRole?.role === "worker") {
+    return res.status(401).json({ message: "You cannot buy as a worker." });
+  }
   if (!planName) {
     return res
       .status(400)
@@ -40,17 +44,16 @@ exports.createRazorpayOrder = catchAsyncError(async (req, res, next) => {
   };
 
   const order = await instance.orders.create(options);
-  // Save order details in Payment model with 'pending' status
+  // Save order details in Payment model with 'unpaid' status
   const payment = await Payment.create({
     userId,
     planName,
     razorpayOrderId: order.id,
     amount: req.body.amount,
-    status: "pending",
+    status: "unpaid",
     createdAt: moment().utc().add(5, "hours").add(30, "minutes"),
   });
 
-  // console.log(order);
   res.status(200).json({
     success: true,
     order,
@@ -58,45 +61,12 @@ exports.createRazorpayOrder = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// const updateSubscription = async (user) => {
-//   const currentDate = moment(); // Current date using moment
-//   console.log(currentDate.toDate());
-//   const planName = user.planName;
-
-//   if (!planName) throw new Error("No plan name found in user document");
-
-//   const durationInMonths = planName.toLowerCase() === "basic" ? 1 : 12; // Basic = 1 month, Premium = 12 months
-//   const subscription = user.subscription[planName.toLowerCase()];
-
-//   if (!subscription) throw new Error("Invalid subscription plan name");
-
-//   if (
-//     subscription.isActive &&
-//     subscription.endDate &&
-//     moment(subscription.endDate).isAfter(currentDate)
-//   ) {
-//     // Extend the subscription if active
-//     subscription.endDate = moment(subscription.endDate)
-//       .add(durationInMonths, "months")
-//       .toDate();
-//   } else {
-//     // Start a new subscription
-//     subscription.startDate = currentDate.toDate();
-//     subscription.endDate = currentDate
-//       .clone()
-//       .add(durationInMonths, "months")
-//       .toDate();
-//     subscription.isActive = true;
-//   }
-
-//   // Reset plan name after updating subscription
-//   user.planName = null;
-
-//   // Save the user document
-//   await user.save();
-// };
-
 const updateSubscription = async (user) => {
+  if (user.role === "worker") {
+    return res
+      .status(401)
+      .json({ message: "You cannot update subscription as a worker." });
+  }
   const currentDate = moment(); // Current date using moment
   console.log("Current Date:", currentDate.toDate());
   const planName = user.planName;
@@ -235,10 +205,10 @@ exports.paymentSuccess = catchAsyncError(async (req, res) => {
         .status(404)
         .json({ success: false, message: "Payment record not found" });
     }
-    // Delete all pending payments for the same user
+    // Delete all unpaid payments for the same user
     await Payment.deleteMany({
       userId: payment.userId, // Assuming payments are associated with a user
-      status: "pending", // Condition to match pending payments
+      status: "unpaid", // Condition to match unpaid payments
     });
     // Update user subscription
     const user = await User.findById(req.user._id);
@@ -254,40 +224,105 @@ exports.paymentSuccess = catchAsyncError(async (req, res) => {
     const emailOptions = {
       email: user.email,
       subject: "Subscription Activated Successfully",
-      message: `Hi ${user.shopOwnerName},\n\nYour subscription has been activated successfully. Thank you for choosing Ashopiy!`,
+      message: `Hi ${user.Name},\n\nYour subscription has been activated successfully. Thank you for choosing ashopiy!`,
       htmlMessage: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
-          <h2 style="color: #4CAF50;">Subscription Activated!</h2>
-          <p>Dear ${user.shopOwnerName},</p>
-          <p>We are thrilled to inform you that your subscription has been successfully activated.</p>
-          <table style="width: 100%; margin-top: 20px; border-collapse: collapse; text-align: left;">
-            <tr>
-              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Subscription Plan</th>
-              <td style="border-bottom: 1px solid #ddd; padding: 8px;">${
-                payment.planName
-              }</td>
-            </tr>
-            <tr>
-              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Amount Paid</th>
-              <td style="border-bottom: 1px solid #ddd; padding: 8px;">₹${
-                payment.amount
-              }</td>
-            </tr>
-            <tr>
-              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Payment ID</th>
-              <td style="border-bottom: 1px solid #ddd; padding: 8px;">${razorpay_payment_id}</td>
-            </tr>
-            <tr>
-              <th style="border-bottom: 1px solid #ddd; padding: 8px;">Payment Date</th>
-              <td style="border-bottom: 1px solid #ddd; padding: 8px;">${moment(
-                payment.createdAt
-              ).format("DD/MM/YYYY")}</td>
-            </tr>
-          </table>
-          <p style="margin-top: 20px;">If you have any questions or need support, feel free to reach out to our team at <a href="mailto:info.ashopiy@gmail.com">info.ashopiy@gmail.com</a>.</p>
-          <p style="margin-top: 20px;">Thank you for choosing Ashopiy!</p>
-          <p style="margin-top: 20px;">Best regards,<br>The Ashopiy Team</p>
-        </div>
+      <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f1f5f9;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+        <!-- Header -->
+        <tr>
+            <td style="padding: 0; background: linear-gradient(to right, #4f46e5, #9333ea);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                        <td style="padding: 24px 32px; text-align: center;">
+                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: bold;">ashopiy</h1>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+        <!-- Main Content -->
+        <tr>
+            <td style="padding: 32px;">
+                <h2 style="color: #4f46e5; margin-top: 0;">Subscription Activated Successfully!</h2>
+                <p>Dear ${user.Name},</p>
+                <p>We are thrilled to inform you that your subscription has been successfully activated. Thank you for choosing ashopiy!</p>
+                
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: #f8fafc; border-radius: 8px; padding: 16px;">
+                    <tr>
+                        <td colspan="2">
+                            <h3 style="color: #4f46e5; margin-top: 0;">Subscription Details</h3>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" style="padding: 8px 0; color: #64748b; font-weight: bold;">Subscription Plan</td>
+                        <td style="padding: 8px 0;">${payment.planName}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-weight: bold;">Amount Paid</td>
+                        <td style="padding: 8px 0;">₹${payment.amount}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-weight: bold;">Payment ID</td>
+                        <td style="padding: 8px 0;">${razorpay_payment_id}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-weight: bold;">Payment Date</td>
+                        <td style="padding: 8px 0;">${moment(
+                          payment.createdAt
+                        ).format("DD/MM/YYYY")}</td>
+                    </tr>
+                </table>
+                
+                <div style="text-align: center; margin: 28px 0;">
+    <a href="${process.env.FRONTEND_URL}/paymentHistory" 
+       style="display: inline-flex; 
+              align-items: center;
+              justify-content: center;
+              background: linear-gradient(to right, #4f46e5, #9333ea); 
+              color: white; 
+              padding: 14px 28px 14px 24px; 
+              text-decoration: none; 
+              border-radius: 6px; 
+              font-weight: 600;
+              font-size: 16px;
+              box-shadow: 0 4px 8px rgba(79, 70, 229, 0.25);
+              gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 16L12 4M12 16L8 12M12 16L16 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 20H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Download Invoice
+    </a>
+</div>
+                <p>If you have any questions or need support, feel free to reach out to our team at <a href="mailto:info.ashopiy@gmail.com" style="color: #4f46e5;">info.ashopiy@gmail.com</a>.</p>
+                
+                <p>Best regards,<br>The ashopiy Team</p>
+            </td>
+        </tr>
+        
+        <!-- Footer -->
+        <tr>
+            <td style="padding: 24px 32px; background-color: #f8fafc; text-align: center; color: #64748b; font-size: 14px;">
+               <p style="margin: 0 0 16px 0;">© ${new Date().getFullYear()} ashopiy. All rights reserved.</p>
+                <p style="margin: 0 0 8px 0;"><a href="${
+                  process.env.FRONTEND_URL
+                }/privacy-policy" style="color: #4f46e5; text-decoration: none;">Privacy Policy</a> | <a href="${
+        process.env.FRONTEND_URL
+      }/terms-conditions" style="color: #4f46e5; text-decoration: none;">Terms of Service</a></p>
+                <p style="margin: 0;">You're receiving this email because you have an account with ashopiy.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
       `,
     };
 
@@ -328,105 +363,118 @@ const sendSubscriptionEmail = async ({
 
   const emailMessage =
     state === "expiring"
-      ? `Dear ${user.shopOwnerName}, your ${subscriptionType} subscription will expire on ${formattedDate}. Please renew it to continue enjoying our services.`
-      : `Dear ${user.shopOwnerName}, your ${subscriptionType} subscription expired on ${formattedDate}. Please renew it to regain access to our services.`;
+      ? `Dear ${user.Name}, your ${subscriptionType} subscription will expire on ${formattedDate}. Please renew it to continue enjoying our services.`
+      : `Dear ${user.Name}, your ${subscriptionType} subscription expired on ${formattedDate}. Please renew it to regain access to our services.`;
 
   const htmlMessage = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-          }
-          .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          }
-          .email-header {
-            background-color: #007bff;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-          }
-          .email-header h1 {
-            margin: 0;
-            font-size: 24px;
-          }
-          .email-body {
-            padding: 20px;
-            color: #333333;
-            line-height: 1.6;
-          }
-          .email-body p {
-            margin: 0 0 15px;
-          }
-          .email-body strong {
-            color: #007bff;
-          }
-          .email-footer {
-            text-align: center;
-            background-color: #f4f4f4;
-            padding: 15px;
-            font-size: 12px;
-            color: #888888;
-          }
-          .email-button {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-          }
-          .email-button:hover {
-            background-color: #0056b3;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="email-container">
-          <div class="email-header">
-            <h1>${
-              state === "expiring"
-                ? "Subscription Notice"
-                : "Subscription Expired"
-            }</h1>
-          </div>
-          <div class="email-body">
-            <p>Dear <strong>${user.shopOwnerName}</strong>,</p>
-            <p>
-              ${
-                state === "expiring"
-                  ? `Your <strong>${subscriptionType}</strong> subscription will expire on <strong>${formattedDate}</strong>. Please renew it to continue enjoying our services.`
-                  : `We would like to inform you that your <strong>${subscriptionType}</strong> subscription expired on <strong>${formattedDate}</strong>.<br> To continue enjoying uninterrupted access to our services, we kindly request you to renew your subscription at your earliest convenience.<br><br> Thank you for choosing us, and we look forward to serving you again.<br><br> Best regards.`
-              }
-            </p>
-            <a href="${
-              process.env.FRONTEND_URL
-            }/pricing" class="email-button">Renew Subscription</a>
-          </div>
-          <div class="email-footer">
-            <p>
-              Thank you for choosing our services. If you have any questions, feel free to contact us at
-              <a href="mailto:info.ashopiy@gmail.com">info.ashopiy@gmail.com</a>.
-            </p>
-            <p>&copy; ${new Date().getFullYear()} Ashopiy. All rights reserved.</p>
-          </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+  <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); padding: 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">
+        ${state === "expiring" ? "Subscription Notice" : "Subscription Expired"}
+      </h1>
+      <div style="margin-top: 15px;">
+        <div style="background-color: ${
+          state === "expiring" ? "#f59e0b" : "#dc2626"
+        }; color: #ffffff; padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 14px; font-weight: 600;">
+          ${state === "expiring" ? "Expiring Soon" : "Expired"}
         </div>
-      </body>
-      </html>
-      `;
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 35px 30px;">
+      <!-- Greeting -->
+      <div style="margin-bottom: 25px;">
+        <p style="color: #374151; margin: 0 0 8px 0; font-size: 16px;">Dear</p>
+        <h2 style="color: #6366f1; margin: 0; font-size: 20px; font-weight: 700;">${
+          user.Name
+        }</h2>
+      </div>
+
+      <!-- Message -->
+      <div style="background-color: #f8fafc; border-left: 4px solid #6366f1; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
+        <p style="color: #4b5563; margin: 0; font-size: 15px; line-height: 1.6;">
+          ${
+            state === "expiring"
+              ? `Your <strong style="color: #6366f1;">${subscriptionType}</strong> subscription will expire on <strong style="color: #dc2626;">${formattedDate}</strong>. Please renew it to continue enjoying our services without interruption.`
+              : `We would like to inform you that your <strong style="color: #6366f1;">${subscriptionType}</strong> subscription expired on <strong style="color: #dc2626;">${formattedDate}</strong>.<br><br>To continue enjoying uninterrupted access to our services, we kindly request you to renew your subscription at your earliest convenience.`
+          }
+        </p>
+      </div>
+
+      <!-- Subscription Details -->
+      <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e0f2fe;">
+          <span style="color: #0369a1; font-weight: 600;">Subscription Type:</span>
+          <span style="color: #6366f1; font-weight: 600;">${subscriptionType}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: #0369a1; font-weight: 600;">Status:</span>
+          <span style="color: ${
+            state === "expiring" ? "#f59e0b" : "#dc2626"
+          }; font-weight: 600;">
+            ${state === "expiring" ? "Expiring Soon" : "Expired"}
+          </span>
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <div style="text-align: center;">
+        <a href="${process.env.FRONTEND_URL}/pricing" 
+           style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
+                  color: #ffffff; 
+                  padding: 14px 32px; 
+                  text-decoration: none; 
+                  border-radius: 8px; 
+                  font-weight: 600; 
+                  font-size: 16px; 
+                  display: inline-block; 
+                  transition: all 0.3s;
+                  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);">
+          Renew Subscription
+        </a>
+        <p style="color: #6b7280; font-size: 14px; margin: 15px 0 0 0;">
+          Don't lose access to your premium features
+        </p>
+      </div>
+    </div>
+
+    <!-- Support Section -->
+    <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 25px 30px; text-align: center;">
+      <h3 style="color: #374151; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Need Assistance?</h3>
+      <p style="color: #6b7280; margin: 0 0 15px 0; font-size: 14px;">
+        Our support team is here to help you
+      </p>
+      <a href="mailto:info.ashopiy@gmail.com" 
+         style="color: #6366f1; text-decoration: none; font-weight: 600; font-size: 14px;">
+        info.ashopiy@gmail.com
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #1f2937; padding: 25px 30px; text-align: center;">
+      <div style="margin-bottom: 12px;">
+        <span style="color: #6366f1; font-size: 18px; font-weight: 700;">ashopiy</span>
+      </div>
+      <p style="color: #9ca3af; margin: 0 0 8px 0; font-size: 13px;">
+        Empowering businesses with smart solutions
+      </p>
+      <p style="color: #6b7280; margin: 0; font-size: 12px;">
+        © ${new Date().getFullYear()} ashopiy. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
   await sendEmail({
     email: user.email,
@@ -496,7 +544,6 @@ exports.checkExpiringSubscriptions = catchAsyncError(async (req, res, next) => {
 
 exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
   const currentDate = moment().utc().add(5, "hours").add(30, "minutes");
- 
 
   const expiredUsers = await User.find({
     $or: [
@@ -563,15 +610,14 @@ exports.checkExpiredSubscriptions = catchAsyncError(async (req, res, next) => {
 // Get Payment History Controller
 exports.getPaymentHistory = async (req, res) => {
   try {
-    const userId = req.user._id; // Extract user ID from authenticated request (e.g., req.user is populated via middleware)
-
+    const userId = req.user._id;
+    if (req.user.role === "worker") {
+      return res
+        .status(401)
+        .json({ message: "You are not recognized by any owner." });
+    }
     // Fetch payment history for the authenticated user
     const payments = await Payment.find({ userId }).sort({ createdAt: -1 });
-
-    // If no payments are found
-    if (!payments.length) {
-      return res.status(404).json({ message: "No payment history found." });
-    }
 
     // Return payment data
     res.status(200).json(payments);
@@ -636,7 +682,7 @@ exports.getPaymentHistory = async (req, res) => {
 //         email: user.email,
 //         subject: "Your Basic Subscription is About to Expire!",
 //         message: `Dear ${
-//           user.shopOwnerName
+//           user.Name
 //         }, your Basic subscription will expire on ${moment(
 //           user.subscription.basic.endDate
 //         )
@@ -644,7 +690,7 @@ exports.getPaymentHistory = async (req, res) => {
 //           .format(
 //             "DD MMM YYYY"
 //           )}. Please renew it to continue enjoying our services.`,
-//         htmlMessage: `<p>Dear ${user.shopOwnerName},</p>
+//         htmlMessage: `<p>Dear ${user.Name},</p>
 //                             <p>Your Basic subscription will expire on <strong>${moment(
 //                               user.subscription.basic.endDate
 //                             )
@@ -670,7 +716,7 @@ exports.getPaymentHistory = async (req, res) => {
 //         email: user.email,
 //         subject: "Your Premium Subscription is About to Expire!",
 //         message: `Dear ${
-//           user.shopOwnerName
+//           user.Name
 //         }, your Premium subscription will expire on ${moment(
 //           user.subscription.premium.endDate
 //         )
@@ -678,7 +724,7 @@ exports.getPaymentHistory = async (req, res) => {
 //           .format(
 //             "DD MMM YYYY"
 //           )}. Please renew it to continue enjoying premium features.`,
-//         htmlMessage: `<p>Dear ${user.shopOwnerName},</p>
+//         htmlMessage: `<p>Dear ${user.Name},</p>
 //                             <p>Your Premium subscription will expire on <strong>${moment(
 //                               user.subscription.premium.endDate
 //                             )
@@ -720,13 +766,13 @@ exports.getPaymentHistory = async (req, res) => {
 //         email: user.email,
 //         subject: "Your Basic Subscription Has Expired",
 //         message: `Dear ${
-//           user.shopOwnerName
+//           user.Name
 //         }, your Basic subscription expired on ${moment(
 //           user.subscription.basic.endDate
 //         ).format(
 //           "DD MMM YYYY"
 //         )}. Please renew it to regain access to our services.`,
-//         htmlMessage: `<p>Dear ${user.shopOwnerName},</p>
+//         htmlMessage: `<p>Dear ${user.Name},</p>
 //                           <p>Your Basic subscription expired on <strong>${moment(
 //                             user.subscription.basic.endDate
 //                           ).format(
@@ -746,13 +792,13 @@ exports.getPaymentHistory = async (req, res) => {
 //         email: user.email,
 //         subject: "Your Premium Subscription Has Expired",
 //         message: `Dear ${
-//           user.shopOwnerName
+//           user.Name
 //         }, your Premium subscription expired on ${moment(
 //           user.subscription.premium.endDate
 //         ).format(
 //           "DD MMM YYYY"
 //         )}. Please renew it to regain access to premium features.`,
-//         htmlMessage: `<p>Dear ${user.shopOwnerName},</p>
+//         htmlMessage: `<p>Dear ${user.Name},</p>
 //                           <p>Your Premium subscription expired on <strong>${moment(
 //                             user.subscription.premium.endDate
 //                           ).format(

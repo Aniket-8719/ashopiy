@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import {useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearError, register } from "../../actions/userAction";
-import { shopcategory } from "../../ShopCategories.js/ShopCategories";
+import { shopcategory } from "../../ShopCategories/ShopCategories";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const RegistrationForm = () => {
@@ -26,7 +26,7 @@ const RegistrationForm = () => {
     shopName: "",
     shopType: "",
     customShopType: "",
-    shopOwnerName: "",
+    Name: "",
     whatsappNo: "",
     mobileNo: "",
     gstNo: "",
@@ -292,8 +292,8 @@ const RegistrationForm = () => {
               <input
                 type="text"
                 required
-                name="shopOwnerName"
-                value={formData.shopOwnerName}
+                name="Name"
+                value={formData.Name}
                 onChange={handleChange}
                 placeholder="Enter owner name"
                 className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"

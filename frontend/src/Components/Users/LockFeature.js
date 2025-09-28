@@ -68,7 +68,6 @@ const LockFeature = () => {
         setPassword,
         loginPassword,
       };
-      //   console.log(addData);
       dispatch(lockFeature(addData));
     }
   };
@@ -84,6 +83,7 @@ const LockFeature = () => {
         UdharBook: lockedFeatures["UdharBook"] || false,
         History: lockedFeatures["History"] || false,
         Profile: lockedFeatures["Profile"] || false,
+        ProductCategory: lockedFeatures["ProductCategory"] || false,
       });
     }
   }, [LockList]); // Removed memoizedLockedFeatures from dependencies

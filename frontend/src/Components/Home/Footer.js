@@ -56,7 +56,7 @@ const Footer = () => {
       {/* Divider */}
       <div className="border-t border-gray-700 mt-8 pt-4">
         <div className="container mx-auto text-center">
-          <p className="text-sm text-gray-400">&copy; 2025 Your Company. All rights reserved.</p>
+           <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} ashopiy. All rights reserved.</p>
         </div>
       </div>
     </footer>

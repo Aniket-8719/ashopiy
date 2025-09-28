@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   ADD_INVESTMENT_REQUEST,
   ADD_INVESTMENT_SUCCESS,
@@ -14,6 +13,7 @@ import {
   DELETE_INVESTMENT_FAIL,
   CLEAR_ERRORS,
 } from "../constants/investmentConstants";
+import api from "../utils/axiosInstance";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -26,7 +26,7 @@ export const addInvestment = (addData) => async (dispatch) => {
       withCredentials: true,
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/newInvestment`,
       addData,
       config
@@ -41,7 +41,7 @@ export const addInvestment = (addData) => async (dispatch) => {
 export const getInvestment = () => async (dispatch) => {
   try {
     dispatch({ type: GET_INVESTMENT_REQUEST });
-    const { data } = await axios.get(`${API_URL}/api/v2/allInvestment`, {
+    const { data } = await api.get(`${API_URL}/api/v2/allInvestment`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
     dispatch({
@@ -64,7 +64,7 @@ export const updateInvestment = (id, investmentData) => async (dispatch) => {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     };
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `${API_URL}/api/v2/allInvestment/${id}`,
       investmentData,
       config
@@ -83,7 +83,7 @@ export const updateInvestment = (id, investmentData) => async (dispatch) => {
 export const deleteInvestment = (id) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_INVESTMENT_REQUEST });
-    const { data } = await axios.delete(
+    const { data } = await api.delete(
       `${API_URL}/api/v2/allInvestment/${id}`,
       {
         withCredentials: true, // Include this option to send cookies with the request

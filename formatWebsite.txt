@@ -1,0 +1,30 @@
+ashopiy THEME GUIDE:
+
+Primary Colors (Brand):
+- primary-50 to primary-900 (light to dark)
+- Main brand color: primary-500 (#6366f1)
+- Dark brand color: primary-600 (#4f46e5)
+
+Secondary Colors (Accent):
+- secondary-50 to secondary-900 (light to dark)
+- Main accent: secondary-500 (#a855f7)
+- Dark accent: secondary-600 (#9333ea)
+
+Neutral Colors (Text & Backgrounds):
+- neutral-50 to neutral-900 (light to dark)
+- Text: neutral-700 to neutral-900
+- Backgrounds: neutral-50 to neutral-100
+- Borders: neutral-200 to neutral-300
+
+Semantic Colors:
+- Success: success (green) for positive actions
+- Warning: warning (amber) for cautions
+- Error: error (red) for errors/destructive actions
+- Info: info (blue) for information
+
+Usage Examples:
+- Text: text-primary-600, text-neutral-700
+- Background: bg-primary-500, bg-neutral-100
+- Border: border-neutral-200
+- Buttons: bg-primary-500 hover:bg-primary-600
+- Cards: bg-white border border-neutral-200

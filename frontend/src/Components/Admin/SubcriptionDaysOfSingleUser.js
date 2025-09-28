@@ -1,12 +1,13 @@
 import React from "react";
 import moment from "moment";
+import { FaCrown, FaExclamationTriangle, FaCalendarAlt } from "react-icons/fa";
 
 const SubcriptionDaysOfSingleUser = ({ user }) => {
   // Function to calculate total days left
   const calculateTotalDaysLeft = () => {
     if (!user?.subscription) return 0;
 
-    const currentDate = moment(); // Current date
+    const currentDate = moment();
     const { basic, premium } = user.subscription;
 
     // Collect relevant dates only for active plans
@@ -30,38 +31,89 @@ const SubcriptionDaysOfSingleUser = ({ user }) => {
 
     // Calculate days left from current date to the maximum date
     const totalDaysLeft = maxDate.diff(currentDate, "days");
-    // const totalDaysLeft = Math.round(maxDate.diff(currentDate, "days") / 24);
-
-    // Return days left or 0 if the maxDate is in the past
     return totalDaysLeft > 0 ? totalDaysLeft : 0;
   };
 
   const totalDaysLeft = calculateTotalDaysLeft();
 
-  // Conditional style for color
-  const textColor = totalDaysLeft <= 7 ? "text-red-600" : "text-indigo-600";
+  // Determine status and styling
+  const getStatusInfo = () => {
+    if (totalDaysLeft === 0) {
+      return {
+        color: "text-error-600",
+        bgColor: "bg-error-50",
+        icon: <FaExclamationTriangle className="text-error-600" />,
+        status: "Expired"
+      };
+    } else if (totalDaysLeft <= 7) {
+      return {
+        color: "text-warning-600",
+        bgColor: "bg-warning-50",
+        icon: <FaExclamationTriangle className="text-warning-600" />,
+        status: "Expiring Soon"
+      };
+    } else {
+      return {
+        color: "text-success-600",
+        bgColor: "bg-success-50",
+        icon: <FaCrown className="text-success-600" />,
+        status: "Active"
+      };
+    }
+  };
+
+  const statusInfo = getStatusInfo();
+  const hasActiveSubscription = user?.subscription?.basic?.isActive || user?.subscription?.premium?.isActive;
 
   return (
-    <div className="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow-md max-w-md mx-auto">
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">
-        Subscription Days Left
-      </h2>
-      {user?.subscription?.basic?.isActive ||
-      user?.subscription?.premium?.isActive ? (
-        <div>
-          <div className="flex items-center justify-center w-full">
-            <span className={`text-4xl font-bold ${textColor}`}>
-              {totalDaysLeft}
-            </span>
-            <span className="ml-2 text-xl text-gray-500">days</span>
+    <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-neutral-800">Subscription Status</h3>
+        <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
+          {statusInfo.icon}
+          <span className="ml-1">{statusInfo.status}</span>
+        </div>
+      </div>
+
+      {hasActiveSubscription ? (
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-3">
+            <div className="p-2 bg-primary-100 rounded-lg mr-3">
+              <FaCalendarAlt className="text-primary-600 text-lg" />
+            </div>
+            <div>
+              <p className="text-sm text-neutral-600">Days Remaining</p>
+              <p className={`text-3xl font-bold ${statusInfo.color}`}>
+                {totalDaysLeft}
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            This is the total number of days left across all active
-            subscriptions.
+          
+          <div className="mt-4 pt-4 border-t border-neutral-100">
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div className={`p-2 rounded-lg ${user?.subscription?.basic?.isActive ? "bg-primary-50 text-primary-700" : "bg-neutral-50 text-neutral-500"}`}>
+                <p>Basic Plan</p>
+                <p className="font-semibold">{user?.subscription?.basic?.isActive ? "Active" : "Inactive"}</p>
+              </div>
+              <div className={`p-2 rounded-lg ${user?.subscription?.premium?.isActive ? "bg-purple-50 text-purple-700" : "bg-neutral-50 text-neutral-500"}`}>
+                <p>Premium Plan</p>
+                <p className="font-semibold">{user?.subscription?.premium?.isActive ? "Active" : "Inactive"}</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-neutral-500 mt-4">
+            Total days remaining across all active subscriptions
           </p>
         </div>
       ) : (
-        <p className="text-red-600 text-4xl font-bold">Unsubscribed</p>
+        <div className="text-center py-6">
+          <div className="p-3 bg-error-100 rounded-full inline-flex mb-3">
+            <FaExclamationTriangle className="text-error-600 text-2xl" />
+          </div>
+          <p className="text-error-600 font-semibold text-lg">No Active Subscription</p>
+          <p className="text-neutral-500 text-sm mt-1">User is currently unsubscribed</p>
+        </div>
       )}
     </div>
   );

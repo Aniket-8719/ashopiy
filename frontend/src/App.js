@@ -1,16 +1,15 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import DailyEarning from "./Components/Features & Service/Earning/DailyEarning";
 import Home from "./Components/Home/Home";
 import Navbar from "./Components/Navbar/Navbar";
 import AllCharts from "./Components/Features & Service/Charts/AllCharts";
-import AllData from "./Components/Features & Service/AllData";
+import AllData from "./Components/Features & Service/History/AllData";
 import Investment from "./Components/Features & Service/Investment/Investment";
 import { useDispatch, useSelector } from "react-redux";
 import { addFullDayEarning } from "./actions/earningAction";
 import moment from "moment-timezone";
 import Login from "./Components/Users/Login";
-import RegistrationForm from "./Components/Users/RegistrationForm";
 import { loadUser } from "./actions/userAction";
 import UpdatePassword from "./Components/Users/UpdatePassword";
 import ForgotPassword from "./Components/Users/ForgotPassword";
@@ -18,81 +17,91 @@ import ResetPassword from "./Components/Users/ResetPassword";
 import UserManagement from "./Components/Admin/UserManagement";
 import EditProfile from "./Components/Users/EditProfile";
 import Profile from "./Components/Users/Profile";
-// import Billing from "./Components/Features & Service/Billing";
-// import StaffManagement from "./Components/Features & Service/StaffManagement";
 import NotFound from "./Components/Not Found/NotFound";
 import ProtectedRoute from "./Components/Protected Route/ProtectedRoute";
 import ViewDetails from "./Components/Admin/ViewDetails";
 import EditUserProfile from "./Components/Admin/EditUserProfile";
-import AddUdhar from "./Components/UdharBook/AddUdhar";
-import UdharList from "./Components/UdharBook/UdharList";
-import ShowingCal from "./Components/Staff Management/ShowingCal";
+import UdharList from "./Components/Features & Service/UdharBook/UdharList";
 import Pricing from "./Components/Payment/Pricing";
 import PaymentSummary from "./Components/Payment/PaymentSummary";
 import PrivacyPolicy from "./Components/Home/PrivacyPolicy";
 import TermsConditions from "./Components/Home/TermsConditions";
 import ContactUs from "./Components/Home/ContactUs";
-import LockFeature from "./Components/Users/LockFeature";
-import { lockList } from "./actions/appLockAction";
 import PaymentSuccess from "./Components/Payment/PaymentSuccess";
 import AboutUs from "./Components/Home/AboutUs";
 import PaymentHistory from "./Components/Payment/PaymentHistory";
 import CancellationAndRefunds from "./Components/Home/CancellationAndRefunds";
 import ShippingPolicy from "./Components/Home/ShippingPolicy";
 import VideoPlayer from "./Components/Video/VideoPlayer";
-import ShoppingList from "./Components/Features & Service/ShoppingList";
+import ShoppingList from "./Components/Features & Service/ShoppingList/ShoppingList";
 import UpdateMerchantIDForm from "./Components/Users/UpdateMerchantIDForm";
 import InvestmentChart from "./Components/Features & Service/Investment/InvestmentChart";
 import IncomeChart from "./Components/Features & Service/Earning/IncomeChart";
+import ProductCategories from "./Components/Features & Service/Create_Categories/ProductCategories";
+import CompleteProfile from "./Components/Users/CompleteProfile";
+import Loader from "./Components/Layouts/Loader";
+import SetPassword from "./Components/Users/SetPassword";
+import AppLockList from "./Components/Features & Service/Lock/AppLockList";
+import FeatureProtectedRoute from "./Components/Protected Route/FeatureProtectedRoute";
+import Register from "./Components/Users/Register";
 
 function App() {
   const dispatch = useDispatch();
-  const {user,isAuthenticated} = useSelector((state) => state.user);
-  const {isLock} = useSelector((state) => state.lockFeature);
- 
+  const { user, isAuthenticated, loading } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(loadUser()); // Dispatch an action to check user authentication
+  }, [dispatch]);
+
   useEffect(() => {
     if (!isAuthenticated || !user?.email) return;
-  
-    const today = moment().tz("Asia/Kolkata").startOf("day").format("YYYY-MM-DD");
-    const previousDay = moment().tz("Asia/Kolkata").subtract(1, 'day').startOf('day').format("YYYY-MM-DD");
 
-    // console.log(previousDay); // This will output the previous day's date in "YYYY-MM-DD" format
+    const today = moment()
+      .tz("Asia/Kolkata")
+      .startOf("day")
+      .format("YYYY-MM-DD");
+    const previousDay = moment()
+      .tz("Asia/Kolkata")
+      .subtract(1, "day")
+      .startOf("day")
+      .format("YYYY-MM-DD");
+
 
     try {
-      const userProcessedMap = JSON.parse(localStorage.getItem("userProcessedMap")) || {};
+      const userProcessedMap =
+        JSON.parse(localStorage.getItem("userProcessedMap")) || {};
       const lastProcessedDate = localStorage.getItem("lastProcessedDate");
-  
+
       if (lastProcessedDate !== today) {
         Object.keys(userProcessedMap).forEach((email) => {
           userProcessedMap[email] = false;
         });
-        localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
+        localStorage.setItem(
+          "userProcessedMap",
+          JSON.stringify(userProcessedMap)
+        );
         localStorage.setItem("lastProcessedDate", today);
-        // console.log("Reset userProcessedMap for a new day");
       }
       if (!userProcessedMap[user.email]) {
         dispatch(addFullDayEarning({ date: previousDay }));
         userProcessedMap[user.email] = true;
-        localStorage.setItem("userProcessedMap", JSON.stringify(userProcessedMap));
-        // console.log(`Processed income for user: ${user.email}`);
-        // toast.success("Previous income added");
+        localStorage.setItem(
+          "userProcessedMap",
+          JSON.stringify(userProcessedMap)
+        );
       }
     } catch (error) {
       console.error("Error in useEffect:", error);
     }
   }, [isAuthenticated, user?.email, dispatch]); // Minimal and essential dependencies
 
-  useEffect(() => {
-    dispatch(loadUser()); // Dispatch an action to check user authentication
-  }, [dispatch]);
-
- // Fetch lockList details when user is authenticated
- useEffect(() => {
-  if (isAuthenticated) {     
-    dispatch(lockList());   
+  if (loading || loading === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
-}, [dispatch, isAuthenticated, isLock]);    
-  
 
   return (
     <>
@@ -100,23 +109,104 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<RegistrationForm />} />
-        <Route path="password/forgot" element={<ForgotPassword />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/password/reset/:token" element={<ResetPassword />} />
-        <Route path="/earning" element={<DailyEarning />} />
-        <Route path="/earning-chart" element={<IncomeChart />} />
-        <Route path="/charts" element={<AllCharts />} />
-        <Route path="/history" element={<AllData />} />
-        <Route path="/investment" element={<Investment />} />
+
+        <Route
+          path="/earning"
+          element={
+            <FeatureProtectedRoute feature="Earning">
+              <DailyEarning />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/earning-chart"
+          element={
+            <FeatureProtectedRoute feature="Earning">
+              <IncomeChart />
+            </FeatureProtectedRoute>
+          }
+        />
+       
+        <Route
+          path="/charts"
+          element={
+            <FeatureProtectedRoute feature="Charts">
+              <AllCharts />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/investment"
+          element={
+            <FeatureProtectedRoute feature="Investments">
+              <Investment />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/investment"
+          element={
+            <FeatureProtectedRoute feature="Investments">
+              <Investment />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/investment-chart"
+          element={
+            <FeatureProtectedRoute feature="Investments">
+              <InvestmentChart />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/uDhaarBook"
+          element={
+            <FeatureProtectedRoute feature="UdharBook">
+              <UdharList />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <FeatureProtectedRoute feature="CreateProductCategory">
+              <ProductCategories />
+            </FeatureProtectedRoute>
+          }
+        />
+
         <Route path="/shopping-list" element={<ShoppingList />} />
-        <Route path="/lock-feature" element={<LockFeature />} />
+
+         <Route
+          path="/history"
+          element={
+            <FeatureProtectedRoute feature="History">
+              <AllData />
+            </FeatureProtectedRoute>
+          }
+        />
+        <Route
+          path="/lock"
+          element={
+            <FeatureProtectedRoute feature="Lock">
+              <AppLockList />
+            </FeatureProtectedRoute>
+          }
+        />
+
+
+        {/* <Route path="/lock-feature" element={<LockFeature />} /> */}
 
         {/* protected routes */}
         <Route
           path="/profile"
           element={
             <ProtectedRoute requiredRole="user">
-             <Profile />
+              <Profile />
             </ProtectedRoute>
           }
         />
@@ -132,7 +222,7 @@ function App() {
           path="/me/update"
           element={
             <ProtectedRoute requiredRole="user">
-            <EditProfile />
+              <EditProfile />
             </ProtectedRoute>
           }
         />
@@ -140,7 +230,23 @@ function App() {
           path="/password/update"
           element={
             <ProtectedRoute requiredRole="user">
-           <UpdatePassword />
+              <UpdatePassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/password/set"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <SetPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <CompleteProfile />
             </ProtectedRoute>
           }
         />
@@ -168,20 +274,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
-          path="/user/merchantID"
-          element={
-            <ProtectedRoute requiredRole="user">
-              <UpdateMerchantIDForm />
-            </ProtectedRoute>
-          }
-        /> */}
-        <Route path="/user/merchantID" element={<UpdateMerchantIDForm />} /> 
-        {/* <Route path="/staffMangement" element={<StaffManagement />} />
-        <Route path="/billing" element={<Billing />} /> */}
-        <Route path="/addUdhar" element={<AddUdhar />} />
-        <Route path="/uDhaarBook" element={<UdharList/>} />
-        <Route path="/calender" element={<ShowingCal />} />
+        
+
+        <Route path="/user/merchantId" element={<UpdateMerchantIDForm />} />
+  
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/paymentSummary" element={<PaymentSummary />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -190,11 +286,11 @@ function App() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/cancel-refuds" element={<CancellationAndRefunds />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
-        <Route exact path="/paymentsuccess" element={<PaymentSuccess/>} />
-        <Route exact path="/paymentHistory" element={<PaymentHistory/>} />
-        <Route exact path="/video" element={<VideoPlayer/>} />
-        <Route exact path="/investment-chart" element={<InvestmentChart/>} />
-        <Route exact path="*" element={<NotFound/>} />
+        <Route exact path="/paymentsuccess" element={<PaymentSuccess />} />
+        <Route exact path="/paymentHistory" element={<PaymentHistory />} />
+        <Route exact path="/video" element={<VideoPlayer />} />
+
+        <Route exact path="*" element={<NotFound />} />
       </Routes>
     </>
   );

@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import Loader from "../Layouts/Loader";
 import { UPDATE_PASSWORD_RESET } from "../../constants/userConstants";
 import MetaData from "../Layouts/MetaData";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa6";
+import { FaCheckCircle } from "react-icons/fa";
 
 const UpdatePassword = () => {
   const navigate = useNavigate();
@@ -57,115 +58,171 @@ const UpdatePassword = () => {
   return (
     <>
       <MetaData title={"UPDATE PASSWORD"} />
-      <section className="md:ml-72">
-        <div className="min-h-screen bg-gray-100 md:bg-gray-200 flex items-center justify-center ">
-          <div className="w-full max-w-md bg-white shadow-lg rounded-sm p-8 mt-14 md:mt-20  ">
-            {/* Title */}
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-              Change Password
-            </h2>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Password Field */}
-              <div className="relative">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Old Password
-                </label>
-                <input
-                  id="password"
-                  type={passwordVisibility.oldPassword ? "text" : "password"}
-                  name="password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder="Enter your Old password"
-                  className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                  required
-                />
-                {/* Eye icon for toggling password visibility */}
-                <span
-                  className="absolute top-6 inset-y-0 right-3 flex items-center cursor-pointer"
-                  onClick={() => handleTogglePassword("oldPassword")} // Toggle for old password
-                >
-                  {passwordVisibility.oldPassword ? (
-                    <FaEye className="text-gray-500 text-xl" />
-                  ) : (
-                    <FaEyeSlash className="text-gray-500 text-xl" />
-                  )}
-                </span>
+      <section className="mt-12 lg:ml-72 px-4 lg:px-6">
+        <div className="max-w-md mx-auto py-8">
+          {/* Header Section */}
+          <div className="mb-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+                <FaLock className="w-8 h-8 text-primary-600" />
               </div>
-              <div className="relative">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
+            </div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-800">
+              Change Password
+            </h1>
+            <p className="text-neutral-600 mt-2">
+              Secure your account with a new password
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6 lg:p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Old Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Current Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={passwordVisibility.oldPassword ? "text" : "password"}
+                    name="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    placeholder="Enter your current password"
+                    className="w-full px-4 py-2.5 pr-10 text-neutral-700 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => handleTogglePassword("oldPassword")}
+                  >
+                    {passwordVisibility.oldPassword ? (
+                      <FaEyeSlash className="text-neutral-400 hover:text-neutral-600" />
+                    ) : (
+                      <FaEye className="text-neutral-400 hover:text-neutral-600" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   New Password
                 </label>
-                <input
-                  id="password"
-                  type={passwordVisibility.newPassword ? "text" : "password"}
-                  name="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter your new password"
-                  required
-                  className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                />
-                {/* Eye icon for toggling password visibility */}
-                <span
-                  className="absolute top-6 inset-y-0 right-3 flex items-center cursor-pointer"
-                  onClick={() => handleTogglePassword("newPassword")} // Toggle for old password
-                >
-                  {passwordVisibility.newPassword ? (
-                    <FaEye className="text-gray-500 text-xl" />
-                  ) : (
-                    <FaEyeSlash className="text-gray-500 text-xl" />
-                  )}
-                </span>
+                <div className="relative">
+                  <input
+                    type={passwordVisibility.newPassword ? "text" : "password"}
+                    name="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter your new password"
+                    className="w-full px-4 py-2.5 pr-10 text-neutral-700 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => handleTogglePassword("newPassword")}
+                  >
+                    {passwordVisibility.newPassword ? (
+                      <FaEyeSlash className="text-neutral-400 hover:text-neutral-600" />
+                    ) : (
+                      <FaEye className="text-neutral-400 hover:text-neutral-600" />
+                    )}
+                  </button>
+                </div>
               </div>
-              <div className="relative">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Confirm Password
+
+              {/* Confirm Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Confirm New Password
                 </label>
-                <input
-                  id="password"
-                  type={
-                    passwordVisibility.confirmPassword ? "text" : "password"
-                  }
-                  name="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Enter your confirm password"
-                  required
-                  className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                />
-                {/* Eye icon for toggling password visibility */}
-                <span
-                  className="absolute top-6 inset-y-0 right-3 flex items-center cursor-pointer"
-                  onClick={() => handleTogglePassword("confirmPassword")} // Toggle for old password
-                >
-                  {passwordVisibility.confirmPassword ? (
-                    <FaEye className="text-gray-500 text-xl" />
-                  ) : (
-                    <FaEyeSlash className="text-gray-500 text-xl" />
-                  )}
-                </span>
+                <div className="relative">
+                  <input
+                    type={
+                      passwordVisibility.confirmPassword ? "text" : "password"
+                    }
+                    name="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your new password"
+                    className="w-full px-4 py-2.5 pr-10 text-neutral-700 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => handleTogglePassword("confirmPassword")}
+                  >
+                    {passwordVisibility.confirmPassword ? (
+                      <FaEyeSlash className="text-neutral-400 hover:text-neutral-600" />
+                    ) : (
+                      <FaEye className="text-neutral-400 hover:text-neutral-600" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Password Requirements */}
+              <div className="bg-neutral-50 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-neutral-700 mb-2">
+                  Password Requirements:
+                </h4>
+                <ul className="text-xs text-neutral-600 space-y-1">
+                  <li className="flex items-center">
+                    <FaCheckCircle className="w-3 h-3 text-success-600 mr-2" />
+                    Minimum 8 characters
+                  </li>
+                  <li className="flex items-center">
+                    <FaCheckCircle className="w-3 h-3 text-success-600 mr-2" />
+                    At least one uppercase letter
+                  </li>
+                  <li className="flex items-center">
+                    <FaCheckCircle className="w-3 h-3 text-success-600 mr-2" />
+                    At least one number
+                  </li>
+                  <li className="flex items-center">
+                    <FaCheckCircle className="w-3 h-3 text-success-600 mr-2" />
+                    At least one special character
+                  </li>
+                </ul>
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center justify-center w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className={`w-full py-3 text-white font-medium rounded-lg transition-all ${
+                  loading
+                    ? "bg-neutral-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700"
+                } shadow-md hover:shadow-lg`}
               >
-                {loading ? <Loader /> : "Update"}
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader />
+                    <span className="ml-2">Updating...</span>
+                  </div>
+                ) : (
+                  "Update Password"
+                )}
               </button>
+
+              {/* Additional Help */}
+              <div className="text-center">
+                <p className="text-sm text-neutral-500">
+                  Forgot your password?{" "}
+                  <a
+                    href="/forgot-password"
+                    className="text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Reset it here
+                  </a>
+                </p>
+              </div>
             </form>
           </div>
         </div>

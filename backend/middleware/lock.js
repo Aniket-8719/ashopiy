@@ -1,33 +1,44 @@
-const AppLock = require("../models/appLockModel"); // Assuming this is the correct model
+const AppLock = require("../models/appLockModel");
+const ErrorHandler = require("../utils/errorhandler");
 
 exports.checkFeatureLock = (featureName) => {
   return async (req, res, next) => {
     try {
-      const userId = req.user._id; // Assuming the user ID is available in req.user from authentication middleware
+      // Owners/Admins skip lock checks
+      if (req.user?.role !== "worker") {
+        return next();
+      }
 
-      // Fetch the locked features for the authenticated user
-      const lockDoc = await AppLock.findOne({ userId });
+      const userId = req.user?._id;
+      if (!userId) {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
 
-      // If no lock data is found, proceed without any error
+      // Look up lock settings
+      const lockDoc = await AppLock.findOne({ WorkerId: userId });
+
+      // If no lockDoc, allow worker
       if (!lockDoc) {
         return next();
       }
 
-      // Check if the specific feature is locked
-      const isFeatureLocked = lockDoc.lockedFeatures[featureName];
+      // Check specific feature lock
+      const isLocked = lockDoc.lockedFeatures?.get(featureName);
 
-      // If the feature is unlocked (false), allow the request to proceed
-      if (!isFeatureLocked) {
-        return next();
+      if (isLocked) {
+        return next(
+          new ErrorHandler(
+            `Access denied. The "${featureName}" feature is locked by your Owner.`,
+            403
+          )
+        );
       }
 
-      // If the feature is locked, deny access
-      return res.status(403).json({
-        message: `Access denied. The feature "${featureName}" is locked.`,
-      });
+      // Not locked → allow
+      return next();
     } catch (error) {
       console.error("Error checking feature lock:", error);
-      res.status(500).json({ message: "Internal server error" });
+      return next(new ErrorHandler("Internal server error", 500));
     }
   };
 };

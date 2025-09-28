@@ -1,103 +1,73 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { privacyPolicyData } from './data/pages_data';
 
 const PrivacyPolicy = () => {
   useEffect(() => {
-    window.scrollTo(0, 0);  // Scroll to the top
+    window.scrollTo(0, 0);
   }, []);
 
   return (
-    <>
-    <section  className="mt-16 md:ml-72 ">
-    <div className="min-h-screen p-6">
-      <div className="max-w-4xl mx-auto bg-white  rounded-lg ">
-        <h1 className="text-3xl font-bold mb-4 text-center">Privacy Policy</h1>
-        <p className="text-gray-600 mb-6 text-center">Effective Date: 21st December 2024</p>
-
-        <div className="space-y-6 text-gray-700">
-          {/* Introduction */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">1. Introduction</h2>
-            <p>
-              Welcome to our website. We are committed to protecting your privacy and ensuring that your personal information is secure. This Privacy Policy explains how we collect, use, and disclose information when you use our website and services.
+    <section className="mt-20 lg:ml-72 px-4 lg:px-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl border border-neutral-200 p-6 lg:p-8 shadow-sm">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl lg:text-3xl font-semibold text-neutral-800 mb-2">
+              {privacyPolicyData.title}
+            </h1>
+            <p className="text-neutral-600 text-sm">
+              Effective Date: {privacyPolicyData.effectiveDate}
             </p>
-          </section>
+          </div>
 
-          {/* Information We Collect */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">2. Information We Collect</h2>
-            <p>
-              We collect the following types of information:
-            </p>
-            <ul className="list-disc list-inside space-y-1">
-              <li><strong>Personal Information:</strong> such as your name, email address, phone number, and payment information.</li>
-              <li><strong>Usage Information:</strong> such as your IP address, browser type, and activity on our website.</li>
-              <li><strong>Cookies:</strong> to improve your experience on our site and analyze website traffic.</li>
-            </ul>
-          </section>
+          {/* Content */}
+          <div className="space-y-8">
+            {privacyPolicyData.sections.map((section, index) => (
+              <section key={index} className="border-b border-neutral-100 pb-6 last:border-b-0 last:pb-0">
+                <h2 className="text-xl lg:text-2xl font-semibold text-neutral-800 mb-4 flex items-center">
+                  <div className="w-6 h-6 bg-primary-100 rounded-lg mr-1 flex items-center justify-center">
+                    <span className="text-primary-600 font-semibold text-xl">{index + 1}.</span>
+                  </div>
+                  {section.title}
+                </h2>
+                
+                <div className="text-neutral-700 leading-relaxed">
+                  <p className="mb-4">{section.content}</p>
+                  
+                  {section.list && (
+                    <ul className="space-y-2 ml-4">
+                      {section.list.map((item, itemIndex) => (
+                        <li key={itemIndex} className="flex items-start">
+                          <div className="w-1.5 h-1.5 bg-primary-200 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                          {item.type === 'strong' ? (
+                            <span className="font-semibold text-neutral-800">{item.text}</span>
+                          ) : (
+                            <span>{item.text}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            ))}
+          </div>
 
-          {/* How We Use Your Information */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">3. How We Use Your Information</h2>
-            <p>
-              We use the information we collect to:
+          {/* Contact Info */}
+          <div className="mt-8 p-4 bg-primary-50 rounded-lg border border-primary-100">
+            <p className="text-primary-800 text-sm text-center">
+              For any privacy-related concerns, contact us at{' '}
+              <a 
+                href="mailto:info.ashopiy@gmail.com" 
+                className="font-semibold hover:text-primary-900 transition-colors"
+              >
+                info.ashopiy@gmail.com
+              </a>
             </p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Provide, maintain, and improve our services.</li>
-              <li>Process transactions and send you updates related to your orders.</li>
-              <li>Respond to your inquiries and provide customer support.</li>
-              <li>Analyze usage patterns and improve user experience.</li>
-            </ul>
-          </section>
-
-          {/* Sharing of Information */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">4. Sharing of Information</h2>
-            <p>
-              We do not sell or rent your personal information to third parties. We may share your information with trusted partners for the following purposes:
-            </p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Payment processing through secure third-party providers.</li>
-              <li>Providing customer service through trusted service providers.</li>
-              <li>Legal obligations, such as complying with court orders or legal processes.</li>
-            </ul>
-          </section>
-
-          {/* Data Security */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">5. Data Security</h2>
-            <p>
-              We implement robust security measures to protect your personal information from unauthorized access, disclosure, or misuse. However, please be aware that no method of online transmission is 100% secure.
-            </p>
-          </section>
-
-          {/* Your Rights */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">6. Your Rights</h2>
-            <p>
-              You have the right to access, update, or delete your personal information. If you wish to exercise these rights, please contact us at <a href="mailto:info.ashopiy@gmail.com" className="text-blue-600 hover:underline">info.ashopiy@gmail.com</a>.
-            </p>
-          </section>
-
-          {/* Changes to the Policy */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">7. Changes to this Privacy Policy</h2>
-            <p>
-              We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting a notice on our website.
-            </p>
-          </section>
-
-          {/* Contact Us */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">8. Contact Us</h2>
-            <p>
-              If you have any questions about this Privacy Policy, please contact us at <a href="mailto:info.ashopiy@gmail.com" className="text-blue-600 hover:underline">info.ashopiy@gmail.com</a>.
-            </p>
-          </section>
+          </div>
         </div>
       </div>
-    </div>
     </section>
-    </>
   );
 };
 

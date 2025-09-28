@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { clearErrors, getInvestment } from "../../../actions/investmentAction";
+import { getInvestment } from "../../../actions/investmentAction";
 import axios from "axios";
 import InvestmentBarChart from "./InvestmentBarChart";
 import { toast } from "react-toastify";
 import Loader from "../../Layouts/Loader";
 import InvestmentLineChart from "./InvestmentLineChart";
-import { UNLOCK_FEATURE_RESET } from "../../../constants/appLockConstant";
-import { lockList, unLockFeature } from "../../../actions/appLockAction";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { HiDownload } from "react-icons/hi";
 import ExcelJS from "exceljs";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +14,7 @@ const InvestmentChart = () => {
   const { investments, error, loading } = useSelector(
     (state) => state.investmentData
   );
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -24,19 +22,19 @@ const InvestmentChart = () => {
   }, [dispatch]);
 
   const [data, setData] = useState({ yearlyIncome: [], yearlyInvestments: [] });
- const navigate = useNavigate();
-  useEffect(()=>{
+  const navigate = useNavigate();
+  useEffect(() => {
     if (error) {
-         toast.error(error);
-         if (
-           error ===
-           "You do not have an active subscription. Please subscribe to access this resource."
-         ) {
-           navigate("/pricing");
-         }
-        //  dispatch(clearErrors());
-       }
-  },[error,navigate]);
+      toast.error(error);
+      if (
+        error ===
+        "You do not have an active subscription. Please subscribe to access this resource."
+      ) {
+        navigate("/pricing");
+      }
+      //  dispatch(clearErrors());
+    }
+  }, [error, navigate]);
 
   // Fetch the API data
   useEffect(() => {
@@ -67,11 +65,10 @@ const InvestmentChart = () => {
       }
     };
 
-    if(!error){
+    if (!error) {
       fetchData();
     }
-  }, [dispatch,error]);
-
+  }, [dispatch, error]);
 
   // Prepare the chart data
   const chartData =
@@ -164,132 +161,55 @@ const InvestmentChart = () => {
     }
   };
 
-  // Lock List
-  const { LockList } = useSelector((state) => state.lockUnlockList);
-
-  const {
-    loading: unLockPasswordLoading,
-    isUnlock,
-    error: unLockError,
-  } = useSelector((state) => state.unLockFeature);
-
-  // The feature to check
-  const checkLockFeature = "Investments"; // You can dynamically change this value as needed
-
-  // State to manage password pop-up visibility and input
-  const [isLocked, setIsLocked] = useState(false);
-  const [password, setPassword] = useState("");
-
-  // Assuming LockList is always a single document, as per your description
-  const lockedFeatures = LockList[0]?.lockedFeatures || {};
-
-  // Check if the selected feature is locked
-  const isFeatureLocked = lockedFeatures[checkLockFeature];
-
-  const handleUnlockClick = () => {
-    setIsLocked(true);
-  };
-
-  const handlePasswordSubmit = () => {
-    // e.preventDefault();
-    const addData = {
-      featureName: checkLockFeature,
-      setPassword: password,
-    };
-    // Add your logic here to verify the password
-    dispatch(unLockFeature(addData));
-    setIsLocked(false); // After successful verification, you can unlock the screen
-  };
-
-  useEffect(() => {
-    if (unLockError) {
-      toast.error(unLockError);
-      dispatch(clearErrors());
-    }
-    if (isUnlock) {
-      toast.success("Invesment Unlock");
-      dispatch({ type: UNLOCK_FEATURE_RESET });
-      dispatch(lockList());
-
-      // After unlocking, fetch investment details
-      dispatch(getInvestment());
-    }
-    // Fetch investment details if the feature is already unlocked
-    if (!isFeatureLocked) {
-      dispatch(getInvestment());
-    }
-  }, [unLockError, isUnlock, isFeatureLocked, dispatch]);
-
-  const [showPassword, setShowPassword] = useState(false);
-  // Toggle function for showing/hiding Set Password
-  const handleTogglePassword = () => setShowPassword((prev) => !prev);
-
   return (
-    <section className="mt-14 md:mt-20 md:ml-72">
-      <>
-        {isFeatureLocked ? (
-          <div className="flex flex-col items-center justify-center mt-20">
-            <p className="text-xl mb-4">{checkLockFeature} is locked.</p>
-            <button
-              onClick={handleUnlockClick}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-              Unlock Feature
-            </button>
-            {isLocked && (
-              <div className="flex justify-center items-center mt-4  ">
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    required
-                    className="mt-2 w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-sm focus:outline-none  focus:border-blue-500"
-                  />
-                  {/* Eye icon for toggling password visibility */}
-                  <span
-                    className="absolute top-2 inset-y-0 right-3 flex items-center cursor-pointer"
-                    onClick={handleTogglePassword} // Toggle for old password
-                  >
-                    {showPassword ? (
-                      <FaEye className="text-gray-500 text-xl" />
-                    ) : (
-                      <FaEyeSlash className="text-gray-500 text-xl" />
-                    )}
-                  </span>
-                </div>
-                <button
-                  onClick={handlePasswordSubmit}
-                  disabled={unLockPasswordLoading}
-                  className="flex justify-center items-center ml-2 mt-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-sm focus:outline-none  focus:border-green-500"
+    <section className="mt-20 lg:ml-72 px-4 lg:px-6">
+      <div className="max-w-7xl mx-auto">
+        {investments?.length === 0 ? (
+          <div className="bg-white rounded-xl border border-neutral-200 p-8 shadow-sm">
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="p-4 bg-neutral-100 rounded-full mb-4">
+                <svg
+                  className="w-12 h-12 text-neutral-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  {unLockPasswordLoading ? <Loader /> : "Submit"}
-                </button>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
               </div>
-            )}
+              <p className="text-neutral-600 text-lg mb-2">
+                No Investment Data Found
+              </p>
+              <p className="text-neutral-500 text-sm">
+                Start adding investments to see your performance charts
+              </p>
+            </div>
           </div>
         ) : (
-          <div>
+          <div className="relative">
             {loading ? (
-              <div className="absolute inset-0 flex justify-center items-center">
+              <div className="bg-white rounded-xl border border-neutral-200 p-8 shadow-sm flex justify-center items-center h-64">
                 <Loader />
               </div>
             ) : (
-              <div>
+              <div className="space-y-6">
                 <InvestmentLineChart chartData={chartData} />
                 <InvestmentBarChart data={data} />
-                {/* Download investment */}
+
+                {/* Download Button */}
                 {investments?.length > 0 && (
-                  <div className=" mt-4 flex gap-4 justify-end items-center mr-4 pb-4">
+                  <div className="flex justify-end">
                     <button
                       onClick={downloadExcel}
-                      className="flex justify-center items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-medium rounded-lg hover:from-primary-700 hover:to-secondary-700 transition-all shadow-md hover:shadow-lg text-sm"
                     >
+                      <HiDownload className="mr-2 text-sm" />
                       Download Excel
-                      <span className="font-bold text-md ml-2">
-                        <HiDownload />
-                      </span>
                     </button>
                   </div>
                 )}
@@ -297,7 +217,7 @@ const InvestmentChart = () => {
             )}
           </div>
         )}
-      </>
+      </div>
     </section>
   );
 };

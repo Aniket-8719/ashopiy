@@ -40,14 +40,12 @@ const fullDayIncomeSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  totalReturnCustomers: {
-    type: Number,
-    required: true,
-  },
-  totalReturnAmount: {
-    type: Number,
-    required: true,
-  },
+  categoryWiseIncome: [ 
+    {
+      productCategory: { type: String, required: true },
+      categoryTotalIncome: { type: Number, required: true },
+    },
+  ],
 });
 
 // Add unique index on user and normalized date

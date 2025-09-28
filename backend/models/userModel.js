@@ -29,47 +29,45 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+    required: function () {
+      return this.loginMethods.includes("password");
+    },
     minLength: [8, "Password should be greater than 8 characters"],
     select: false,
   },
   shopName: {
     type: String,
-    required: [true, "Shop name is required"],
     trim: true,
     maxLength: [50, "Name cannot exceed 30 characters"],
     minLength: [4, "Name should have more than 4 characters"],
   },
   shopType: {
     type: String,
-    required: [true, "Shop type is required"],
   },
   customShopType: {
     type: String,
     trim: true,
-    default: null, // Only populated if "Other" is selected
   },
-  shopOwnerName: {
+  Name: {
     type: String,
-    required: [true, "Shop owner name is required"],
+    required: [true, "Name is required"],
     trim: true,
     maxLength: [30, "Name cannot exceed 30 characters"],
     minLength: [2, "Name should have more than 2 characters"],
   },
   whatsappNo: {
     type: String,
-    required: [true, "WhatsApp number is required"],
+    default: null,
     match: [/^\d{10}$/, "Please enter a valid 10-digit WhatsApp number"],
   },
   mobileNo: {
     type: String,
-    required: [true, "Mobile number is required"],
+    default: null,
     match: [/^\d{10}$/, "Please enter a valid 10-digit mobile number"],
   },
   merchantID: {
     type: String,
     trim: true,
-    default: null,
   },
   gstNo: {
     type: String,
@@ -78,31 +76,24 @@ const userSchema = new mongoose.Schema({
       /\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}/,
       "Please enter a valid GST number",
     ],
-    default: null,
   },
   country: {
     type: String,
     default: "IN",
-    required: true,
   },
   state: {
     type: String,
-    required: [true, "State is required"],
+    default: null,
   },
   city: {
     type: String,
-    required: [true, "City is required"],
+    default: null,
   },
   pincode: {
     type: String,
-    required: [true, "Pincode is required"],
+    default: null,
     match: [/^\d{6}$/, "Please enter a valid 6-digit pincode"],
   },
-  // area: {
-  //   type: String,
-  //   required: [true, "area is required"],
-  // },
-
   landmark: {
     type: String,
     trim: true,
@@ -110,11 +101,7 @@ const userSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: [true, "Address is required"],
-  },
-  role: {
-    type: String,
-    default: "user",
+    default: null,
   },
   createdAt: {
     type: Date,
@@ -125,46 +112,88 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: null,
   },
-
   resetPasswordToken: String,
   resetPasswordExpire: Date,
-
   planName: {
-    type: String, // Store the selected plan (e.g., 'basic' or 'premium')
-    enum: ["basic", "premium"], // Optional: restrict to specific plan names
-    default: null, // Or set a default plan if needed
+    type: String,
+    enum: ["basic", "premium"],
+    default: null,
   },
-
-  // Subscription fields
   subscription: {
     basic: {
-      startDate: { type: Date, default: null }, // Start date of the basic subscription
-      endDate: { type: Date, default: null }, // End date of the basic subscription
-      isActive: { type: Boolean, default: false }, // Basic subscription status
+      startDate: { type: Date, default: null },
+      endDate: { type: Date, default: null },
+      isActive: { type: Boolean, default: false },
     },
     premium: {
-      startDate: { type: Date, default: null }, // Start date of the premium subscription
-      endDate: { type: Date, default: null }, // End date of the premium subscription
-      isActive: { type: Boolean, default: false }, // Premium subscription status
+      startDate: { type: Date, default: null },
+      endDate: { type: Date, default: null },
+      isActive: { type: Boolean, default: false },
+    },
+  },
+  loginMethods: {
+    type: [String],
+    enum: ["password", "google"],
+    default: ["password"],
+  },
+  isPasswordSet: {
+    type: Boolean,
+    default: false,
+  },
+  googleId: {
+    type: String,
+    default: null,
+  },
+  isProfileComplete: {
+    type: Boolean,
+    default: false,
+  },
+  role: {
+    type: String,
+    enum: ["shopkeeper", "worker", "admin"],
+  },
+
+  workerDetails: {
+    ownerAccountId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
   },
 });
 
-
-// Prevent changes to subscription data during registration or update
+// Pre-save hooks and methods remain the same
 userSchema.pre("save", function (next) {
   if (!this.isModified("subscription")) {
     next();
   } else {
-    // Ensure subscription is only modified when explicitly handled
     next();
   }
 });
+
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+  if (!this.isModified("password") || !this.password) {
     next();
   }
   this.password = await bcrypt.hash(this.password, 10);
+});
+
+userSchema.pre("save", function (next) {
+  if (this.role === "shopkeeper") {
+    this.workerDetails = undefined; // completely remove for shopkeepers
+    this.shopName = null;
+    this.shopType = null;
+    this.customShopType = null;
+    this.merchantID = null;
+    this.gstNo = null;
+  } else if (this.role === "worker" && !this.workerDetails) {
+    this.workerDetails = {
+      ownerAccountId: null,
+      WorkerRole: [],
+      joiningDate: null,
+    };
+  }
+  next();
 });
 
 // JWT TOKEN
@@ -174,17 +203,15 @@ userSchema.methods.getJWTToken = function () {
   });
 };
 
-//  Compare Password
+// Compare Password
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Generating Password Reset Token
 userSchema.methods.getResetPasswordToken = function () {
-  // Generating Token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
-  // Hashing and adding resetPasswordToken to userSchema
   this.resetPasswordToken = crypto
     .createHash("sha256")
     .update(resetToken)

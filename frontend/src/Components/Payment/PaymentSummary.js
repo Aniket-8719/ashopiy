@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Loader from "../Layouts/Loader";
+import { FaShieldAlt } from "react-icons/fa";
 
 const PaymentSummary = () => {
   const [loading, setLoading] = useState(false); // Loading state
@@ -49,7 +50,7 @@ const PaymentSummary = () => {
         order_id: order.id, // Razorpay order ID
         callback_url: `${process.env.REACT_APP_BACKEND_URL}/api/v2/payment-success`, // Callback URL for payment verification
         prefill: {
-          name: user?.shopOwnerName,
+          name: user?.Name,
           email: user?.email,
           contact: user?.mobileNo || user?.whatsappNo,
         },
@@ -84,67 +85,79 @@ const PaymentSummary = () => {
 
   return (
     <>
-      <section className="md:ml-72">
-        {CalbackLoading ? (
-          <div className="flex justify-center items-center h-screen">
-            <Loader />
-          </div>
-        ) : (
-          <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-                Order Summary
-              </h2>
-
-              {/* Pricing Breakdown */}
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between text-lg">
-                  <span>{planName}:</span>
-                  <span>₹{price}</span>
+      <section className="lg:ml-72 px-4 lg:px-6">
+        <div className="max-w-2xl mx-auto">
+          {CalbackLoading ? (
+            <div className="flex justify-center items-center min-h-screen">
+              <Loader />
+            </div>
+          ) : (
+            <div className="min-h-screen flex items-center justify-center py-12">
+              <div className="w-full bg-white rounded-xl border border-neutral-200 p-8 shadow-sm">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-semibold text-neutral-800 mb-2">
+                    Order Summary
+                  </h2>
+                  <p className="text-neutral-600">
+                    Review your subscription details
+                  </p>
                 </div>
-                <div className="flex justify-between text-lg">
-                  <span>Razorpay Platform Fee (2%):</span>
-                  <span>₹{platformFee}</span>
-                </div>
-                <div className="flex justify-between text-lg">
-                  <span>GST (18% on Platform Fee):</span>
-                  <span>₹{gst}</span>
-                </div>
-                <hr className="border-t border-gray-300" />
-                <div className="flex justify-between text-xl font-semibold">
-                  <span>Total:</span>
-                  <span>₹{amount}</span>
-                </div>
-              </div>
 
-              {/* Payment Methods (Optional for trust signals) */}
-              <div className="mb-6 text-center text-sm text-gray-600">
-                <p>We accept all major payment methods via Razorpay</p>
-                {/* <img
-            src="https://cdn.razorpay.com/static/assets/logo/payment.png"
-            alt="Razorpay Payment Methods"
-            className="mx-auto w-48 mt-2"
-          /> */}
-              </div>
+                {/* Pricing Breakdown */}
+                <div className="bg-neutral-50 rounded-lg p-6 mb-8">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">{planName}:</span>
+                      <span className="font-medium">₹{price}</span>
+                    </div>
 
-              {/* Buy Now Button */}
-              <button
-                onClick={() => checkoutHandler(amount)}
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 rounded-md font-bold text-xl hover:bg-blue-700 transition duration-300"
-              >
-                {loading ? "Processing..." : `Buy Now for ₹${amount}`}
-              </button>
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">
+                        Razorpay Platform Fee (2%):
+                      </span>
+                      <span className="font-medium">₹{platformFee}</span>
+                    </div>
 
-              {/* Security Badge (Optional for user trust) */}
-              <div className="text-center text-sm text-gray-500 mt-4">
-                <span className="inline-block bg-gray-200 rounded-full px-3 py-1">
-                  100% Secure Payment
-                </span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">
+                        GST (18% on Platform Fee):
+                      </span>
+                      <span className="font-medium">₹{gst}</span>
+                    </div>
+
+                    <hr className="border-neutral-200" />
+
+                    <div className="flex justify-between items-center text-lg font-semibold">
+                      <span className="text-neutral-800">Total Amount:</span>
+                      <span className="text-primary-600">₹{amount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Security */}
+                <div className="flex items-center justify-center mb-8 text-sm text-neutral-500">
+                  <div className="flex items-center">
+                    <FaShieldAlt className="mr-2 text-success-600" />
+                    <span>100% Secure Payment powered by Razorpay</span>
+                  </div>
+                </div>
+
+                {/* Buy Now Button */}
+                <button
+                  onClick={() => checkoutHandler(amount)}
+                  disabled={loading}
+                  className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
+                    loading
+                      ? "bg-neutral-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700"
+                  } shadow-md hover:shadow-lg`}
+                >
+                  {loading ? "Processing..." : `Pay ₹${amount}`}
+                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </section>
     </>
   );

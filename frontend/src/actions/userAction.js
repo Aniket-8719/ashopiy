@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
@@ -39,11 +38,20 @@ import {
   CONTACTUS_SUCCESS,
   CONTACTUS_FAIL,
   CLEAR_ERRORS,
+  COMPLETE_PROFILE_FAIL,
+  COMPLETE_PROFILE_SUCCESS,
+  COMPLETE_PROFILE_REQUEST,
+  GOOGLE_LOGIN_REQUEST,
+  GOOGLE_LOGIN_SUCCESS,
+  GOOGLE_LOGIN_FAIL,
+  GOOGLE_REGISTER_REQUEST,
+  GOOGLE_REGISTER_SUCCESS,
+  GOOGLE_REGISTER_FAIL,
 } from "../constants/userConstants";
+import api from "../utils/axiosInstance";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Login
 export const login = (email, password) => async (dispatch) => {
   try {
     dispatch({ type: LOGIN_REQUEST });
@@ -53,13 +61,14 @@ export const login = (email, password) => async (dispatch) => {
       withCredentials: true,
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/loginUser`,
       { email, password },
       config
     );
 
     dispatch({ type: LOGIN_SUCCESS, payload: data.user });
+    dispatch(loadUser());
   } catch (error) {
     dispatch({ type: LOGIN_FAIL, payload: error.response.data.message });
   }
@@ -77,16 +86,94 @@ export const register = (userData) => async (dispatch) => {
       withCredentials: true, // Include cookies for authentication
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/registerUser`, // Replace with your API endpoint
       userData,
       config
-    );   
+    );
     dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user });
+    dispatch(loadUser());
   } catch (error) {
     dispatch({
       type: REGISTER_USER_FAIL,
       payload: error.response?.data?.message || "Server Error",
+    });
+  }
+};
+
+// Google Login action
+export const googleLogin = (token) => async (dispatch) => {
+  try {
+    dispatch({ type: GOOGLE_LOGIN_REQUEST });
+
+    const config = {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    };
+
+    const { data } = await api.post(
+      `${API_URL}/api/v2/google-login`,
+      { token },
+      config
+    );
+
+    dispatch({ type: GOOGLE_LOGIN_SUCCESS, payload: data.user });
+    dispatch(loadUser());
+  } catch (error) {
+    dispatch({ 
+      type: GOOGLE_LOGIN_FAIL, 
+      payload: error.response?.data?.message || "Google login failed"
+    });
+  }
+};
+
+// Google Register action
+export const googleRegister = (token, role) => async (dispatch) => {
+  try {
+    dispatch({ type: GOOGLE_REGISTER_REQUEST });
+
+    const config = {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    };
+
+    const { data } = await api.post(
+      `${API_URL}/api/v2/google-register`,
+      { token, role },
+      config
+    );
+
+    dispatch({ type: GOOGLE_REGISTER_SUCCESS, payload: data.user });
+    dispatch(loadUser());
+  } catch (error) {
+    dispatch({ 
+      type: GOOGLE_REGISTER_FAIL, 
+      payload: error.response?.data?.message || "Google registration failed"
+    });
+  }
+};
+
+// Complete Profile Action
+export const completeProfile = (userData) => async (dispatch) => {
+  try {
+    dispatch({ type: COMPLETE_PROFILE_REQUEST });
+
+    const config = {
+      headers: { "Content-type": "multipart/form-data" },
+      withCredentials: true,
+    };
+
+    const { data } = await api.put(`${API_URL}/api/v2/me/complete-profile`, userData, config);
+   
+    dispatch({
+      type: COMPLETE_PROFILE_SUCCESS,
+      payload: data.user,
+    });
+
+  } catch (error) {
+    dispatch({
+      type: COMPLETE_PROFILE_FAIL,
+      payload: error.response.data.message,
     });
   }
 };
@@ -96,20 +183,28 @@ export const loadUser = () => async (dispatch) => {
   try {
     dispatch({ type: LOAD_USER_REQUEST });
 
-    const { data } = await axios.get(`${API_URL}/api/v2/me`, {
+    const { data } = await api.get(`${API_URL}/api/v2/me`, {
       withCredentials: true,
     });
 
-    dispatch({ type: LOAD_USER_SUCCESS, payload: data.user });
+    dispatch({ type: LOAD_USER_SUCCESS, payload: data});
+    
   } catch (error) {
-    dispatch({ type: LOAD_USER_FAIL, payload: error.response.data.message });
+    if (error.response?.status === 401) {
+      dispatch({ type: LOAD_USER_FAIL, payload: null });
+    } else {
+      dispatch({ 
+        type: LOAD_USER_FAIL, 
+        payload: error.response?.data?.message || "Failed to load user" 
+      });
+    }
   }
 };
 
 // Logout User
 export const logout = () => async (dispatch) => {
   try {
-    await axios.get(`${API_URL}/api/v2/logout`, {
+    await api.get(`${API_URL}/api/v2/logout`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
 
@@ -128,8 +223,8 @@ export const updateProfile = (userData) => async (dispatch) => {
       headers: { "Content-type": "multipart/form-data" },
       withCredentials: true, // Include this option to send cookies with the request
     };
- 
-    const { data } = await axios.put(
+
+    const { data } = await api.put(
       `${API_URL}/api/v2/me/update`,
       userData,
       config
@@ -153,7 +248,7 @@ export const updatePassword = (passwords) => async (dispatch) => {
       withCredentials: true, // Include this option to send cookies with the request
     };
 
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `${API_URL}/api/v2/password/update`,
       passwords,
       config
@@ -175,7 +270,7 @@ export const forgotPassword = (email) => async (dispatch) => {
       headers: { "Content-Type": "application/json" },
       withCredentials: true, // Include this option to send cookies with the request
     };
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/password/forgot`,
       email,
       config
@@ -199,7 +294,7 @@ export const resetPassword = (token, passwords) => async (dispatch) => {
       withCredentials: true, // Include this option to send cookies with the request
     };
 
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `${API_URL}/api/v2/password/reset/${token}`,
       passwords,
       config
@@ -215,12 +310,13 @@ export const resetPassword = (token, passwords) => async (dispatch) => {
 };
 
 // get All Users with filters
-export const getAllUsers = (queryParams = "") =>
+export const getAllUsers =
+  (queryParams = "") =>
   async (dispatch) => {
     try {
       dispatch({ type: ALL_USERS_REQUEST });
       // Make the API call with query parameters
-      const { data } = await axios.get(
+      const { data } = await api.get(
         `${API_URL}/api/v2/admin/allUsers?${queryParams}`,
         {
           // params: queryParams, // This will append the query parameters to the URL
@@ -238,17 +334,20 @@ export const getAllUsers = (queryParams = "") =>
 export const getUserDetails = (id) => async (dispatch) => {
   try {
     dispatch({ type: USER_DETAILS_REQUEST });
-    const { data } = await axios.get(`${API_URL}/api/v2/admin/user/${id}`, {
+    const { data } = await api.get(`${API_URL}/api/v2/admin/user/${id}`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
 
-    dispatch({ type: USER_DETAILS_SUCCESS, payload: {
-      user: data.user,
-      dailyData: data.dailyData,
-      fullDayData: data.fullDayData,
-      investData: data.investData,
-      DataNumbers: data.DataNumbers || "",
-    }, });
+    dispatch({
+      type: USER_DETAILS_SUCCESS,
+      payload: {
+        user: data.user,
+        dailyData: data.dailyData,
+        fullDayData: data.fullDayData,
+        investData: data.investData,
+        DataNumbers: data.DataNumbers || "",
+      },
+    });
   } catch (error) {
     dispatch({ type: USER_DETAILS_FAIL, payload: error.response.data.message });
   }
@@ -264,7 +363,7 @@ export const updateUser = (id, userData) => async (dispatch) => {
       withCredentials: true, // Include this option to send cookies with the request
     };
 
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `${API_URL}/api/v2/admin/user/${id}`,
       userData,
       config
@@ -284,7 +383,7 @@ export const deleteUser = (id) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_USER_REQUEST });
 
-    const { data } = await axios.delete(`${API_URL}/api/v2/admin/user/${id}`, {
+    const { data } = await api.delete(`${API_URL}/api/v2/admin/user/${id}`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
 
@@ -309,7 +408,7 @@ export const contactUs = (sentData) => async (dispatch) => {
     };
 
     // Making the POST request to add income
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/contactUs`,
       sentData,
       config

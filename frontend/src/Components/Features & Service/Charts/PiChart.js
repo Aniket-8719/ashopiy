@@ -30,7 +30,8 @@ const PiChart = () => {
   const totals = data?.perDayIncome?.reduce(
     (acc, record) => {
       acc.totalOnline += record?.totalOnlineAmount || 0; // Ensure valid values
-      acc.totalCash += (record?.totalIncome || 0) - (record?.totalOnlineAmount || 0);
+      acc.totalCash +=
+        (record?.totalIncome || 0) - (record?.totalOnlineAmount || 0);
       return acc;
     },
     { totalOnline: 0, totalCash: 0 }
@@ -62,17 +63,29 @@ const PiChart = () => {
     legend: { position: "bottom" }, // Optional: Move the legend to the bottom
   };
 
-
   return (
-   
-      <Chart
-        chartType="PieChart"
-        width="100%"
-        height="400px"
-        data={chartData}
-        options={options}
-      />
-    
+    <>
+      {/* Pie Chart Section */}
+      <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm mb-8">
+        <h2 className="text-lg lg:text-xl font-semibold text-neutral-800 mb-6 text-center">
+          Income Distribution
+        </h2>
+        <div className="flex justify-center">
+          <Chart
+            chartType="PieChart"
+            width="100%"
+            height="400px"
+            data={chartData}
+            options={{
+              ...options,
+              backgroundColor: "transparent",
+              legend: { textStyle: { color: "#374151" } },
+              pieSliceBorderColor: "transparent",
+            }}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 

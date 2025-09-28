@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   ADD_UDHAR_REQUEST,
   ADD_UDHAR_SUCCESS,
@@ -22,6 +21,7 @@ import {
 
   CLEAR_ERRORS,
 } from "../constants/udharConstants";
+import api from "../utils/axiosInstance";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -37,7 +37,7 @@ export const addUdhar = (addData) => async (dispatch) => {
     };
 
     // Making the POST request to add income
-    const { data } = await axios.post(
+    const { data } = await api.post(
       `${API_URL}/api/v2/createUdhar`,
       addData,
       config
@@ -66,7 +66,7 @@ export const getAllUdhar = (searchQuery) =>
   async (dispatch) => {
     try {
       dispatch({ type: GET_UDHAR_REQUEST });
-      const { data } = await axios.get(
+      const { data } = await api.get(
         `${API_URL}/api/v2/allUdhars?search=${searchQuery}`,
         {
           withCredentials: true, // Include this option to send cookies with the request
@@ -88,7 +88,7 @@ export const getAllUdhar = (searchQuery) =>
 export const getSingleUdhar = (id) => async (dispatch) => {
     try {
       dispatch({ type: GET_SINGLE_UDHAR_REQUEST });
-      const { data } = await axios.get(`${API_URL}/api/v2/udhar/${id}`, {
+      const { data } = await api.get(`${API_URL}/api/v2/udhar/${id}`, {
         withCredentials: true, // Include this option to send cookies with the request
       });
   
@@ -106,7 +106,7 @@ export const updateUdhar = (id, addData) => async (dispatch) => {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     };
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `${API_URL}/api/v2/udhar/${id}`,
       addData,
       config
@@ -125,7 +125,7 @@ export const updateUdhar = (id, addData) => async (dispatch) => {
 export const deleteUdhar = (id) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_UDHAR_REQUEST });
-    const { data } = await axios.delete(`${API_URL}/api/v2/udhar/${id}`, {
+    const { data } = await api.delete(`${API_URL}/api/v2/udhar/${id}`, {
       withCredentials: true, // Include this option to send cookies with the request
     });
     dispatch({ type: DELETE_UDHAR_SUCCESS, payload: data });

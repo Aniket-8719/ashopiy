@@ -10,16 +10,15 @@ import ProfileSkelton from "../Skelton/ProfileSkelton";
 
 const TopNavbar = ({ setMobileToggle }) => {
   const [showOptions, setShowOptions] = useState(false);
-  const profileRef = useRef(null); // To track clicks on the image
+  const profileRef = useRef(null);
 
-  const {isAuthenticated,user,loading } = useSelector(
+  const { isAuthenticated, user, loading } = useSelector(
     (state) => state.user
   );
 
   const joiningDate = moment(user?.createdAt).format('DD/MM/YYYY');
 
   useEffect(() => {
-    // Close the dropdown when clicking outside of the profile image
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setShowOptions(false);
@@ -33,72 +32,78 @@ const TopNavbar = ({ setMobileToggle }) => {
   }, []);
 
   return (
-    // backdrop-filter backdrop-blur-lg bg-opacity-30 => transparent glass
     <div className="">
-      <div className="flex fixed z-40  bg-white  top-0 left-0 justify-between items-center w-full p-2 border border-b-slate-200 md:border-b-slate-300">
-        <div className="flex justify-center items-center gap-4 ml-2">
+      <div className="flex fixed z-40 bg-white top-0 left-0 justify-between items-center w-full px-4 py-3 border-b border-neutral-200 shadow-sm">
+        <div className="flex justify-center items-center gap-4">
           {/* Hamburger */}
           <div
-            className="md:hidden"
+            className="lg:hidden cursor-pointer p-1 rounded-md hover:bg-neutral-100 transition-colors"
             onClick={() => setMobileToggle(showOptions)}
           >
-            <HiOutlineMenu className="text-3xl text-gray-900 " />
+            <HiOutlineMenu className="text-2xl text-neutral-700" />
           </div>
 
-          {/* Project Name */}
-          <Link to={"/"}>
-            <h1 className="md:pl-2 text-2xl font-bold md:text-4xl text-amber-600 font-literata">
-           ashopiy
+          {/* Logo */}
+          <Link to={"/"} className="flex items-center">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              ashopiy
             </h1>
+            <span className="ml-1 text-xs font-medium text-primary-600 bg-primary-100 px-2 py-1 rounded-full hidden md:block">
+              Business
+            </span>
           </Link>
         </div>
 
-        {/* Right side :- profile image or details */}
-        <div className="flex flex-col items-center justify-center">
-         {loading ? (<ProfileSkelton/>):(
-           isAuthenticated ? (
-            <div className="flex justify-center items-center gap-2">
-              <div>
-                <h1 className="text-right text-md md:text-lg font-bold">
-                  {user?.shopOwnerName}
+        {/* Right side - profile image or details */}
+        <div className="flex items-center" ref={profileRef}>
+          
+          {loading ? (
+            <ProfileSkelton />
+          ) : isAuthenticated ? (
+            <div className="flex items-center gap-3 " >
+              <div className="hidden md:block text-right mr-2">
+                <h1 className="text-sm font-semibold text-neutral-800">
+                  {user?.Name}
                 </h1>
-                <p className="text-[8px] md:text-sm">Joining:<span>{" "}{joiningDate}</span></p>
+                <p className="text-xs text-neutral-500">
+                  Joined: <span>{joiningDate}</span>
+                </p>
               </div>
-              {/* Options navbar */}
+              
+              {/* Profile dropdown */}
               <div
-                ref={profileRef} // Attach ref to profile image wrapper
-                onClick={() => setShowOptions(!showOptions)} // Toggle on image click
-                className="flex items-center justify-center gap-2 md:gap-0"
+                onClick={() => setShowOptions(!showOptions)}
+                className="flex items-center cursor-pointer p-1 rounded-lg hover:bg-neutral-100 transition-colors"
               >
                 <div className="relative">
                   <img
-                    className="w-8 h-8 md:w-12 md:h-12 rounded-full"
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white shadow-sm"
                     src={user?.avatar?.url || defaultUserImg}
                     alt={"profile"}
                   />
-                  <div
-                    className={`${
-                      showOptions
-                        ? "top-[2.5rem] md:top-[3.5rem] z-50 right-20"
-                        : "-top-24 -z-50 -right-52"
-                    } absolute  w-full transition-all ease-in-out duration-150`}
-                  >
-                    <Options />
-                  </div>
+                  <div className="absolute -bottom-1 -right-0 w-3 h-3 bg-success-500 rounded-full border-2 border-white"></div>
                 </div>
-                <div className="flex justify-center items-center">
-                  <RiArrowDropDownLine className="text-xl -ml-2 md:-ml-0 md:text-2xl font-bold" />
-                </div>
+                <RiArrowDropDownLine className={`text-2xl text-neutral-500 transition-transform ${showOptions ? 'rotate-180' : ''}`} />
+              </div>
+              
+              {/* Dropdown menu */}
+              <div
+                className={`${
+                  showOptions
+                    ? "opacity-100 visible translate-y-0"
+                    : "opacity-0 invisible -translate-y-2"
+                } absolute top-full right-4 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 transition-all duration-200 ease-out z-50`}
+              >
+                <Options />
               </div>
             </div>
           ) : (
             <Link to={"/login"}>
-              <button className="flex justify-center items-center px-6 py-2 rounded-md bg-amber-600 border border-amber-600 text-white  text-md mr-2 md:mr-4">
+              <button className="flex items-center px-4 py-2 rounded-md bg-gradient-to-r from-primary-600 to-secondary-600 text-white text-sm font-medium shadow-sm hover:shadow-md transition-all hover:from-primary-700 hover:to-secondary-700">
                 Login
               </button>
             </Link>
-          )
-         )}
+          )}
         </div>
       </div>
     </div>

@@ -12,13 +12,23 @@ import defaultUserImg from "../assests/default-user-profile-img.png";
 import SubcriptionDaysOfSingleUser from "./SubcriptionDaysOfSingleUser";
 import StorageUsage from "./StorageUsage";
 import moment from "moment-timezone";
+import { FaEnvelope, FaFileInvoice, FaGlobe, FaIdCard, FaPhone, FaTrash, FaWhatsapp } from "react-icons/fa6";
+import { FaEdit, FaMapMarkerAlt } from "react-icons/fa";
 
 const ViewDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, error, user, dailyData, fullDayData, investData,DataNumbers } = useSelector((state) => state.singleUser);
+  const {
+    loading,
+    error,
+    user,
+    dailyData,
+    fullDayData,
+    investData,
+    DataNumbers,
+  } = useSelector((state) => state.singleUser);
 
   const deleteUserHandler = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
@@ -35,122 +45,187 @@ const ViewDetails = () => {
       toast.error(error);
       dispatch(clearError());
     }
-  }, [dispatch, id, user, error]);
 
-  const joiningDate = moment(user?.createdAt).format('DD/MM/YYYY');
+  }, [dispatch, id, user]);
+
+  const joiningDate = moment(user?.createdAt).format("DD/MM/YYYY");
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center  md:mt-8  md:ml-72 h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
-    <>
-      {loading ? (
-        <div className="flex justify-center items-center">
-          <Loader />
-        </div>
-      ) : (
-        <section className="mt-14 md:mt-8  md:ml-72">
-          <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-            <div className="bg-white shadow-lg rounded-lg p-6">
-              <div className="text-center">
-                {/* User Profile Photo */}
-                <div className="mb-4">
-                  <img
-                    src={user?.avatar?.url || defaultUserImg}
-                    alt="User Profile"
-                    className="w-32 h-32 rounded-full mx-auto object-cover"
-                  />
+    <section className="mt-20 lg:ml-72 px-4 lg:px-6">
+      <div className="max-w-7xl mx-auto">
+        {/* User Profile Card */}
+        <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm">
+          {/* Header with Profile Photo */}
+          <div className="text-center mb-8">
+            <div className="mb-6">
+              <img
+                src={user?.avatar?.url || defaultUserImg}
+                alt="User Profile"
+                className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-primary-100 shadow-md"
+              />
+            </div>
+
+            {/* User Info */}
+            <h2 className="text-2xl lg:text-3xl font-semibold text-neutral-800 mb-2">
+              {user?.Name}
+              <span className="text-sm font-normal text-neutral-500 ml-2">
+                (Joined: {joiningDate})
+              </span>
+            </h2>
+
+            <p className="text-neutral-600 text-lg">
+              {user?.shopName} •{" "}
+              {user?.shopType === "Other"
+                ? user?.customShopType
+                : user?.shopType}
+            </p>
+          </div>
+
+          {/* User Details Grid */}
+          <div className="mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Email */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-primary-100 rounded-lg mr-3">
+                    <FaEnvelope className="text-primary-600 text-sm" />
+                  </div>
+                  <p className="text-xs text-neutral-600">Email</p>
                 </div>
-                {/* User Info */}
-                <h2 className="text-2xl font-semibold text-gray-800">
-                  {user?.shopOwnerName} 
-                  <span className="text-[8px] md:text-sm ml-0.5">({" "}{joiningDate})</span>
-                  {/* <p className="text-[8px] md:text-sm">Joining:<span>{" "}{joiningDate}</span></p> */}
-                </h2>
-                <p className="text-gray-600">
-                  {user?.shopName} (
-                  {user?.shopType === "Other"
-                    ? user?.customShopType
-                    : user?.shopType}
-                  )
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.email || "N/A"}
                 </p>
               </div>
 
-              <div className="mt-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">Email</p>
-                    <p className="text-gray-800 font-semibold">{user?.email}</p>
+              {/* Mobile No. */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-primary-100 rounded-lg mr-3">
+                    <FaPhone className="text-primary-600 text-sm" />
                   </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">Mobile No.</p>
-                    <p className="text-gray-800 font-semibold">
-                      {user?.mobileNo}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">Whatsapp No.</p>
-                    <p className="text-gray-800 font-semibold">
-                      {user?.whatsappNo}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">GST No.</p>
-                    <p className="text-gray-800 font-semibold">{user?.gstNo}</p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">Address</p>
-                    <p className="text-gray-800 font-semibold">
-                      {user?.address}, {user?.landmark}, {user?.area},{" "}
-                      {user?.city}, {user?.state} - {user?.pincode}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">Country</p>
-                    <p className="text-gray-800 font-semibold">
-                      {user?.country}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg shadow">
-                    <p className="text-gray-600 text-sm">Agent ID</p>
-                    <p className="text-gray-800 font-semibold">
-                      {user?.agentID}
-                    </p>
-                  </div>
+                  <p className="text-xs text-neutral-600">Mobile No.</p>
                 </div>
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.mobileNo || "N/A"}
+                </p>
               </div>
-              <div className="flex flex-col md:flex-row justify-center items-center">
-              <div className="w-full">
-              <SubcriptionDaysOfSingleUser user={user}/>
+
+              {/* WhatsApp No. */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-success-100 rounded-lg mr-3">
+                    <FaWhatsapp className="text-success-600 text-sm" />
+                  </div>
+                  <p className="text-xs text-neutral-600">WhatsApp No.</p>
+                </div>
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.whatsappNo || "N/A"}
+                </p>
               </div>
-              <div className="w-full">
-              <StorageUsage dailyData={dailyData} fullDayData={fullDayData} investData={investData} DataNumbers={DataNumbers}/>
+
+              {/* GST No. */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-warning-100 rounded-lg mr-3">
+                    <FaFileInvoice className="text-warning-600 text-sm" />
+                  </div>
+                  <p className="text-xs text-neutral-600">GST No.</p>
+                </div>
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.gstNo || "N/A"}
+                </p>
               </div>
+
+              {/* Address */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100 md:col-span-2">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-primary-100 rounded-lg mr-3">
+                    <FaMapMarkerAlt className="text-primary-600 text-sm" />
+                  </div>
+                  <p className="text-xs text-neutral-600">Address</p>
+                </div>
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.address || "N/A"}
+                  {user?.landmark && `, ${user.landmark}`}
+                  {user?.area && `, ${user.area}`}
+                  {user?.city && `, ${user.city}`}
+                  {user?.state && `, ${user.state}`}
+                  {user?.pincode && ` - ${user.pincode}`}
+                </p>
               </div>
-              {/* Action Buttons */}
-              <div className="mt-8 flex justify-between gap-4">
-                <Link
-                  to={`/admin/updateUser/${id}`}
-                  className=" bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none"
-                >
-                  Edit Profile
-                </Link>
-                <button
-                  type="button"
-                  onClick={deleteUserHandler}
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                >
-                  Delete User
-                </button>
+
+              {/* Country */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-primary-100 rounded-lg mr-3">
+                    <FaGlobe className="text-primary-600 text-sm" />
+                  </div>
+                  <p className="text-xs text-neutral-600">Country</p>
+                </div>
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.country || "N/A"}
+                </p>
+              </div>
+
+              {/* Agent ID */}
+              <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-100">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-secondary-100 rounded-lg mr-3">
+                    <FaIdCard className="text-secondary-600 text-sm" />
+                  </div>
+                  <p className="text-xs text-neutral-600">Agent ID</p>
+                </div>
+                <p className="text-sm font-medium text-neutral-800">
+                  {user?.agentID || "N/A"}
+                </p>
               </div>
             </div>
           </div>
-        </section>
-      )}
-    </>
+
+          {/* Subscription and Storage Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm">
+              <SubcriptionDaysOfSingleUser user={user} />
+            </div>
+            <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm">
+              <StorageUsage
+                dailyData={dailyData}
+                fullDayData={fullDayData}
+                investData={investData}
+                DataNumbers={DataNumbers}
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to={`/admin/updateUser/${id}`}
+              className="py-3 px-6 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-medium rounded-lg hover:from-primary-700 hover:to-secondary-700 transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center"
+            >
+              <FaEdit className="mr-2 text-sm" />
+              Edit Profile
+            </Link>
+            <button
+              type="button"
+              onClick={deleteUserHandler}
+              className="py-3 px-6 bg-error-600 text-white font-medium rounded-lg hover:bg-error-700 transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center"
+            >
+              <FaTrash className="mr-2 text-sm" />
+              Delete User
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 

@@ -7,26 +7,28 @@ import store from "./store";
 import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import './theme/GlobalStyles.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <Provider store={store}>
-  <Router>
-    <App />
-    <ToastContainer 
-    position="top-right"
-    autoClose={3000}
-    hideProgressBar={false}
-    newestOnTop={false} 
-    closeOnClick
-    rtl={false}
-    pauseOnFocusLoss
-    draggable
-    pauseOnHover
-    theme="light"  
-    />
-  </Router>
-  </Provider>
+  <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+    <Provider store={store}>
+      <Router>
+        <App />
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false} 
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"  
+        />
+      </Router>
+    </Provider>
+  </GoogleOAuthProvider>
 );

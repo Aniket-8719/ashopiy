@@ -2,6 +2,8 @@ import React from "react";
 import Loader from "../Layouts/Loader";
 import { Link } from "react-router-dom";
 import OneLineSingleUserSubscription from "./OneLineSingleUserSubscription";
+import { FaUsers } from "react-icons/fa6";
+import { LiaExternalLinkAltSolid } from "react-icons/lia";
 
 const UserTable = ({ users, loading }) => {
   const columns = [
@@ -9,7 +11,7 @@ const UserTable = ({ users, loading }) => {
     { key: "mobileNo", label: "Mobile No." },
     { key: "shopName", label: "Shop Name" },
     { key: "shopType", label: "Shop Type" },
-    { key: "shopOwnerName", label: "Owner Name" },
+    { key: "Name", label: "Owner Name" },
     { key: "city", label: "City" },
     { key: "subscriptionDays", label: "Subscription Days" },
     { key: "status", label: "Status" },
@@ -17,94 +19,106 @@ const UserTable = ({ users, loading }) => {
   ];
 
   return (
-    <section>
-      {/* Table */}
-      <div className="bg-white mt-4 overflow-x-auto relative max-h-[700px] md:max-h-[620px] overflow-y-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-900 text-white sticky top-0 z-10">
-            <tr>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  scope="col"
-                  className="px-6 py-3 text-center text-md font-medium uppercase tracking-wider"
-                >
-                  {col.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
+    <div className="overflow-x-auto pb-8">
+      <table className="w-full">
+        <thead className="bg-neutral-50">
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                scope="col"
+                className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
 
-          <tbody className="bg-white divide-y divide-gray-200 text-center relative">
-            {/* Conditionally render the loader inside tbody */}
-            {loading ? (
-              <tr>
-                <td colSpan={columns.length} className="relative h-32">
-                  <div className="absolute inset-0 flex justify-center items-center">
-                    <Loader />
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              <>
-                {users?.length > 0 ? (
-                  users.map((user) => (
-                    <tr key={user._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.email || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.mobileNo || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.shopName || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.shopType || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.shopOwnerName || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.city || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {<OneLineSingleUserSubscription user={user} /> || "N/A"}
-                      </td>
-                      <td className="font-bold px-6 py-4 whitespace-nowrap">
-                        {user.subscription.basic.isActive ||
-                        user.subscription.premium.isActive ? (
-                          <span className="text-green-500">Active</span>
-                        ) : (
-                          <span className="text-red-500">Inactive</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap flex space-x-2 justify-center items-center">
-                        <Link
-                          to={`/admin/user/${user?._id}`}
-                          className="rounded-md text-blue-600 underline underline-offset-2 flex items-center justify-center"
-                        >
-                          view Details
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={columns.length}
-                      className="px-6 py-4 text-center"
-                    >
-                      No user data available
+        <tbody className="bg-white divide-y divide-neutral-200">
+          {loading ? (
+            <tr>
+              <td colSpan={columns.length} className="px-4 py-8 text-center">
+                <div className="flex justify-center items-center">
+                  <Loader />
+                </div>
+              </td>
+            </tr>
+          ) : (
+            <>
+              {users?.length > 0 ? (
+                users.map((user) => (
+                  <tr
+                    key={user._id}
+                    className="hover:bg-neutral-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {user.email || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {user.mobileNo || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {user.shopName || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {user.shopType || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {user.Name || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {user.city || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                      {<OneLineSingleUserSubscription user={user} /> || "N/A"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                      {user.subscription.basic.isActive ||
+                      user.subscription.premium.isActive ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800">
+                          Inactive
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <Link
+                        to={`/admin/user/${user?._id}`}
+                        className="text-primary-600 hover:text-primary-900 font-medium inline-flex items-center"
+                      >
+                        View Details
+                        <LiaExternalLinkAltSolid className="ml-1 text-xs" />
+                      </Link>
                     </td>
                   </tr>
-                )}
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="px-4 py-10 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center text-neutral-500">
+                      <FaUsers className="w-10 h-10 mb-2 opacity-50" />
+                      <p className="font-medium text-sm">
+                        No user records found
+                      </p>
+                      <p className="text-xs mt-1">
+                        Try adjusting your search or filter criteria
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

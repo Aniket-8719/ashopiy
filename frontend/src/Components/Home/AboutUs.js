@@ -8,7 +8,7 @@ const AboutUs = () => {
       <div className="max-w-4xl text-center">
         {/* Heading */}
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
-          About <span className="text-amber-600">Ashopiy</span>
+          About <span className="text-amber-600">ashopiy</span>
         </h1>
         <p className="text-gray-600 text-lg md:text-xl mt-4">
           Empowering Shopkeepers to Take Control of Their Financial and Operational Challenges.
@@ -22,14 +22,14 @@ const AboutUs = () => {
             Who We Are
           </h2>
           <p className="text-gray-600 mt-4 leading-relaxed">
-            Founded on <strong>01 December 2024</strong>, Ashopiy is an ambitious startup driven by a passionate team of developers and market agents. Our mission is to simplify business management for shopkeepers by offering tailored solutions for financial tracking, revenue management, and operational challenges.
+            Founded on <strong>01 December 2024</strong>, ashopiy is an ambitious startup driven by a passionate team of developers and market agents. Our mission is to simplify business management for shopkeepers by offering tailored solutions for financial tracking, revenue management, and operational challenges.
           </p>
 
           <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mt-8">
             Our Mission
           </h2>
           <p className="text-gray-600 mt-4 leading-relaxed">
-            At Ashopiy, we understand the struggles faced by small and medium-sized shopkeepers in tracking their **revenue**, **investments**, and **udhaar (credit) lists**. Our platform is designed to empower shopkeepers with tools that make managing **daily, monthly, and yearly revenue** seamless and efficient. We aim to bring transparency, ease, and innovation to shopkeeping operations.
+            At ashopiy, we understand the struggles faced by small and medium-sized shopkeepers in tracking their **revenue**, **investments**, and **udhaar (credit) lists**. Our platform is designed to empower shopkeepers with tools that make managing **daily, monthly, and yearly revenue** seamless and efficient. We aim to bring transparency, ease, and innovation to shopkeeping operations.
           </p>
 
           <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mt-8">
@@ -55,7 +55,7 @@ const AboutUs = () => {
       {/* Footer Section */}
       <div className="mt-12 text-center">
         <p className="text-gray-500 text-sm">
-          © {new Date().getFullYear()} Ashopiy. All rights reserved.
+          © {new Date().getFullYear()} ashopiy. All rights reserved.
         </p>
       </div>
     </div>

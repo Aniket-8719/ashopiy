@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { faqs } from './data/pages_data';
 
 const Faq = () => {
   const [openQuestion, setOpenQuestion] = useState(null);
@@ -7,28 +8,6 @@ const Faq = () => {
     setOpenQuestion(openQuestion === index ? null : index);
   };
 
-  const faqs = [
-    {
-      question: 'What is the purpose of this platform?',
-      answer: 'Our platform is designed to help shopkeepers and small, medium & large business owners manage their Investments, track earnings, and improve their overall business operations.',
-    },
-    {
-      question: 'How do I sign up for a plan?',
-      answer: 'You can sign up for a plan by navigating to the pricing section, choosing a suitable plan, and following the steps to complete your registration.',
-    },
-    {
-      question: 'What payment methods are accepted?',
-      answer: 'We accept credit cards, debit cards, UPI, and other payment gateways through Razorpay. All transactions are secure and encrypted.',
-    },
-    {
-      question: 'Is there a free trial available?',
-      answer: 'Currently, we are offering free access to our platform until February 27th as a special benefit for new users. While we do not typically provide a free trial, our platform is designed with budget-friendly pricing to ensure accessibility for shopkeepers of all sizes, whether managing a small business or a larger operation.',
-    },
-    {
-      question: 'How can I contact support?',
-      answer: 'You can contact our support team by emailing info.ashopiy@gmail.com or using the live chat feature on our whatsApp No. We are here to help 24/.',
-    },
-  ];
 
   return (
   <>

@@ -25,6 +25,9 @@ const dailyIncomeSchema = new mongoose.Schema({
         type: String,
         default: 'Normal'
       },
+      productCategory:{
+         type: String
+      },
       user: {
         type: mongoose.Schema.ObjectId,
         ref: "User",
