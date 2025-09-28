@@ -448,8 +448,8 @@ const Profile = () => {
                     </Link>
                   )}
 
-                  {userRole === "shopkeeper" ||
-                    ("admin" && (
+                  {userRole === "shopkeeper" || "admin"
+                     && (
                       <Link
                         to="/user/merchantID"
                         className="flex items-center justify-between p-4 bg-secondary-50 text-secondary-700 rounded-lg hover:bg-secondary-100 transition-colors"
@@ -457,7 +457,7 @@ const Profile = () => {
                         <span>{user.merchantID}</span>
                         <MdEdit className="text-secondary-600" />
                       </Link>
-                    ))}
+                    )}
 
                   {userRole === "shopkeeper" ||
                     ("admin" && (
